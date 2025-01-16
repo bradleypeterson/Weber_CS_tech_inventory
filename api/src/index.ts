@@ -1,11 +1,12 @@
-import express, { json, type Request } from "express";
-import { syncRouter } from "./sync";
-import morgan from "morgan";
-import cors from "cors";
 import cookieParser from "cookie-parser";
+import cors from "cors";
+import { config } from "dotenv";
+import express, { json } from "express";
+import morgan from "morgan";
+config(); // Load environment variables
 
 const app = express();
-const port = 8080;
+const port = process.env.PORT;
 
 app.use(json());
 app.use(
@@ -20,6 +21,4 @@ app.use(
 );
 app.use(cookieParser());
 
-app.listen(port, () => console.log("Server running on port 8080"));
-
-app.use("/sync", syncRouter);
+app.listen(port, () => console.log(`Server running on port ${port}`));

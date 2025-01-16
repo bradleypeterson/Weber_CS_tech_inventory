@@ -24,6 +24,32 @@ export const pool = createPool({
   idleTimeout: 60000,
   queueLimit: 0,
   enableKeepAlive: true,
-  keepAliveInitialDelay: 0,
-  database: "inventory_tracker"
+  keepAliveInitialDelay: 0
 });
+
+const c = {
+  ...console,
+  success: (str: string) => console.log("\u2705", str),
+  failure: (str: string) => console.log("❌", str)
+};
+
+async function createDatabase() {
+  const createQuery = `create database if not exists inventory_tracker;`;
+  await pool.query(createQuery);
+
+  const selectQuery = `use inventory_tracker;`;
+  await pool.query(selectQuery);
+
+  c.success("Database Created");
+}
+
+async function initDatabase() {
+  const start = performance.now();
+  await createDatabase();
+
+  console.log("Done", Math.round(performance.now() - start), "ms");
+
+  await pool.end();
+}
+
+void initDatabase();

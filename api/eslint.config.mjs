@@ -1,5 +1,6 @@
 import tsPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
+import eslintconfigPrettier from "eslint-config-prettier";
 
 export default [
   {
@@ -55,5 +56,6 @@ export default [
       "prefer-const": "warn",
       "@typescript-eslint/consistent-type-imports": "warn"
     }
-  }
+  },
+  eslintconfigPrettier
 ];
