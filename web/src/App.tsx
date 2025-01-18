@@ -1,12 +1,10 @@
-import Vite from "../public/vite.svg";
 import "./App.css";
-import { Test } from "./components/Test";
+import { Router } from "./navigation/Router";
 
 function App() {
   return (
     <>
-      <img src={Vite} />
-      <Test />
+      <Router />
     </>
   );
 }
