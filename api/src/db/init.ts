@@ -1,3 +1,9 @@
+/*
+
+Need to add way to track history of item changes
+
+*/
+
 import { config } from "dotenv";
 import { createPool } from "mysql2/promise";
 config();
@@ -73,12 +79,13 @@ async function createTables() {
     create table if not exists Building(
       BuildingID INT PRIMARY KEY AUTO_INCREMENT,
       Name VARCHAR(50) NOT NULL,
-      Abbreviation VARCHAR(5) NOT NULL
+      Abbreviation VARCHAR(3) NOT NULL
     );
 
     create table if not exists Department(
       DepartmentID INT PRIMARY KEY AUTO_INCREMENT,
-      Name VARCHAR(50) NOT NULL
+      Name VARCHAR(50) NOT NULL,
+      Abbreviation VARCHAR(3) NOT NULL
     );
 
     create table if not exists Permission(
@@ -112,7 +119,8 @@ async function createTables() {
 
     create table if not exists AssetClass(
       AssetClassID INT PRIMARY KEY AUTO_INCREMENT,
-      Name VARCHAR(50) NOT NULL
+      Name VARCHAR(50) NOT NULL,
+      Abbreviation VARCHAR(3) NOT NULL
     );  
 
     create table if not exists AuditStatus(
@@ -122,15 +130,17 @@ async function createTables() {
 
     create table if not exists \`Condition\`(
       ConditionID INT PRIMARY KEY AUTO_INCREMENT,
-      ConditionName VARCHAR(25)
+      ConditionName VARCHAR(25),
+      ConditionAbbreviation VARCHAR(3) NOT NULL
     );
 
     create table if not exists DeviceType(
       DeviceTypeID INT PRIMARY KEY AUTO_INCREMENT,
-      Name VARCHAR(25)
+      Name VARCHAR(25),
+      Abbreviation VARCHAR(3) NOT NULL
     );
 
-    create table if not exists ReplaceMentFiscalYear(
+    create table if not exists ReplacementFiscalYear(
       ReplacementID INT PRIMARY KEY AUTO_INCREMENT,
       Year VARCHAR(9) NOT NULL
     );
@@ -216,12 +226,20 @@ async function createTables() {
 
     const addConstraints = `
     alter table Building
+    add constraint building_name_list
+    check (Name in ('Science and Technology', 'Elizabeth Hall', 'Engineering Technology', 'Davis Building 2', 'Davis Building 3', 'Davis Automotive', 'Marriot Building', 'Hurst Building', 'Hurst Center', 'Other'));
+
+    alter table Building
     add constraint building_abbreviation_list
-    check (Abbreviation in ('NB', 'EH', 'ET', 'D2', 'D3', 'DA', 'MB', 'HB', 'HC', 'Other'));
+    check (Abbreviation in ('NB', 'EH', 'ET', 'D2', 'D3', 'DA', 'MB', 'HB', 'HC', 'OTH'));
 
     alter table Department
     add constraint department_name_list
-    check (Name in ('SOC', 'CS', 'NET', 'WEB'));
+    check (Name in ('School of Computing', 'Computer Science', 'Cybersecurity and Network Management', 'Web and User Experience'));
+
+    alter table Department
+    add constraint department_abbreviation_list
+    check (Abbreviation in ('SOC', 'CS', 'NET', 'WEB'));
 
     alter table AuditStatus
     add constraint auditstatus_name_list
@@ -229,15 +247,28 @@ async function createTables() {
 
     alter table AssetClass
     add constraint assetclass_name_list
-    check (Name in ('AO', 'AV', 'BD', 'BI', 'CE', 'CP', 'EQ', 'FA', 'IL', 'IN', 'IT', 'KE', 'LB', 'LD', 'LI', 'ME', 'MI', 'MO', 'NC', 'OE', 'OF', 'RE', 'SH', 'VH', 'VN'));
+    check (Name in ('Art Objects', 'AudioVisual and Projection Equipment', 'Building', 'Building Improvement', 'Communication and Electronic Equipment', 'Computer Equipment and Peripherals', 'General Equipment', 'Firearms and Weapons', 'Instruction and Lab Equipment', 'Infrastructure', 'Assets Under $2500', 'Institutional Kitchen Equipment', 'Library Equipment', 'Land', 'Land Improvements', 'Medical Equipment', 'Musical Instruments', 'Museum Objects', 'Non-Capital Equipment', 'Office Equipment', 'Office Furnitue', 'Residential Equipment and Furniture', 'Shop and Maintenance Equipment', 'Vehicles', 'Vehicles Not Owned'));
+
+    alter table AssetClass
+    add constraint assetclass_abbreviation_list
+    check (Abbreviation in ('AO', 'AV', 'BD', 'BI', 'CE', 'CP', 'EQ', 'FA', 'IL', 'IN', 'IT', 'KE', 'LB', 'LD', 'LI', 'ME', 'MI', 'MO', 'NC', 'OE', 'OF', 'RE', 'SH', 'VH', 'VN'));
 
     alter table DeviceType
     add constraint devicetype_name_list
-    check (Name in ('DC', 'LT', 'OT', 'PC', 'PJ', 'PR', 'TA', 'TV', 'VC'));
+    check (Name in ('Digital Camera', 'Laptop/Notebook', 'Other', 'Personal Computer', 'Projector', 'Printer', 'Tablet', 'TV(any type)', 'Virtual Computer Device'));
+
+    alter table DeviceType
+    add constraint devicetype_abbreviation_list
+    check (Abbreviation in ('DC', 'LT', 'OT', 'PC', 'PJ', 'PR', 'TA', 'TV', 'VC'));
 
     alter table \`Condition\`
     add constraint condition_name_list
-    check (ConditionName in ('NW', 'EX', 'GD', 'FR', 'PR', 'DD', 'OB'));
+    check (ConditionName in ('New', 'Excellent', 'Good', 'Fair', 'Poor', 'Dead/Parts', 'Obsolete'));
+
+    alter table \`Condition\`
+    add constraint condition_abbreviation_list
+    check (ConditionAbbreviation in ('NW', 'EX', 'GD', 'FR', 'PR', 'DD', 'OB'));
+
     `;
 
     await pool.query(addConstraints);
