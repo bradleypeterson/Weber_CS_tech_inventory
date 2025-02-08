@@ -1,4 +1,6 @@
+import { ArrowRight } from "@phosphor-icons/react";
 import { ReactNode, useEffect, useState } from "react";
+import { Button } from "../elements/Button/Button";
 
 type RouteConfig = {
   path: string;
@@ -6,10 +8,23 @@ type RouteConfig = {
   accessible: () => boolean;
 };
 
+const arr = new Array(40).fill(Math.random());
+
 export const routeConfig: RouteConfig[] = [
   {
     path: "/",
-    element: <h1>Home</h1>,
+    element: (
+      <div style={{ padding: "1rem" }}>
+        <Button variant="secondary">Apply</Button>
+        <Button variant="secondary" icon={<ArrowRight />}>
+          Apply
+        </Button>
+        <Button variant="secondary">Apply asdfjahsdfjasdhfjasdfhajsdfh</Button>
+        {arr.map((value, i) => (
+          <div key={i}>{value}</div>
+        ))}
+      </div>
+    ),
     accessible: () => true
   },
   {
