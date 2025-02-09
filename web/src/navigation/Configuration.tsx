@@ -1,4 +1,4 @@
-import { Package } from "@phosphor-icons/react";
+import { Briefcase, Package } from "@phosphor-icons/react";
 import { ReactNode } from "react";
 
 interface RouteProperties {
@@ -39,6 +39,32 @@ export const routeConfig: RouteConfig[] = [
         label: "Search",
         dashboard: <>Search</>,
         accessible: () => true
+      },
+      {
+        type: "dashboard",
+        label: "Asset Details",
+        dashboard: <>Asset Details</>,
+        accessible: () => true
+      },
+      {
+        type: "dashboard",
+        label: "Create",
+        dashboard: <>Create Asset</>,
+        accessible: () => true
+      }
+    ],
+    accessible: () => true
+  },
+  {
+    type: "menu",
+    label: "Audit",
+    icon: <Briefcase />,
+    items: [
+      {
+        type: "dashboard",
+        label: "History",
+        dashboard: <>History</>,
+        accessible: () => false
       }
     ],
     accessible: () => true
