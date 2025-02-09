@@ -1,43 +1,5 @@
-import { ArrowRight } from "@phosphor-icons/react";
-import { ReactNode, useEffect, useState } from "react";
-import { Button } from "../elements/Button/Button";
-
-type RouteConfig = {
-  path: string;
-  element: ReactNode;
-  accessible: () => boolean;
-};
-
-const arr = new Array(40).fill(Math.random());
-
-export const routeConfig: RouteConfig[] = [
-  {
-    path: "/",
-    element: (
-      <div style={{ padding: "1rem" }}>
-        <Button variant="secondary">Apply</Button>
-        <Button variant="secondary" icon={<ArrowRight />}>
-          Apply
-        </Button>
-        <Button variant="secondary">Apply asdfjahsdfjasdhfjasdfhajsdfh</Button>
-        {arr.map((value, i) => (
-          <div key={i}>{value}</div>
-        ))}
-      </div>
-    ),
-    accessible: () => true
-  },
-  {
-    path: "/search",
-    element: <h1>Search</h1>,
-    accessible: () => true
-  },
-  {
-    path: "/asset",
-    element: <h1>Asset</h1>,
-    accessible: () => true
-  }
-];
+import { ReactNode, useEffect, useMemo, useState } from "react";
+import { RouteConfig, routeConfig } from "./Configuration";
 
 export function useAccessibleRoutes() {
   const [routes, setRoutes] = useState<RouteConfig[]>([]);
@@ -47,5 +9,41 @@ export function useAccessibleRoutes() {
     setRoutes(accessibleRoutes);
   }, []);
 
-  return { routes };
+  const flattenedRoutes = useMemo(() => flattenRoutes(routes), [routes]);
+
+  return { routes, flattenedRoutes };
+}
+
+type Route = {
+  key: string;
+  path: string;
+  element: ReactNode;
+};
+
+function flattenRoutes(routeConfig: RouteConfig[]) {
+  const routes: Route[] = [];
+
+  for (const config of routeConfig) {
+    const safeConfigLabel = config.label.replaceAll(" ", "-").toLowerCase();
+    if (config.type === "menu") {
+      for (const item of config.items) {
+        const safeItemLabel = item.label.replaceAll(" ", "-").toLowerCase();
+        routes.push({
+          key: `${safeConfigLabel}/${safeItemLabel}`,
+          path: `/${safeConfigLabel}/${safeItemLabel}`,
+          element: item.dashboard
+        });
+      }
+    }
+
+    if (config.type === "page") {
+      routes.push({
+        key: safeConfigLabel,
+        path: `/${safeConfigLabel}`,
+        element: config.element
+      });
+    }
+  }
+
+  return routes;
 }

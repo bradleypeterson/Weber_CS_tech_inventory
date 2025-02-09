@@ -5,6 +5,7 @@ type CustomButtonProps = {
   variant?: "primary" | "secondary";
   size?: "small" | "normal";
   icon?: JSX.Element;
+  afterIcon?: JSX.Element;
 };
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & CustomButtonProps;
@@ -22,7 +23,8 @@ export function Button(props: Props) {
   return (
     <button className={classNames.join(" ")} {...props}>
       {props.icon && props.icon}
-      {props.children}
+      <div>{props.children}</div>
+      {props.afterIcon && props.afterIcon}
     </button>
   );
 }

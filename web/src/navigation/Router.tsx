@@ -1,17 +1,15 @@
-import { BrowserRouter as BR, Route, Routes } from "react-router";
+import { Route, Routes } from "react-router";
 import { useAccessibleRoutes } from "./useAccessibleRoutes";
 
 export function Router() {
-  const { routes } = useAccessibleRoutes();
-
+  const { flattenedRoutes } = useAccessibleRoutes();
+  console.log(flattenedRoutes);
   return (
-    <BR>
-      <Routes>
-        {routes.map((route) => (
-          <Route key={route.path} path={route.path} element={route.element} />
-        ))}
-        <Route path="*" element={<h1>404 - Page Not Found</h1>} />
-      </Routes>
-    </BR>
+    <Routes>
+      {flattenedRoutes.map((route) => (
+        <Route key={route.key} path={route.path} element={route.element} />
+      ))}
+      <Route path="*" element={<h1>404 - Page Not Found</h1>} />
+    </Routes>
   );
 }
