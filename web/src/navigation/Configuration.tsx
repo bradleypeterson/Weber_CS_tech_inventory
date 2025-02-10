@@ -1,6 +1,10 @@
 import { Briefcase, Package } from "@phosphor-icons/react";
 import { RouteConfiguration } from "./types";
 
+/* 
+  Menus are in the sidebar - they have dashboards as children.
+  Pages are "outside" the typical flow of the navigation. No sidebar is shown on a page. Think Login / Logout.
+*/
 export const configuration: RouteConfiguration = [
   {
     type: "menu",
