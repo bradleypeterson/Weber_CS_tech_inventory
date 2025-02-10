@@ -20,6 +20,10 @@
   outline: 0px solid var(--primary);
 }
 
+.menuButton.active {
+  background-color: var(--primary);
+}
+
 .menuButton span {
   display: flex;
   align-items: center;

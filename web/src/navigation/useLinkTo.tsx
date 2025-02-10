@@ -1,26 +1,20 @@
 import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { useAccessibleRoutes } from "./useAccessibleRoutes";
+import { buildPath, useAccessibleRoutes } from "./useAccessibleRoutes";
 
 export function useLinkTo() {
-  const { flattenedRoutes } = useAccessibleRoutes();
+  const { routes } = useAccessibleRoutes();
   const navigate = useNavigate();
   const location = useLocation();
   return useCallback(
-    (label: string, parentMenuLabel?: string) => {
-      const safeLabel = label.replaceAll(" ", "-").toLowerCase();
-      const safeParentMenuLabel = parentMenuLabel?.replaceAll(" ", "-").toLowerCase();
-      let key = `${safeLabel}`;
-      if (safeParentMenuLabel) key = `${safeParentMenuLabel}/${safeLabel}`;
-
-      const path = flattenedRoutes.find((route) => route.key === key)?.path;
-      if (path) {
+    (label: string, parentLabel?: string) => {
+      const path = buildPath(label, parentLabel);
+      if (routes.some((route) => route.type !== "menu" && route.path === path)) {
         if (location.pathname !== path) navigate(path);
       } else {
-        console.error(`No path found for label: ${safeLabel}`);
-        navigate("/404");
+        console.error(`No path found for label: ${label}`);
       }
     },
-    [navigate, flattenedRoutes, location.pathname]
+    [routes, location, navigate]
   );
 }

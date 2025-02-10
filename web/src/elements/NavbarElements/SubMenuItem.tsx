@@ -10,7 +10,7 @@ type Props = {
 export function SubMenuItem(props: Props) {
   return (
     <button onClick={props.onClick} className={`${styles.item} ${props.active ? styles.active : ""}`}>
-      {props.title}
+      <span>{props.title}</span>
       {props.active && <CaretRight />}
     </button>
   );

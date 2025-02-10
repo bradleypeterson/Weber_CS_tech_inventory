@@ -1,49 +1,73 @@
-import { ReactNode, useEffect, useMemo, useState } from "react";
-import { RouteConfig, routeConfig } from "./Configuration";
+import { useMemo } from "react";
+import { configuration } from "./Configuration";
+import { BuiltDashboard, BuiltFeatures, BuiltPage, Menu, Page, RouteConfiguration } from "./types";
 
 export function useAccessibleRoutes() {
-  const [routes, setRoutes] = useState<RouteConfig[]>([]);
+  const routes = useMemo(() => buildAccessibleRoutes(configuration), []);
 
-  useEffect(function filterRouteConfig() {
-    const accessibleRoutes = routeConfig.filter((route) => route.accessible());
-    setRoutes(accessibleRoutes);
-  }, []);
-
-  const flattenedRoutes = useMemo(() => flattenRoutes(routes), [routes]);
-
-  return { routes, flattenedRoutes };
+  return { routes };
 }
 
-type Route = {
-  key: string;
-  path: string;
-  element: ReactNode;
-};
-
-function flattenRoutes(routeConfig: RouteConfig[]) {
-  const routes: Route[] = [];
-
-  for (const config of routeConfig) {
-    const safeConfigLabel = config.label.replaceAll(" ", "-").toLowerCase();
-    if (config.type === "menu") {
-      for (const item of config.items) {
-        const safeItemLabel = item.label.replaceAll(" ", "-").toLowerCase();
-        routes.push({
-          key: `${safeConfigLabel}/${safeItemLabel}`,
-          path: `/${safeConfigLabel}/${safeItemLabel}`,
-          element: item.dashboard
-        });
-      }
-    }
-
-    if (config.type === "page") {
-      routes.push({
-        key: safeConfigLabel,
-        path: `/${safeConfigLabel}`,
-        element: config.element
-      });
-    }
+function buildAccessibleRoutes(configuration: RouteConfiguration): BuiltFeatures {
+  const builtFeatures: BuiltFeatures = [];
+  for (const featureItem of configuration) {
+    if (featureItem.type === "menu") builtFeatures.push(...buildMenuFeature(featureItem));
+    if (featureItem.type === "page") builtFeatures.push(...buildPageFeature(featureItem));
   }
 
-  return routes;
+  return builtFeatures;
+}
+
+function buildMenuFeature(menu: Menu) {
+  if (!menu.availability() || !menu.menu.some((dashboard) => dashboard.availability())) return [];
+
+  const items: BuiltFeatures = [];
+  const dashboards: BuiltDashboard[] = [];
+  for (const dashboard of menu.menu) {
+    if (!dashboard.availability()) continue;
+    const builtDashboard: BuiltDashboard = {
+      type: "dashboard",
+      label: dashboard.label,
+      path: buildPath(dashboard.label, menu.label),
+      key: buildKey(dashboard.label, menu.label),
+      element: dashboard.element
+    };
+
+    items.push(builtDashboard);
+    dashboards.push(builtDashboard);
+  }
+
+  items.push({
+    type: "menu",
+    label: menu.label,
+    icon: menu.icon,
+    key: buildKey(menu.label),
+    menu: dashboards
+  });
+
+  return items;
+}
+
+function buildPageFeature(page: Page): BuiltPage[] {
+  if (!page.availability()) return [];
+  return [
+    {
+      type: "page",
+      path: buildPath(page.label),
+      key: buildKey(page.label),
+      label: page.label,
+      element: page.element
+    }
+  ];
+}
+
+function buildKey(label: string, parentLabel?: string) {
+  const safeLabel = label.replaceAll(" ", "-").toLowerCase();
+  const safeParentLabel = parentLabel?.replaceAll(" ", "-").toLowerCase();
+  return safeParentLabel ? `${safeParentLabel}/${safeLabel}` : safeLabel;
+}
+
+export function buildPath(label: string, parentLabel?: string) {
+  const key = buildKey(label, parentLabel);
+  return `/${key}`;
 }

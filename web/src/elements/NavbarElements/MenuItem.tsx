@@ -5,6 +5,7 @@ import styles from "./MenuItem.module.css";
 type Props = {
   collapsed: boolean;
   setCollapsed: (val: boolean) => void;
+  active: boolean;
   icon: ReactNode;
   title: string;
   children?: ReactElement[] | ReactElement;
@@ -38,7 +39,7 @@ export function MenuItem(props: Props) {
   return (
     <div className={styles.menu}>
       <button
-        className={`${styles.menuButton} ${props.collapsed ? styles.collapsed : ""}`}
+        className={`${styles.menuButton} ${props.collapsed ? styles.collapsed : ""} ${props.active ? styles.active : ""}`}
         onClick={handleMenuItemClick}
       >
         <span>
