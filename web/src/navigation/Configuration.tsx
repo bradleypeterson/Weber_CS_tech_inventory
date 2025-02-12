@@ -1,4 +1,5 @@
 import { Briefcase, Package } from "@phosphor-icons/react";
+import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard";
 import { RouteConfiguration } from "./types";
 
 /* 
@@ -11,7 +12,7 @@ export const configuration: RouteConfiguration = [
     label: "Assets",
     icon: <Package />,
     menu: [
-      { type: "dashboard", availability: () => true, label: "Search", element: <>Search</> },
+      { type: "dashboard", availability: () => true, label: "Search", element: <AssetsSearchDashboard /> },
       { type: "dashboard", availability: () => true, label: "Asset Details", element: <>Details</> },
       { type: "dashboard", availability: () => true, label: "Add", element: <>Add</> }
     ],
