@@ -1,5 +1,5 @@
 import { CaretDown } from "@phosphor-icons/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./SingleSelect.module.css";
 
 type Option = {
@@ -18,12 +18,24 @@ type Props = {
 export function SingleSelect(props: Props) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const toggleOpen = () => setOpen((prev) => !prev);
 
   function selectOption(value: string | number) {
     if (props.onChange) props.onChange(value);
     setOpen(false);
+  }
+
+  function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "ArrowDown")
+      setFocusedIndex((prev) => (prev === null || prev === filteredOptions.length - 1 ? 0 : prev + 1));
+    else if (event.key === "ArrowUp")
+      setFocusedIndex((prev) => (prev === null || prev === 0 ? filteredOptions.length - 1 : prev - 1));
+    else if (event.key === "Enter" && focusedIndex !== null) selectOption(filteredOptions[focusedIndex].value);
+    else if (event.key === "Escape") setOpen(false);
+    else setFocusedIndex(null);
   }
 
   useEffect(() => {
@@ -36,6 +48,15 @@ export function SingleSelect(props: Props) {
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
+
+  useEffect(() => {
+    if (focusedIndex !== null && optionRefs.current[focusedIndex]) {
+      optionRefs.current[focusedIndex]?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+    }
+  }, [focusedIndex]);
 
   const filteredOptions = useMemo(
     () =>
@@ -51,8 +72,15 @@ export function SingleSelect(props: Props) {
   );
 
   return (
-    <div className={styles.container} ref={containerRef} style={{ width: props.width }}>
-      <div className={styles.select} onClick={toggleOpen} role="button" aria-haspopup="listbox" aria-expanded={open}>
+    <div className={styles.container} ref={containerRef} style={{ width: props.width }} onKeyDown={handleKeyDown}>
+      <div
+        className={styles.select}
+        onClick={toggleOpen}
+        role="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="Select an option"
+      >
         <span>{selectedOption ? selectedOption.label : props.placeholder}</span>
         <CaretDown style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "0.1s ease-in-out" }} />
       </div>
@@ -67,13 +95,14 @@ export function SingleSelect(props: Props) {
             autoFocus
           />
           <ul className={styles.optionList} role="listbox">
-            {filteredOptions.map((option) => (
+            {filteredOptions.map((option, i) => (
               <li
                 key={option.value}
-                className={styles.option}
+                className={`${styles.option} ${focusedIndex === i ? styles.focused : ""}`}
                 onClick={() => selectOption(option.value)}
                 role="option"
                 aria-selected={selectedOption?.value === option.value}
+                ref={(el) => (optionRefs.current[i] = el)}
               >
                 {option.label}
               </li>
