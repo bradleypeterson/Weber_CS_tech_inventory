@@ -26,6 +26,8 @@ export function SingleSelect(props: Props) {
   function selectOption(value: string | number) {
     if (props.onChange) props.onChange(value);
     setOpen(false);
+    setSearchTerm("");
+    setFocusedIndex(null);
   }
 
   function handleKeyDown(event: KeyboardEvent) {

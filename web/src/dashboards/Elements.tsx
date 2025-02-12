@@ -8,7 +8,7 @@ export function Elements() {
       <SingleSelect
         options={selectOptions}
         placeholder="department"
-        width={"200px"}
+        width={"220px"}
         onChange={(val) => setSelectedValue(Number(val))}
         value={selectedValue}
       />
