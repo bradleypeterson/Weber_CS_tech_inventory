@@ -1,30 +1,25 @@
 import { useMemo } from "react";
-import styles from "./IconInput.module.css";
+import styles from "./LabelInput.module.css";
 
 type CustomInputProps = {
-  variant?: "primary" | "secondary";
   width?: string;
   placeholder?: string;
+  label?: string;
   value?: string | number;
   onChange?: (value: string | number) => void;
-  icon?: JSX.Element;
 };
 
 type Props = React.InputHTMLAttributes<HTMLInputElement> & CustomInputProps;
 
-export function IconInput(props: Props) {
+export function LabelInput(props: Props) {
   const classNames = useMemo(() => {
     const classNames = [styles.input];
-    if (props.variant === "primary") classNames.push(styles.primary);
-    if (props.variant === "secondary") classNames.push(styles.secondary);
-    if (props.icon) classNames.push(styles.icon);
     return classNames;
-  }, [props.variant, props.width, props.placeholder, props.value, props.icon]);
+  }, [ props.width, props.placeholder, props.value]);
 
   return (
     <div className={styles.container} style={{ width: props.width }}>
-      <view className={styles.iconInputContainer}>
-        <i>{props.icon}</i>
+        <label className={styles.label}>{props.label}</label>
         <input
           type="text"
           className={classNames.join(" ")} {...props}
@@ -32,7 +27,6 @@ export function IconInput(props: Props) {
           value={props.value}
           onChange={props.onChange}> 
         </input>
-      </view>
     </div>
   );
 }

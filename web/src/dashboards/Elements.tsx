@@ -1,4 +1,7 @@
+import { MagnifyingGlass } from "@phosphor-icons/react";
 import { useState } from "react";
+import { IconInput } from "../elements/IconInput/IconInput";
+import { LabelInput } from "../elements/LabelInput/LabelInput";
 import { SingleSelect } from "../elements/SingleSelect/SingleSelect";
 
 export function Elements() {
@@ -11,6 +14,18 @@ export function Elements() {
         width={"220px"}
         onChange={(val) => setSelectedValue(Number(val))}
         value={selectedValue}
+      />
+      <br></br>
+      <IconInput
+        placeholder={"Search"}
+        width={"220px"}
+        icon={<MagnifyingGlass/>}
+      />
+      <br></br>
+      <LabelInput
+        placeholder={"Enter Name"}
+        width={"220px"}
+        label={"Name"}
       />
     </div>
   );
