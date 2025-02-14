@@ -3,9 +3,25 @@ import { useState } from "react";
 import { IconInput } from "../elements/IconInput/IconInput";
 import { LabelInput } from "../elements/LabelInput/LabelInput";
 import { SingleSelect } from "../elements/SingleSelect/SingleSelect";
+import { Table } from "../elements/Table/Tables";
 
 export function Elements() {
   const [selectedValue, setSelectedValue] = useState(3);
+
+  const columns = [
+    { key: "building", label: "Building", type: "text" },
+    { key: "abbreviation", label: "Abbreviation", type: "text" },
+    { key: "edit", label: "Edit Building", type: "icon", icon: "edit", action: () => alert("edit building") },
+    { key: "add", label: "Edit Rooms", type: "icon", icon: "plus", action: () => alert("edit rooms") },
+    { key: "delete", label: "Delete Building", type: "icon", icon: "trash", action: () => alert("delete building") }
+  ];
+
+  const data = [
+    { id: 1, building: "Browning Center", abbreviation: "BC" },
+    { id: 2, building: "Elizabeth Hall", abbreviation: "EH" },
+    { id: 3, building: "Lind Lecture Hall", abbreviation: "LL" }
+  ];
+
   return (
     <div style={{ margin: "1rem" }}>
       <SingleSelect
@@ -16,17 +32,11 @@ export function Elements() {
         value={selectedValue}
       />
       <br></br>
-      <IconInput
-        placeholder={"Search"}
-        width={"220px"}
-        icon={<MagnifyingGlass/>}
-      />
+      <IconInput placeholder={"Search"} width={"220px"} icon={<MagnifyingGlass />} />
       <br></br>
-      <LabelInput
-        placeholder={"Enter Name"}
-        width={"220px"}
-        label={"Name"}
-      />
+      <LabelInput placeholder={"Enter Name"} width={"220px"} label={"Name"} />
+      <br></br>
+      <Table columns={columns} data={data} />
     </div>
   );
 }
