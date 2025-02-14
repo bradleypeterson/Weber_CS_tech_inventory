@@ -1,0 +1,40 @@
+.container {
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.iconInputContainer {
+  flex-direction: 'row';
+  border-bottom-width: 1;
+  border-color: '#000';
+  padding-bottom: 10;
+}
+
+.input {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  background: var(--secondary-background);
+  color: var(--gray);
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 15px;
+  height: 40px;
+  width: 100%;
+  min-width: 100px;
+  padding: 0 0.25rem;
+  outline: 0px solid var(--primary);
+  flex: 1;
+}
+
+.input.secondary {
+  color: var(--white);
+  cursor: text;
+}
+
+.input:focus {
+  background: var(--primary);
+  outline: 1px solid var(--primary);
+}
+
+

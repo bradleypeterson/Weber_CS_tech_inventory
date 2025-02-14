@@ -1,4 +1,4 @@
-import { BookOpen, Briefcase, Package } from "@phosphor-icons/react";
+import { BookOpen, Briefcase, Package, UserGear } from "@phosphor-icons/react";
 import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard";
 import { Elements } from "../dashboards/Elements";
 import { RouteConfiguration } from "./types";
@@ -24,6 +24,19 @@ export const configuration: RouteConfiguration = [
     label: "Audits",
     icon: <Briefcase />,
     menu: [{ type: "dashboard", availability: () => true, label: "Audit History", element: <>Audit History</> }],
+    availability: () => true
+  },
+  {
+    type: "menu",
+    label: "Admin",
+    icon: <UserGear />,
+    menu: [
+      { type: "dashboard", availability: () => true, label: "Edit User", element: <>Edit User</> },
+      { type: "dashboard", availability: () => true, label: "Add User", element: <>Add User</> },
+      { type: "dashboard", availability: () => true, label: "Edit Contact Person", element: <>Edit Contact Person</> },
+      { type: "dashboard", availability: () => true, label: "Add Contact Person", element: <>Add Contact Person</> },
+      { type: "dashboard", availability: () => true, label: "Edit List Options", element: <>Edit List Options</> }
+    ],
     availability: () => true
   },
   {
