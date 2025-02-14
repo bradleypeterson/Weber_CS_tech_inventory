@@ -15,7 +15,7 @@ export function LabelInput(props: Props) {
   const classNames = useMemo(() => {
     const classNames = [styles.input];
     return classNames;
-  }, [ props.width, props.placeholder, props.value]);
+  }, [ ]);
 
   return (
     <div className={styles.container} style={{ width: props.width }}>
