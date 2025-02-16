@@ -1,9 +1,11 @@
 import { MagnifyingGlass } from "@phosphor-icons/react";
 import { useState } from "react";
+import { Checkbox } from "../elements/Checkbox/Checkbox";
 import { IconInput } from "../elements/IconInput/IconInput";
 import { LabelInput } from "../elements/LabelInput/LabelInput";
 import { SingleSelect } from "../elements/SingleSelect/SingleSelect";
 import { Table } from "../elements/Table/Tables";
+import { TextArea } from "../elements/TextArea/TextArea";
 
 export function Elements() {
   const [selectedValue, setSelectedValue] = useState(3);
@@ -37,6 +39,14 @@ export function Elements() {
       <LabelInput placeholder={"Enter Name"} width={"220px"} label={"Name"} />
       <br></br>
       <Table columns={columns} data={data} />
+      <br />
+      <Checkbox />
+      <br />
+      <TextArea 
+        placeholder="placeholder"
+        width="220px"
+      />
+      <br />
     </div>
   );
 }
