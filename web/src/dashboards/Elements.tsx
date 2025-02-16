@@ -3,12 +3,14 @@ import { useState } from "react";
 import { Checkbox } from "../elements/Checkbox/Checkbox";
 import { IconInput } from "../elements/IconInput/IconInput";
 import { LabelInput } from "../elements/LabelInput/LabelInput";
+import { MultiSelect } from "../elements/MultiSelect/MultiSelect";
 import { SingleSelect } from "../elements/SingleSelect/SingleSelect";
 import { Table } from "../elements/Table/Tables";
 import { TextArea } from "../elements/TextArea/TextArea";
 
 export function Elements() {
   const [selectedValue, setSelectedValue] = useState(3);
+  const [selectedValues, setSelectedValues] = useState([3]);
 
   const columns = [
     { key: "building", label: "Building", type: "text" },
@@ -34,6 +36,15 @@ export function Elements() {
         value={selectedValue}
       />
       <br></br>
+      <MultiSelect
+        options={selectOptions}
+        placeholder="department"
+        width={"330px"}
+        onChange={(vals) => setSelectedValues(vals)}
+        values={selectedValues}
+        numOfTags={2}
+      />
+      <br></br>
       <IconInput placeholder={"Search"} width={"220px"} icon={<MagnifyingGlass />} />
       <br></br>
       <LabelInput placeholder={"Enter Name"} width={"220px"} label={"Name"} />
@@ -42,10 +53,7 @@ export function Elements() {
       <br />
       <Checkbox />
       <br />
-      <TextArea 
-        placeholder="placeholder"
-        width="220px"
-      />
+      <TextArea placeholder="placeholder" width="220px" />
       <br />
     </div>
   );
