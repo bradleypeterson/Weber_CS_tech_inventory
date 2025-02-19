@@ -4,18 +4,18 @@ import styles from "./Tables.module.css";
 
 //takes in different column sizes and definitions(db data or icons) as props. Then builds out the table for each column then for each row.
 
-interface Column {
+export type Column = {
   key: string;
   label: string;
   type: "text" | "icon";
   icon?: string; //not sure how to handle this exactly, but this is for the different potential icons we could be calling
   action?: () => void;
-}
+};
 
-interface TableProps {
+type TableProps = {
   columns: Column[];
   data: any[];
-}
+};
 
 const Table: React.FC<TableProps> = ({ columns, data }) => {
   return (
@@ -25,7 +25,6 @@ const Table: React.FC<TableProps> = ({ columns, data }) => {
           {columns.map((column) => (
             <th key={column.key}>{column.label}</th>
           ))}
-          <th></th>
         </tr>
       </thead>
       <tbody>
