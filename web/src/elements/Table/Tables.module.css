@@ -24,3 +24,7 @@
   color: #0d1012;
   padding: 10px;
 }
+
+.checkboxHeader {
+  width: 0px;
+}

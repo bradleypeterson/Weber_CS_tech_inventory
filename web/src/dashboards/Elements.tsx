@@ -49,7 +49,7 @@ export function Elements() {
       <br></br>
       <LabelInput placeholder={"Enter Name"} width={"220px"} label={"Name"} />
       <br></br>
-      <Table columns={columns} data={data} />
+      <Table columns={columns} data={data} selectable={true} />
       <br />
       <Checkbox />
       <br />

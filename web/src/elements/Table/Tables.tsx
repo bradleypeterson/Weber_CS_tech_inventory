@@ -1,3 +1,4 @@
+import { CheckSquare, Pencil, Plus, Trash } from "@phosphor-icons/react";
 import React from "react";
 import styles from "./Tables.module.css";
 //will need to import the icons used in the table once those are done
@@ -8,20 +9,36 @@ export type Column = {
   key: string;
   label: string;
   type: "text" | "icon";
-  icon?: string; //not sure how to handle this exactly, but this is for the different potential icons we could be calling
+  icon?: "edit" | "plus" | "trash" | string;
   action?: () => void;
+  options?: { label: string; value: string | number }[];
 };
 
 type TableProps = {
   columns: Column[];
   data: any[];
+  selectable?: boolean;
 };
 
-const Table: React.FC<TableProps> = ({ columns, data }) => {
+const getIcon = (iconName: string) => {
+  switch (iconName) {
+    case "edit":
+      return <Pencil size={32} />;
+    case "plus":
+      return <Plus size={32} />;
+    case "trash":
+      return <Trash size={32} />;
+    default:
+      return null;
+  }
+};
+
+const Table: React.FC<TableProps> = ({ columns, data, selectable }) => {
   return (
     <table className={styles.table}>
       <thead>
         <tr>
+          {selectable && <th className={styles.checkboxHeader}></th>}
           {columns.map((column) => (
             <th key={column.key}>{column.label}</th>
           ))}
@@ -30,9 +47,17 @@ const Table: React.FC<TableProps> = ({ columns, data }) => {
       <tbody>
         {data.map((row, rowIndex) => (
           <tr key={rowIndex}>
+            {selectable && (
+              <td>
+                <CheckSquare size={32} />
+              </td>
+            )}
             {columns.map((column) => (
               <td key={column.key}>
-                {column.type === "text" ? row[column.key] : <button onClick={column.action}>{column.icon}</button>}
+                {column.type === "text" && row[column.key]}
+                {column.type === "icon" && column.icon && (
+                  <button onClick={column.action}>{getIcon(column.icon)}</button>
+                )}
               </td>
             ))}
           </tr>
