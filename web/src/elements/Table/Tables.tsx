@@ -1,5 +1,5 @@
-import { CheckSquare, Pencil, Plus, Trash } from "@phosphor-icons/react";
-import React from "react";
+import { CheckSquare, Pencil, Plus, Square, Trash } from "@phosphor-icons/react";
+import React, { useState } from "react";
 import styles from "./Tables.module.css";
 //will need to import the icons used in the table once those are done
 
@@ -34,6 +34,16 @@ const getIcon = (iconName: string) => {
 };
 
 const Table: React.FC<TableProps> = ({ columns, data, selectable }) => {
+  const [checkedRows, setCheckedRows] = useState<Set<number>>(new Set());
+
+  const toggleCheck = (rowIndex: number) => {
+    setCheckedRows((prev) => {
+      const newChecked = new Set(prev);
+      if (newChecked.has(rowIndex)) newChecked.delete(rowIndex);
+      else newChecked.add(rowIndex);
+      return newChecked;
+    });
+  };
   return (
     <table className={styles.table}>
       <thead>
@@ -48,8 +58,8 @@ const Table: React.FC<TableProps> = ({ columns, data, selectable }) => {
         {data.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {selectable && (
-              <td>
-                <CheckSquare size={32} />
+              <td onClick={() => toggleCheck(rowIndex)}>
+                {checkedRows.has(rowIndex) ? <CheckSquare size={32} /> : <Square size={32} />}
               </td>
             )}
             {columns.map((column) => (
