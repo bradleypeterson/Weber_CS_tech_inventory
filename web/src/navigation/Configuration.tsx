@@ -1,5 +1,5 @@
 import { BookOpen, Briefcase, Package, UserGear } from "@phosphor-icons/react";
-import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard";
+import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard/AssetsSearchDashboard";
 import { Elements } from "../dashboards/Elements";
 import { RouteConfiguration } from "./types";
 
