@@ -9,7 +9,7 @@ type CustomInputProps = {
   onChange?: (value: string | number) => void;
 };
 
-type Props = React.InputHTMLAttributes<HTMLInputElement> & CustomInputProps;
+type Props = Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> & CustomInputProps;
 
 export function LabelInput(props: Props) {
   const classNames = useMemo(() => {
@@ -25,8 +25,8 @@ export function LabelInput(props: Props) {
           className={classNames.join(" ")} {...props}
           placeholder={props.placeholder}
           value={props.value}
-          onChange={props.onChange}> 
-        </input>
+          onChange={(e) => props.onChange && props.onChange(e.target.value)} 
+        ></input>
     </div>
   );
 }
