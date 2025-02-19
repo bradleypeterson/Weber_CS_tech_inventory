@@ -5,11 +5,11 @@ type CustomInputProps = {
   width?: string;
   placeholder?: string;
   value?: string | number;
-  onChange?: (value: string | number) => void;
+  onChange?: (value: string) => void;
   icon?: JSX.Element;
 };
 
-type Props = React.InputHTMLAttributes<HTMLInputElement> & CustomInputProps;
+type Props = Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> & CustomInputProps;
 
 export function IconInput(props: Props) {
   const classNames = useMemo(() => {
@@ -23,11 +23,12 @@ export function IconInput(props: Props) {
         <i className={styles.icon}>{props.icon}</i>
         <input
           type="text"
-          className={classNames.join(" ")} {...props}
+          className={classNames.join(" ")}
+          {...props}
           placeholder={props.placeholder}
           value={props.value}
-          onChange={props.onChange}> 
-        </input>
+          onChange={(e) => props.onChange && props.onChange(e.target.value)}
+        ></input>
       </view>
     </div>
   );
