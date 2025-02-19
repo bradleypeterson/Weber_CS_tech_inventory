@@ -9,7 +9,7 @@ export type Column = {
   key: string;
   label: string;
   type: "text" | "icon" | "dropdown";
-  icon?: "edit" | "plus" | "trash" | string;
+  icon?: "edit" | "plus" | "trash" | "briefcase" | string;
   action?: () => void;
   options?: { label: string; value: string | number }[];
   align?: "left" | "center" | "right";
@@ -30,6 +30,8 @@ const getIcon = (iconName: string) => {
       return <Plus size={32} />;
     case "trash":
       return <Trash size={32} />;
+    case "briefcase":
+      return <Briefcase size={32} />;
     default:
       return null;
   }
