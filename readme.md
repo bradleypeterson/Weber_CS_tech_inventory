@@ -32,3 +32,6 @@ In two seperate terminals run the following commands
 
     cd web && npm run dev
     cd api && npm run dev
+
+## Extensions
+    Eslint - provides warning & errors for common javascript issues. Install from the vscode extension library.

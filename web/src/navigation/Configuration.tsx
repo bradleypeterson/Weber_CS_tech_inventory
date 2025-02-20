@@ -1,4 +1,6 @@
-import { Briefcase, Package } from "@phosphor-icons/react";
+import { BookOpen, Briefcase, Package, UserGear } from "@phosphor-icons/react";
+import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard";
+import { Elements } from "../dashboards/Elements";
 import { RouteConfiguration } from "./types";
 
 /* 
@@ -11,7 +13,7 @@ export const configuration: RouteConfiguration = [
     label: "Assets",
     icon: <Package />,
     menu: [
-      { type: "dashboard", availability: () => true, label: "Search", element: <>Search</> },
+      { type: "dashboard", availability: () => true, label: "Search", element: <AssetsSearchDashboard /> },
       { type: "dashboard", availability: () => true, label: "Asset Details", element: <>Details</> },
       { type: "dashboard", availability: () => true, label: "Add", element: <>Add</> }
     ],
@@ -22,6 +24,26 @@ export const configuration: RouteConfiguration = [
     label: "Audits",
     icon: <Briefcase />,
     menu: [{ type: "dashboard", availability: () => true, label: "Audit History", element: <>Audit History</> }],
+    availability: () => true
+  },
+  {
+    type: "menu",
+    label: "Admin",
+    icon: <UserGear />,
+    menu: [
+      { type: "dashboard", availability: () => true, label: "Edit User", element: <>Edit User</> },
+      { type: "dashboard", availability: () => true, label: "Add User", element: <>Add User</> },
+      { type: "dashboard", availability: () => true, label: "Edit Contact Person", element: <>Edit Contact Person</> },
+      { type: "dashboard", availability: () => true, label: "Add Contact Person", element: <>Add Contact Person</> },
+      { type: "dashboard", availability: () => true, label: "Edit List Options", element: <>Edit List Options</> }
+    ],
+    availability: () => true
+  },
+  {
+    type: "menu",
+    label: "Elements",
+    icon: <BookOpen />,
+    menu: [{ type: "dashboard", availability: () => true, label: "Elements", element: <Elements /> }],
     availability: () => true
   },
   {
