@@ -1,4 +1,4 @@
-import { ArrowRight, Barcode } from "@phosphor-icons/react";
+import { ArrowRight, Barcode, Pencil, Plus } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
@@ -46,7 +46,6 @@ export function AssetsDetailsDashboard() {
 }
 
 function AssetDetailsView({ assetId }: { assetId: string }) {
-  console.log(assetId);
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number>
   >({});
@@ -66,9 +65,16 @@ function AssetDetailsView({ assetId }: { assetId: string }) {
   }
   return (
     <main className={styles.layout}>
+      <div className={styles.row}>
+        <div>
+          <h2>Asset Details</h2>
+          <p>#{assetId}</p>
+        </div>
+        <IconButton icon={<Pencil />} variant="secondary" />
+      </div>
       <form className={styles.inputFieldContainer} onSubmit={handleSubmit}>
         {formStructure.map((column) => (
-          <div key={column.title}>
+          <div key={column.title} className={styles.formColumn}>
             <h3>{column.title}</h3>
             {column.inputs.map((input) => (
               <FormField
@@ -81,7 +87,25 @@ function AssetDetailsView({ assetId }: { assetId: string }) {
           </div>
         ))}
       </form>
+      <Notes notes={[]} />
     </main>
+  );
+}
+
+function Notes({ notes }: { notes: string[] }) {
+  return (
+    <div className={styles.notesContainer}>
+      <div className={styles.row}>
+        <h3>Notes</h3>
+        <IconButton icon={<Plus />} variant="secondary" />
+      </div>
+      <div>
+        {notes.length === 0 && <span style={{ color: "var(--white-dim)" }}>Nothing to see here</span>}
+        {notes.map((note) => (
+          <article>{note}</article>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -158,7 +182,31 @@ const formStructure: Column[] = [
     inputs: [
       { name: "tagNumber", label: "Tag Number", inputType: "input" },
       { name: "secondaryNumber", label: "Secondary Number", inputType: "input" },
-      { name: "description", label: "Description", inputType: "textarea" }
+      { name: "description", label: "Description", inputType: "textarea" },
+      {
+        name: "department",
+        label: "Department",
+        inputType: "single select",
+        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "Web" }]), 500))
+      },
+      {
+        name: "building",
+        label: "Building",
+        inputType: "single select",
+        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "NB" }]), 500))
+      },
+      {
+        name: "room",
+        label: "Room",
+        inputType: "single select",
+        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "102NB" }]), 500))
+      },
+      {
+        name: "contactPerson",
+        label: "Contact Person",
+        inputType: "single select",
+        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "Brad Petersen" }]), 500))
+      }
     ]
   },
   {
@@ -170,14 +218,26 @@ const formStructure: Column[] = [
         inputType: "single select",
         fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "Printer" }]), 500))
       },
-      { name: "serialNumber", label: "Serial Number", inputType: "input" }
+      { name: "serialNumber", label: "Serial Number", inputType: "input" },
+      {
+        name: "condition",
+        label: "Condition",
+        inputType: "single select",
+        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "Good" }]), 500))
+      },
+      { name: "manufacturer", label: "Manufacturer", inputType: "input" },
+      { name: "partNumber", label: "Part Number", inputType: "input" },
+      { name: "rapid7", label: "Rapid 7", inputType: "checkbox" },
+      { name: "cloudStrike", label: "Cloud Strike", inputType: "checkbox" }
     ]
   },
   {
     title: "Acquisition Info",
     inputs: [
       { name: "acquisitionDate", label: "Acquisition Date", inputType: "input" },
-      { name: "acquisitionCost", label: "Acquisition Cost", inputType: "input" }
+      { name: "acquisitionCost", label: "Acquisition Cost", inputType: "input" },
+      { name: "poNumber", label: "PO Number", inputType: "input" },
+      { name: "replacementFiscalYear", label: "Replacement Fiscal Year", inputType: "input" }
     ]
   }
 ];

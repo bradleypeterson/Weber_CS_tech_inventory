@@ -83,7 +83,7 @@ export function SingleSelect<T>(props: Props<T>) {
         aria-expanded={open}
         aria-label="Select an option"
       >
-        <span>{selectedOption ? selectedOption.label : props.placeholder}</span>
+        {selectedOption ? <span>{selectedOption.label}</span> : <p>{props.placeholder}</p>}
         <CaretDown style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "0.1s ease-in-out" }} />
       </div>
       {open && (
