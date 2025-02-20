@@ -10,7 +10,7 @@ type CustomTextAreaProps = {
   onChange?: (value: string) => void;
 };
 
-type Props = React.TextareaHTMLAttributes<HTMLTextAreaElement> & CustomTextAreaProps;
+type Props = Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "onChange"> & CustomTextAreaProps;
 
 export function TextArea(props: Props) {
   const { width, height, label, ...rest } = props;
@@ -24,9 +24,10 @@ export function TextArea(props: Props) {
     <div className={styles.container} style={{ width }}>
       {label && <label className={styles.label}>{label}</label>}
       <textarea
+        {...rest}
         className={classNames.join(" ")}
         style={{ height }}
-        {...rest}
+        onChange={(e) => props.onChange && props.onChange(e.target.value)}
       />
     </div>
   );

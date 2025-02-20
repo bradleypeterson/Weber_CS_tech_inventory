@@ -2,20 +2,20 @@ import { CaretDown } from "@phosphor-icons/react";
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./SingleSelect.module.css";
 
-type Option = {
-  value: string | number;
+type Option<T> = {
+  value: T;
   label: string;
 };
 
-type Props = {
-  options: Option[];
+type Props<T> = {
+  options: Option<T>[];
   placeholder?: string;
-  value?: string | number;
-  onChange?: (value: string | number) => void;
+  value?: T;
+  onChange?: (value: T) => void;
   width?: string;
 };
 
-export function SingleSelect(props: Props) {
+export function SingleSelect<T>(props: Props<T>) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
@@ -23,7 +23,7 @@ export function SingleSelect(props: Props) {
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const toggleOpen = () => setOpen((prev) => !prev);
 
-  function selectOption(value: string | number) {
+  function selectOption(value: T) {
     if (props.onChange) props.onChange(value);
     setOpen(false);
     setSearchTerm("");
@@ -99,7 +99,7 @@ export function SingleSelect(props: Props) {
           <ul className={styles.optionList} role="listbox">
             {filteredOptions.map((option, i) => (
               <li
-                key={option.value}
+                key={i}
                 className={`${styles.option} ${focusedIndex === i ? styles.focused : ""} ${option.value === props.value ? styles.selected : ""}`}
                 onClick={() => selectOption(option.value)}
                 role="option"

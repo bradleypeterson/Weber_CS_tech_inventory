@@ -7,10 +7,11 @@ export function useLinkTo() {
   const navigate = useNavigate();
   const location = useLocation();
   return useCallback(
-    (label: string, parentLabel?: string) => {
+    (label: string, parentLabel?: string, queryParams?: string) => {
       const path = buildPath(label, parentLabel);
       if (routes.some((route) => route.type !== "menu" && route.path === path)) {
-        if (location.pathname !== path) navigate(path);
+        const pathWithParams = `${path}${queryParams ? `?${queryParams}` : ""}`;
+        if (location.pathname !== pathWithParams) navigate(pathWithParams);
       } else {
         console.error(`No path found for label: ${label}`);
       }
