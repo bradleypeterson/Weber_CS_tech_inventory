@@ -29,6 +29,7 @@ export function AssetsDetailsDashboard() {
               width="100%"
               value={tagId}
               onChange={(value) => setTagId(value)}
+              autoFocus
             />
             <IconButton
               icon={<ArrowRight />}
