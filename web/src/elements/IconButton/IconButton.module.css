@@ -11,6 +11,7 @@
   font-size: 1.5rem;
   height: 40px;
   width: 40px;
+  flex-shrink: 0;
   outline: 0px solid var(--primary);
 }
 
@@ -31,4 +32,17 @@
 .button:hover {
   background: var(--primary);
   outline: 1px solid var(--primary);
+}
+
+.button:disabled {
+  color: var(--gray);
+}
+
+.button:disabled:hover {
+  cursor: default;
+  background: none;
+}
+
+.button.primary:disabled {
+  outline: 1px solid var(--gray);
 }
