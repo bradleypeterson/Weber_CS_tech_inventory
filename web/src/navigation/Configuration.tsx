@@ -1,4 +1,5 @@
 import { BookOpen, Briefcase, Package, UserGear } from "@phosphor-icons/react";
+import { AssetsDetailsDashboard } from "../dashboards/AssetsDetailsDashboard/AssetsDetailsDashboard";
 import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard/AssetsSearchDashboard";
 import { Elements } from "../dashboards/Elements";
 import { RouteConfiguration } from "./types";
@@ -14,7 +15,7 @@ export const configuration: RouteConfiguration = [
     icon: <Package />,
     menu: [
       { type: "dashboard", availability: () => true, label: "Search", element: <AssetsSearchDashboard /> },
-      { type: "dashboard", availability: () => true, label: "Asset Details", element: <>Details</> },
+      { type: "dashboard", availability: () => true, label: "Asset Details", element: <AssetsDetailsDashboard /> },
       { type: "dashboard", availability: () => true, label: "Add", element: <>Add</> }
     ],
     availability: () => true
