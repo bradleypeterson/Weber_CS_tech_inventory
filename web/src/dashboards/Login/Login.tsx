@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router";
-import sidebarStyle from "../../components/Sidebar/Sidebar.module.css";
+import { Button } from "../../elements/Button/Button";
+import { LabelInput } from "../../elements/LabelInput/LabelInput";
 import styles from "./Login.module.css";
 
 export function Login() {
@@ -12,25 +13,13 @@ export function Login() {
   };
 
   return (
-    <div className={styles.container}>
-      <aside className={sidebarStyle.sidebar}>
-        <h1>SCAM</h1>
-      </aside>
-      <div className={styles.loginBox}>
-        <h1 className={styles.title}>Login</h1>
-
-        <div className={styles.inputGroup}>
-          <label className={styles.label}>Username</label>
-          <input type="text" className={styles.input} placeholder="username" />
-        </div>
-
-        <div className={styles.inputGroup}>
-          <label className={styles.label}>Password</label>
-          <input type="password" className={styles.input} placeholder="password" />
-        </div>
-
-        <button onClick={handleSubmit}>Submit</button>
-      </div>
+    <div className={styles.loginBox}>
+      <h1 className={styles.title}>Login</h1>
+      <LabelInput label="Username" placeholder="enter your username" width="100%" />
+      <LabelInput label="Password" placeholder="enter your password" width="100%" />
+      <Button variant="primary" onClick={handleSubmit}>
+        Submit
+      </Button>
     </div>
   );
 }
