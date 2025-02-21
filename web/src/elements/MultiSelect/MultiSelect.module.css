@@ -1,5 +1,6 @@
 .container {
   font-family: "IBM Plex Mono", monospace;
+  position: relative;
 }
 
 .select {
@@ -50,6 +51,8 @@
 .dropdown {
   background-color: var(--secondary-background);
   overflow: hidden;
+  position: absolute;
+  z-index: 1;
 }
 
 .optionList {
