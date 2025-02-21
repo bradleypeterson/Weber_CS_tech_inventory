@@ -32,7 +32,7 @@ export function DynamicTable<T>(props: Props<T>) {
   }
 
   return (
-    <table className={styles.table}>
+    <table className={styles.table} width={props.width}>
       <thead className={styles.thead}>
         <tr>
           {props.columns.map((column, i) => {

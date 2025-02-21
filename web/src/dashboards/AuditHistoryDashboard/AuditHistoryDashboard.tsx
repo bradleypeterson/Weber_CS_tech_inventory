@@ -1,16 +1,31 @@
-import { Briefcase } from "@phosphor-icons/react";
+import { Briefcase, MagnifyingGlass } from "@phosphor-icons/react";
+import { useMemo, useState } from "react";
 import { Column, DynamicTable } from "../../elements/DynamicTable/DynamicTable";
 import { IconButton } from "../../elements/IconButton/IconButton";
+import { IconInput } from "../../elements/IconInput/IconInput";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./AuditHistoryDashboard.module.css";
 
 export function AuditHistoryDashboard() {
+  const [searchText, setSearchText] = useState("");
+  const filteredData = useMemo(
+    () => data.filter((row) => Object.values(row).some((value) => value.toString().toLowerCase().includes(searchText))),
+    [searchText]
+  );
+
   return (
     <main className={styles.layout}>
-      <h2>Audit History</h2>
-      <div className={styles.tableContainer}>
-        <DynamicTable columns={BuildColumns()} data={data} />
+      <div className={styles.row}>
+        <h2>Audit History</h2>
+        <IconInput
+          icon={<MagnifyingGlass />}
+          width="200px"
+          placeholder="search"
+          value={searchText}
+          onChange={(val) => setSearchText(val.toLowerCase())}
+        />
       </div>
+      <DynamicTable columns={BuildColumns()} data={filteredData} width="100%" />
     </main>
   );
 }
