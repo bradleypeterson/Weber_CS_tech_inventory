@@ -4,6 +4,7 @@ import { AssetsDetailsDashboard } from "../dashboards/AssetsDetailsDashboard/Ass
 import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard/AssetsSearchDashboard";
 import { AuditDetailsDashboard } from "../dashboards/AuditDetailsDashboard/AuditDetailsDashboard";
 import { AuditHistoryDashboard } from "../dashboards/AuditHistoryDashboard/AuditHistoryDashboard";
+import { ContactSearchDashboard } from "../dashboards/ContactSearchDashboard/ContactSearchDashboard";
 import { Elements } from "../dashboards/Elements";
 import { UserSearchDashboard } from "../dashboards/UserSearchDashboard/UserSearchDashboard";
 import { RouteConfiguration } from "./types";
@@ -40,7 +41,7 @@ export const configuration: RouteConfiguration = [
     icon: <UserGear />,
     menu: [
       { type: "dashboard", availability: () => true, label: "Users", element: <UserSearchDashboard /> },
-      { type: "dashboard", availability: () => true, label: "Contact People", element: <>Contact People</> },
+      { type: "dashboard", availability: () => true, label: "Contacts", element: <ContactSearchDashboard /> },
       { type: "dashboard", availability: () => true, label: "List Options", element: <>List Options</> }
     ],
     availability: () => true
