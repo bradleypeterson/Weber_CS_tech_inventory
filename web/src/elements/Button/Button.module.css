@@ -39,3 +39,16 @@
   background: var(--primary);
   outline: 1px solid var(--primary);
 }
+
+.button:disabled {
+  color: var(--gray);
+}
+
+.button:disabled:hover {
+  cursor: default;
+  background: none;
+}
+
+.button.primary:disabled {
+  outline: 1px solid var(--gray);
+}

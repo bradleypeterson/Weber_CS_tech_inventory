@@ -24,10 +24,10 @@ export function TextArea(props: Props) {
     <div className={styles.container} style={{ width }}>
       {label && <label className={styles.label}>{label}</label>}
       <textarea
+        {...rest}
         className={classNames.join(" ")}
         style={{ height }}
         onChange={(e) => onChange && onChange(e.target.value)}
-        {...rest}
       />
     </div>
   );

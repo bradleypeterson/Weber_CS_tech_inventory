@@ -19,7 +19,7 @@ export function IconInput(props: Props) {
 
   return (
     <div className={styles.container} style={{ width: props.width }}>
-      <view className={styles.iconInputContainer}>
+      <div className={styles.iconInputContainer}>
         <i className={styles.icon}>{props.icon}</i>
         <input
           type="text"
@@ -29,7 +29,7 @@ export function IconInput(props: Props) {
           value={props.value}
           onChange={(e) => props.onChange && props.onChange(e.target.value)}
         ></input>
-      </view>
+      </div>
     </div>
   );
 }
