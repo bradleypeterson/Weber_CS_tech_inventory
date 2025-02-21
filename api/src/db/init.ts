@@ -113,8 +113,9 @@ async function createTables() {
 
     create table if not exists User(
       UserID INT PRIMARY KEY AUTO_INCREMENT,
-      UserName VARCHAR(25) NOT NULL UNIQUE,
-      HashedPassword VARCHAR(250) NOT NULL  
+      PersonID INT NOT NULL UNIQUE,
+      HashedPassword VARCHAR(250) NOT NULL,
+      FOREIGN KEY (PersonID) REFERENCES Person(PersonID)
     );
 
     create table if not exists AssetClass(
