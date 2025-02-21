@@ -33,8 +33,7 @@ export function EditListDashboard() {
           label: "Edit",
           type: "icon",
           icon: "edit",
-          width: "50px",
-          action: () => alert("edit department")
+          width: "50px"
         }
       ]
     },
@@ -59,8 +58,7 @@ export function EditListDashboard() {
           label: "Edit",
           type: "icon",
           icon: "edit",
-          width: "50px",
-          action: () => alert("edit department")
+          width: "50px"
         },
         {
           key: "add",
@@ -99,9 +97,11 @@ export function EditListDashboard() {
         />
       </div>
       <div style={{ flex: 1, padding: "20px" }}>
-        <h1>{activeList.charAt(0).toUpperCase() + activeList.slice(1)} List</h1>
+        <h1>Edit {activeList.charAt(0).toUpperCase() + activeList.slice(1)} List</h1>
         <div style={{ width: "50%", margin: "auto" }}>
           <Table columns={getColumns()} data={getData()} />
+          <br></br>
+          <button>Add {activeList.charAt(0).toUpperCase() + activeList.slice(1)}</button>
         </div>
       </div>
     </div>
