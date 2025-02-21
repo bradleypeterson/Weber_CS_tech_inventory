@@ -12,18 +12,27 @@ export function Elements() {
   const [selectedValue, setSelectedValue] = useState(3);
   const [selectedValues, setSelectedValues] = useState([3]);
 
+  const [data, setData] = useState([
+    { id: 1, building: "Browning Center", abbreviation: "BC", status: "active" },
+    { id: 2, building: "Elizabeth Hall", abbreviation: "EH", status: "inactive" },
+    { id: 3, building: "Lind Lecture Hall", abbreviation: "LL", status: "inactive" }
+  ]);
+
   const columns = [
     { key: "building", label: "Building", type: "text" },
-    { key: "abbreviation", label: "Abbreviation", type: "text" },
-    { key: "edit", label: "Edit Building", type: "icon", icon: "edit", action: () => alert("edit building") },
-    { key: "add", label: "Edit Rooms", type: "icon", icon: "plus", action: () => alert("edit rooms") },
-    { key: "delete", label: "Delete Building", type: "icon", icon: "trash", action: () => alert("delete building") }
-  ];
-
-  const data = [
-    { id: 1, building: "Browning Center", abbreviation: "BC" },
-    { id: 2, building: "Elizabeth Hall", abbreviation: "EH" },
-    { id: 3, building: "Lind Lecture Hall", abbreviation: "LL" }
+    { key: "abbreviation", label: "Abbreviation", type: "text", width: "10px" },
+    {
+      key: "status",
+      label: "Status",
+      type: "dropdown",
+      options: [
+        { label: "Active", value: "active" },
+        { label: "Inactive", value: "inactive" }
+      ]
+    },
+    { key: "edit", label: "Edit", type: "icon", icon: "edit", action: () => alert("edit building") },
+    { key: "add", label: "Add Room", type: "icon", icon: "plus", action: () => alert("edit rooms") },
+    { key: "delete", label: "Delete", type: "icon", icon: "trash", action: () => alert("delete building") }
   ];
 
   return (
@@ -49,7 +58,7 @@ export function Elements() {
       <br></br>
       <LabelInput placeholder={"Enter Name"} width={"220px"} label={"Name"} />
       <br></br>
-      <Table columns={columns} data={data} />
+      <Table columns={columns} data={data} selectable={true} onDataChange={setData} />
       <br />
       <Checkbox />
       <br />

@@ -13,7 +13,7 @@ type CustomTextAreaProps = {
 type Props = Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "onChange"> & CustomTextAreaProps;
 
 export function TextArea(props: Props) {
-  const { width, height, label, ...rest } = props;
+  const { width, height, label, onChange, ...rest } = props;
 
   const classNames = useMemo(() => {
     const classNames = [styles.textarea];
@@ -27,7 +27,7 @@ export function TextArea(props: Props) {
         {...rest}
         className={classNames.join(" ")}
         style={{ height }}
-        onChange={(e) => props.onChange && props.onChange(e.target.value)}
+        onChange={(e) => onChange && onChange(e.target.value)}
       />
     </div>
   );

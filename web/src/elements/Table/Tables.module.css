@@ -24,3 +24,26 @@
   color: #0d1012;
   padding: 10px;
 }
+
+.checkboxHeader {
+  width: 0px;
+}
+
+.dropdownContainer {
+  position: relative;
+  width: 100%;
+}
+
+.dropdownSelect {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+  padding: 2px;
+  transition: 0.1s ease-in;
+}
+
+.dropdownSelect:hover {
+  background-color: rgba(13, 16, 18, 0.05);
+}
