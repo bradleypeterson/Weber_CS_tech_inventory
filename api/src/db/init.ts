@@ -78,7 +78,7 @@ async function createTables() {
 
     create table if not exists Building(
       BuildingID INT PRIMARY KEY AUTO_INCREMENT,
-      Name VARCHAR(50) NOT NULL,
+      Name VARCHAR(100) NOT NULL,
       Abbreviation VARCHAR(3) NOT NULL
     );
 
@@ -165,7 +165,7 @@ async function createTables() {
       EquipmentID INT PRIMARY KEY AUTO_INCREMENT,
       TagNumber VARCHAR(16) NOT NULL,
       SerialNumber VARCHAR(32) NOT NULL,
-      Description VARCHAR(80) NOT NULL,
+      Description VARCHAR(256) NOT NULL,
       ContactPersonID INT,
       LocationID INT,
       DepartmentID INT,
@@ -173,7 +173,7 @@ async function createTables() {
       FiscalYearID INT,
       ConditionID INT NOT NULL,
       DeviceTypeID INT NOT NULL,
-      Manufacturer VARCHAR(25),
+      Manufacturer VARCHAR(50),
       PartNumber VARCHAR(50),
       Rapid7 BOOLEAN,
       CrowdStrike BOOLEAN,
