@@ -2,6 +2,8 @@ import { BookOpen, Briefcase, Package, UserGear } from "@phosphor-icons/react";
 import { AssetsAddDashboard } from "../dashboards/AssetsAddDashboard/AssetsAddDashboard";
 import { AssetsDetailsDashboard } from "../dashboards/AssetsDetailsDashboard/AssetsDetailsDashboard";
 import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard/AssetsSearchDashboard";
+import { AuditDetailsDashboard } from "../dashboards/AuditDetailsDashboard/AuditDetailsDashboard";
+import { AuditHistoryDashboard } from "../dashboards/AuditHistoryDashboard/AuditHistoryDashboard";
 import { Elements } from "../dashboards/Elements";
 import { UserSearchDashboard } from "../dashboards/UserSearchDashboard/UserSearchDashboard";
 import { RouteConfiguration } from "./types";
@@ -26,7 +28,10 @@ export const configuration: RouteConfiguration = [
     type: "menu",
     label: "Audits",
     icon: <Briefcase />,
-    menu: [{ type: "dashboard", availability: () => true, label: "Audit History", element: <>Audit History</> }],
+    menu: [
+      { type: "dashboard", availability: () => true, label: "History", element: <AuditHistoryDashboard /> },
+      { type: "dashboard", availability: () => true, label: "Details", element: <AuditDetailsDashboard /> }
+    ],
     availability: () => true
   },
   {
