@@ -1,0 +1,22 @@
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr auto;
+  align-items: center;
+  justify-content: center;
+  height: fit-content;
+  gap: 2rem;
+  margin: 2rem;
+}
+
+.tableContainer {
+  width: fit-content;
+  margin: 100px auto;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}

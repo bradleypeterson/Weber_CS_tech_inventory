@@ -16,9 +16,8 @@ export function Button(props: Props) {
     if (props.variant === "primary") classNames.push(styles.primary);
     if (props.variant === "secondary") classNames.push(styles.secondary);
     if (props.size === "small") classNames.push(styles.small);
-    if (props.icon) classNames.push(styles.icon);
     return classNames;
-  }, [props.variant, props.size, props.icon]);
+  }, [props.variant, props.size]);
 
   return (
     <button className={classNames.join(" ")} {...props}>

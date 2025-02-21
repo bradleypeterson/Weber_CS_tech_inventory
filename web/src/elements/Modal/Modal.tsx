@@ -1,4 +1,3 @@
-import { X } from "@phosphor-icons/react";
 import { useEffect, useRef } from "react";
 import styles from "./Modal.module.css";
 type ModalProps = {
@@ -27,9 +26,6 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
 
   return (
     <dialog ref={dialogRef} className={styles.dialog} onClick={handleBackdropClick} onClose={onClose}>
-      <button onClick={onClose} className={styles.close}>
-        <X />
-      </button>
       <div className={styles.content}>
         {title && <h2>{title}</h2>}
         {children}

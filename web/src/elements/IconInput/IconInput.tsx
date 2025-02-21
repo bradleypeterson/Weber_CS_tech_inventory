@@ -18,7 +18,7 @@ export function IconInput(props: Props) {
   }, []);
 
   return (
-    <div className={styles.container} style={{ width: props.width }}>
+    <div className={styles.container} style={{ ...props.style, width: props.width }}>
       <div className={styles.iconInputContainer}>
         <i className={styles.icon}>{props.icon}</i>
         <input

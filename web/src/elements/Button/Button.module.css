@@ -1,9 +1,7 @@
 .button {
-  display: grid;
-  grid-template-columns: auto;
+  display: flex;
   align-items: center;
-  justify-items: center;
-  justify-content: center;
+  justify-content: space-around;
   background: none;
   color: var(--white);
   border: none;
@@ -28,11 +26,6 @@
 .button.small {
   height: 25px;
   padding: 0.25rem;
-}
-
-.button.icon {
-  grid-template-columns: 1fr auto 1fr;
-  gap: 0.5rem;
 }
 
 .button:hover {
