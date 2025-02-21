@@ -5,7 +5,7 @@ type CustomInputProps = {
   placeholder?: string;
   label?: string;
   value?: string | number;
-  onChange?: (value: string | number) => void;
+  onChange?: (value: string) => void;
 };
 
 type Props = Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> & CustomInputProps;
