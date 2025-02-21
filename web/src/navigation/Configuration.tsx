@@ -6,6 +6,7 @@ import { AuditDetailsDashboard } from "../dashboards/AuditDetailsDashboard/Audit
 import { AuditHistoryDashboard } from "../dashboards/AuditHistoryDashboard/AuditHistoryDashboard";
 import { ContactSearchDashboard } from "../dashboards/ContactSearchDashboard/ContactSearchDashboard";
 import { Elements } from "../dashboards/Elements";
+import { Login } from "../dashboards/Login/Login";
 import { UserSearchDashboard } from "../dashboards/UserSearchDashboard/UserSearchDashboard";
 import { RouteConfiguration } from "./types";
 
@@ -61,7 +62,7 @@ export const configuration: RouteConfiguration = [
   {
     type: "page",
     label: "Login",
-    element: <>Login</>,
+    element: <Login />,
     availability: () => true
   }
 ];
