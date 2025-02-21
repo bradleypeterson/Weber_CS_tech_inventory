@@ -1,4 +1,5 @@
 import { BookOpen, Briefcase, Package, UserGear } from "@phosphor-icons/react";
+import { AssetsAddDashboard } from "../dashboards/AssetsAddDashboard/AssetsAddDashboard";
 import { AssetsDetailsDashboard } from "../dashboards/AssetsDetailsDashboard/AssetsDetailsDashboard";
 import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard/AssetsSearchDashboard";
 import { Elements } from "../dashboards/Elements";
@@ -17,7 +18,7 @@ export const configuration: RouteConfiguration = [
     menu: [
       { type: "dashboard", availability: () => true, label: "Search", element: <AssetsSearchDashboard /> },
       { type: "dashboard", availability: () => true, label: "Asset Details", element: <AssetsDetailsDashboard /> },
-      { type: "dashboard", availability: () => true, label: "Add", element: <>Add</> }
+      { type: "dashboard", availability: () => true, label: "Add", element: <AssetsAddDashboard /> }
     ],
     availability: () => true
   },
@@ -33,7 +34,7 @@ export const configuration: RouteConfiguration = [
     label: "Admin",
     icon: <UserGear />,
     menu: [
-      { type: "dashboard", availability: () => true, label: "Users", element: <UserSearchDashboard/> },
+      { type: "dashboard", availability: () => true, label: "Users", element: <UserSearchDashboard /> },
       { type: "dashboard", availability: () => true, label: "Contact People", element: <>Contact People</> },
       { type: "dashboard", availability: () => true, label: "List Options", element: <>List Options</> }
     ],

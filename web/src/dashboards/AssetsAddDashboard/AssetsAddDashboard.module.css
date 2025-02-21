@@ -1,0 +1,97 @@
+/* No Tag id layout */
+.noTagLayout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem;
+}
+
+.noTagLayout > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.tagInput {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+/* Normal Layout */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem;
+}
+
+.inputFieldContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: start;
+  justify-content: center;
+  gap: 3rem;
+}
+
+.formColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.formColumn > * {
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notesContainer {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 1rem;
+}
+
+.notesContainer > div.row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.notesContainer > div.row > h3 {
+  width: 100%;
+  height: 100%;
+  border-bottom: 1px solid var(--gray);
+}
+
+.noteModalContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+  width: 500px;
+}
+
+.noteModalContent > * {
+  width: 100%;
+}
+
+.noteModalContent > div.row {
+  gap: 1rem;
+  justify-content: flex-end;
+}
