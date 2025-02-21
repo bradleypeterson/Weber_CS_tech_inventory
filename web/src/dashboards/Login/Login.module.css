@@ -1,21 +1,15 @@
-.container {
-  display: flex;
-  background-color: #181c1c;
-  height: 100vh;
-}
-
 .loginBox {
   display: flex;
   flex-direction: column;
   width: 300px;
   margin: auto;
   align-items: center;
+  gap: 1rem;
 }
 
 .title {
   font-size: 1.8rem;
   font-weight: bold;
-  margin-bottom: 1.5rem;
 }
 
 .inputGroup {

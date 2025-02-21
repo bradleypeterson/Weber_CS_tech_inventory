@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import styles from "./LabelInput.module.css";
 
 type CustomInputProps = {
@@ -6,23 +5,18 @@ type CustomInputProps = {
   placeholder?: string;
   label?: string;
   value?: string | number;
-  onChange?: (value: string | number) => void;
+  onChange?: (value: string) => void;
 };
 
 type Props = Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> & CustomInputProps;
 
 export function LabelInput(props: Props) {
-  const classNames = useMemo(() => {
-    const classNames = [styles.input];
-    return classNames;
-  }, []);
-
   return (
     <div className={styles.container} style={{ width: props.width }}>
       <label className={styles.label}>{props.label}</label>
       <input
         type="text"
-        className={classNames.join(" ")}
+        className={styles.input}
         {...props}
         placeholder={props.placeholder}
         value={props.value}

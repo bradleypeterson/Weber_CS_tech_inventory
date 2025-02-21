@@ -1,4 +1,4 @@
-import { isValidElement, ReactNode } from "react";
+import { CSSProperties, isValidElement, ReactNode } from "react";
 import styles from "./DynamicTable.module.css";
 
 export type Column<T> = DataColumn<T> | RenderColumn<T>;
@@ -21,6 +21,7 @@ type Props<T> = {
   columns: Column<T>[];
   data: T[];
   width?: string;
+  style?: CSSProperties;
 };
 
 export function DynamicTable<T>(props: Props<T>) {
@@ -32,7 +33,7 @@ export function DynamicTable<T>(props: Props<T>) {
   }
 
   return (
-    <table className={styles.table} width={props.width}>
+    <table className={styles.table} width={props.width} style={props.style}>
       <thead className={styles.thead}>
         <tr>
           {props.columns.map((column, i) => {

@@ -14,7 +14,7 @@
   align-items: center;
   gap: 1rem;
   background: var(--secondary-background);
-  color: var(--gray);
+  color: var(--white);
   border: none;
   border-radius: 0.25rem;
   font-size: 15px;
@@ -29,5 +29,3 @@
   cursor: text;
   color: var(--white);
 }
-
-
