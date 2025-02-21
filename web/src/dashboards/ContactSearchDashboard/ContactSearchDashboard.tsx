@@ -3,9 +3,9 @@ import { useMemo, useState } from "react";
 import { Button } from "../../elements/Button/Button";
 import { IconInput } from "../../elements/IconInput/IconInput";
 import { Column, Table } from "../../elements/Table/Tables";
-import styles from "./UserSearchDashboard.module.css";
+import styles from "./ContactSearchDashboard.module.css";
 
-export function UserSearchDashboard() {
+export function ContactSearchDashboard() {
   const [searchText, setSearchText] = useState("");
 
   const filteredData = useMemo(
@@ -29,7 +29,7 @@ export function UserSearchDashboard() {
         <Button 
           variant="secondary" 
           size="normal">
-          Add New User
+          Add New Contact
         </Button>
       </div>
     </main>
@@ -37,14 +37,14 @@ export function UserSearchDashboard() {
 }
 
 const dummyData = [
-  { w_number: "W12345678", name: "Sally Student", departments: "CS", location: "NB 324A" },
-  { w_number: "W00001212", name: "Sam Staff", departments: "CS, WEB, NET", location: "remote" },
-  { w_number: "W10234567", name: "John Smith", departments: "NET", location: "EH 311B" }
+  { w_number: "W01234567", name: "Freddy Faculty", department: "WEB", location: "NB 311C" },
+  { w_number: "W00001234", name: "Annie Adjunct", department: "CS", location: "remote" },
+  { w_number: "W00123456", name: "John Smith", department: "NET", location: "EH 311B" }
 ];
 
 const columns: Column[] = [
   { key: "name", label: "Name", type: "text" },
-  { key: "departments", label: "Departments", type: "text" },
+  { key: "department", label: "Department", type: "text" },
   { key: "location", label: "Location", type: "text" },
-  { key: "edit", label: "Edit", type: "icon", icon: "edit", width: "10px", action: () => alert("edit user") },
+  { key: "edit", label: "Edit", type: "icon", icon: "edit", width: "10px", action: () => alert("edit contact person") },
 ];
