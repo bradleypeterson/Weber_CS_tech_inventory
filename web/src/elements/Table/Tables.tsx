@@ -1,4 +1,4 @@
-import { CaretDown, CheckSquare, Pencil, Plus, Square, Trash } from "@phosphor-icons/react";
+import { CaretDown, CheckSquare, FloppyDisk, Pencil, Plus, Square, Trash } from "@phosphor-icons/react";
 import React, { useState } from "react";
 import styles from "./Tables.module.css";
 //will need to import the icons used in the table once those are done
@@ -10,7 +10,7 @@ export type Column = {
   label: string;
   type: "text" | "icon" | "dropdown";
   icon?: "edit" | "plus" | "trash" | "briefcase" | string;
-  action?: () => void;
+  action?: (rowIndex: number) => void;
   options?: { label: string; value: string | number }[];
   align?: "left" | "center" | "right";
   width?: string;
@@ -20,9 +20,13 @@ type TableProps = {
   columns: Column[];
   data: any[];
   selectable?: boolean;
+  onDataChange?: (data: any[]) => void;
 };
 
-const getIcon = (iconName: string) => {
+const getIcon = (iconName: string, rowIndex: number, editableRows: Set<number>) => {
+  if (iconName === "edit" && editableRows.has(rowIndex)) {
+    return <FloppyDisk size={32} />;
+  }
   switch (iconName) {
     case "edit":
       return <Pencil size={32} />;
@@ -40,6 +44,8 @@ const getIcon = (iconName: string) => {
 const Table: React.FC<TableProps> = ({ columns, data, selectable }) => {
   const [checkedRows, setCheckedRows] = useState<Set<number>>(new Set());
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [editableRows, setEditableRows] = useState<Set<number>>(new Set());
+  const [localData, setLocalData] = useState(data);
 
   const toggleCheck = (rowIndex: number) => {
     setCheckedRows((prev) => {
@@ -61,6 +67,18 @@ const Table: React.FC<TableProps> = ({ columns, data, selectable }) => {
       onDataChange(updatedData);
     }
     setOpenDropdown(null);
+  };
+
+  const toggleEditableRow = (rowIndex: number) => {
+    setEditableRows((prev) => {
+      const newEditableRows = new Set(prev);
+      if (newEditableRows.has(rowIndex)) {
+        newEditableRows.delete(rowIndex);
+      } else {
+        newEditableRows.add(rowIndex);
+      }
+      return newEditableRows;
+    });
   };
 
   return (
@@ -87,9 +105,31 @@ const Table: React.FC<TableProps> = ({ columns, data, selectable }) => {
               const dropdownId = `${rowIndex}-${column.key}`;
               return (
                 <td key={column.key} style={{ width: column.width || "auto", textAlign: column.align || "left" }}>
-                  {column.type === "text" && row[column.key]}
+                  {column.type === "text" &&
+                    (editableRows.has(rowIndex) ? (
+                      <input
+                        type="text"
+                        value={row[column.key]}
+                        onChange={(e) => {
+                          const updatedData = [...localData];
+                          updatedData[rowIndex] = { ...updatedData[rowIndex], [column.key]: e.target.value };
+                          setLocalData(updatedData);
+                        }}
+                      />
+                    ) : (
+                      row[column.key]
+                    ))}
                   {column.type === "icon" && column.icon && (
-                    <button onClick={column.action}>{getIcon(column.icon)}</button>
+                    <button
+                      onClick={() => {
+                        if (column.icon === "edit") {
+                          toggleEditableRow(rowIndex);
+                        }
+                        column.action?.(rowIndex);
+                      }}
+                    >
+                      {getIcon(column.icon, rowIndex, editableRows)}
+                    </button>
                   )}
                   {column.type === "dropdown" && column.options && (
                     <div className={styles.dropdownContainer} style={{ position: "relative" }}>
