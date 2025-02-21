@@ -7,6 +7,7 @@ import { AuditHistoryDashboard } from "../dashboards/AuditHistoryDashboard/Audit
 import { ContactSearchDashboard } from "../dashboards/ContactSearchDashboard/ContactSearchDashboard";
 import { EditListDashboard } from "../dashboards/EditListDashboard/EditListDashboard";
 import { Elements } from "../dashboards/Elements";
+import { LandingPage } from "../dashboards/LandingPage/LandingPage";
 import { Login } from "../dashboards/Login/Login";
 import { UserSearchDashboard } from "../dashboards/UserSearchDashboard/UserSearchDashboard";
 import { RouteConfiguration } from "./types";
@@ -64,6 +65,12 @@ export const configuration: RouteConfiguration = [
     type: "page",
     label: "Login",
     element: <Login />,
+    availability: () => true
+  },
+  {
+    type: "page",
+    label: "Landingpage",
+    element: <LandingPage />,
     availability: () => true
   }
 ];

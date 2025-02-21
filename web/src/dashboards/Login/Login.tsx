@@ -8,7 +8,7 @@ export function Login() {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    navigate("/assets/asset-details");
+    navigate("/LandingPage/LandingPage");
   };
 
   return (
