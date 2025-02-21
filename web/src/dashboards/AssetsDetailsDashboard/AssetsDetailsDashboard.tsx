@@ -1,10 +1,12 @@
 import { ArrowRight, Barcode, Pencil, Plus } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
+import { Button } from "../../elements/Button/Button";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
 import { LabelInput } from "../../elements/LabelInput/LabelInput";
+import { Modal } from "../../elements/Modal/Modal";
 import { MultiSelect } from "../../elements/MultiSelect/MultiSelect";
 import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
 import { TextArea } from "../../elements/TextArea/TextArea";
@@ -94,19 +96,37 @@ function AssetDetailsView({ assetId }: { assetId: string }) {
 }
 
 function Notes({ notes }: { notes: string[] }) {
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
-    <div className={styles.notesContainer}>
-      <div className={styles.row}>
-        <h3>Notes</h3>
-        <IconButton icon={<Plus />} variant="secondary" />
+    <>
+      <div className={styles.notesContainer}>
+        <div className={styles.row}>
+          <h3>Notes</h3>
+          <IconButton icon={<Plus />} variant="secondary" onClick={() => setModalOpen(true)} />
+        </div>
+        <div>
+          {notes.length === 0 && <span style={{ color: "var(--white-dim)" }}>Nothing to see here</span>}
+          {notes.map((note) => (
+            <article>{note}</article>
+          ))}
+        </div>
       </div>
-      <div>
-        {notes.length === 0 && <span style={{ color: "var(--white-dim)" }}>Nothing to see here</span>}
-        {notes.map((note) => (
-          <article>{note}</article>
-        ))}
-      </div>
-    </div>
+      <Modal onClose={() => setModalOpen(false)} isOpen={modalOpen}>
+        <div className={styles.noteModalContent}>
+          <h3>New Note</h3>
+          <TextArea />
+          <div className={styles.row}>
+            <Button variant="secondary" size="small" onClick={() => setModalOpen(false)}>
+              Close
+            </Button>
+            <Button variant="primary" size="small">
+              Add
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </>
   );
 }
 

@@ -77,3 +77,21 @@
   height: 100%;
   border-bottom: 1px solid var(--gray);
 }
+
+.noteModalContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+  width: 500px;
+}
+
+.noteModalContent > * {
+  width: 100%;
+}
+
+.noteModalContent > div.row {
+  gap: 1rem;
+  justify-content: flex-end;
+}
