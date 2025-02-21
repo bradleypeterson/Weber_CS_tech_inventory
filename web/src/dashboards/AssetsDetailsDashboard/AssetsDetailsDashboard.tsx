@@ -35,12 +35,12 @@ export function AssetsDetailsDashboard() {
             />
             <IconButton
               icon={<ArrowRight />}
-              onClick={() => linkTo("Asset Details", "Assets", `asset_id=${tagId}`)}
+              onClick={() => linkTo("Asset Details", ["Assets"], `asset_id=${tagId}`)}
               variant="primary"
               disabled={tagId === ""}
             />
           </div>
-          <a onClick={() => linkTo("Search", "Assets")}>Search an asset</a>
+          <a onClick={() => linkTo("Search", ["Assets"])}>Search an asset</a>
         </div>
       </main>
     );

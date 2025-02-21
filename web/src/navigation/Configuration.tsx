@@ -29,8 +29,13 @@ export const configuration: RouteConfiguration = [
     label: "Audits",
     icon: <Briefcase />,
     menu: [
-      { type: "dashboard", availability: () => true, label: "History", element: <AuditHistoryDashboard /> },
-      { type: "dashboard", availability: () => true, label: "Details", element: <AuditDetailsDashboard /> }
+      {
+        type: "dashboard",
+        availability: () => true,
+        label: "History",
+        element: <AuditHistoryDashboard />,
+        tabs: [{ type: "tab", label: "Details", element: <AuditDetailsDashboard /> }]
+      }
     ],
     availability: () => true
   },

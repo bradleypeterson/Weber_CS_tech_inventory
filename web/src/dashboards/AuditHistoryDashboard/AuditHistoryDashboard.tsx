@@ -30,7 +30,7 @@ function BuildColumns() {
       label: "",
       render: () => (
         <IconButton
-          onClick={() => linkTo("Audit Details", "Audits", "audit_id=3")}
+          onClick={() => linkTo("Details", ["Audits", "History"], "audit_id=3")}
           icon={<Briefcase />}
           variant="secondary"
           style={{ color: "var(--secondary-background)" }}
