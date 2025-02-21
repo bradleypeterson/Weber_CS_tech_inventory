@@ -1,13 +1,20 @@
 import { useState } from "react";
+import { login } from "../../api/auth";
 import { Button } from "../../elements/Button/Button";
 import { LabelInput } from "../../elements/LabelInput/LabelInput";
+import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./Login.module.css";
 
 export function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const linkTo = useLinkTo();
 
-  function handleSubmit() {}
+  async function handleSubmit() {
+    if (await login(username, password)) {
+      linkTo("Search", ["Assets"]);
+    }
+  }
 
   return (
     <div className={styles.loginBox}>

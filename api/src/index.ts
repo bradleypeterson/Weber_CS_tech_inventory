@@ -3,6 +3,7 @@ import cors from "cors";
 import { config } from "dotenv";
 import express, { json } from "express";
 import morgan from "morgan";
+import { authRouter } from "./auth";
 config(); // Load environment variables
 
 const app = express();
@@ -10,7 +11,7 @@ const port = process.env.PORT;
 
 app.use(json());
 app.use(
-  cors({ credentials: true, origin: ["http://127.0.0.1:3000", "http://localhost:3000", "http://localhost: 5173"] })
+  cors({ credentials: true, origin: ["http://127.0.0.1:3000", "http://localhost:3000", "http://localhost:5173"] })
 );
 app.use(express.json());
 app.use(
@@ -20,5 +21,7 @@ app.use(
   })
 );
 app.use(cookieParser());
+
+app.use("/auth", authRouter);
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
