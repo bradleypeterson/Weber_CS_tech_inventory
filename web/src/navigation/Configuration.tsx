@@ -51,9 +51,7 @@ export const configuration: RouteConfiguration = [
     label: "Admin",
     icon: <UserGear />,
     menu: [
-      // { type: "dashboard", availability: () => true, label: "Add User", element: <UserDetailsDashboard /> },
       { type: "dashboard", availability: () => true, label: "Users", element: <UserSearchDashboard /> },
-      // { type: "dashboard", availability: () => true, label: "Add Contact", element: <ContactDetailsDashboard /> },
       { type: "dashboard", availability: () => true, label: "Contacts", element: <ContactSearchDashboard /> },
       { type: "dashboard", availability: () => true, label: "List Options", element: <EditListDashboard /> }
     ],
@@ -81,13 +79,13 @@ export const configuration: RouteConfiguration = [
   { 
     type: "page", 
     availability: () => true, 
-    label: "AddContact", 
+    label: "contactdetails", 
     element: <ContactDetailsDashboard /> 
   },
   { 
     type: "page", 
     availability: () => true, 
-    label: "AddUser", 
+    label: "userdetails", 
     element: <UserDetailsDashboard /> 
   },
   { 

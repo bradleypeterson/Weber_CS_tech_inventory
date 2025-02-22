@@ -1,6 +1,6 @@
 import { MagnifyingGlass, Plus } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
 import { Column, Table } from "../../elements/Table/Tables";
@@ -8,6 +8,15 @@ import styles from "./ContactSearchDashboard.module.css";
 
 export function ContactSearchDashboard() {
   const [searchText, setSearchText] = useState("");
+  const navigate = useNavigate();
+
+  const columns: Column[] = [
+    { key: "w_number", label: "W Number", type: "text" },
+    { key: "name", label: "Name", type: "text" },
+    { key: "department", label: "Department", type: "text" },
+    { key: "location", label: "Location", type: "text" },
+    { key: "edit", label: "Edit", type: "icon", icon: "edit", width: "10px", action: () => navigate("/contactdetails") },
+  ];
 
   const filteredData = useMemo(
     () => dummyData.filter((row) => Object.values(row).some((value) => value.toLowerCase().includes(searchText))),
@@ -39,10 +48,4 @@ const dummyData = [
   { w_number: "W00123456", name: "John Smith", department: "NET", location: "EH 311B" }
 ];
 
-const columns: Column[] = [
-  { key: "w_number", label: "W Number", type: "text" },
-  { key: "name", label: "Name", type: "text" },
-  { key: "department", label: "Department", type: "text" },
-  { key: "location", label: "Location", type: "text" },
-  { key: "edit", label: "Edit", type: "icon", icon: "edit", width: "10px", action: () => alert("edit contact person") },
-];
+
