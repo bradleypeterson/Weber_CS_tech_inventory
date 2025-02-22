@@ -4,6 +4,10 @@ import { AssetsDetailsDashboard } from "../dashboards/AssetsDetailsDashboard/Ass
 import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard/AssetsSearchDashboard";
 import { AuditDetailsDashboard } from "../dashboards/AuditDetailsDashboard/AuditDetailsDashboard";
 import { AuditHistoryDashboard } from "../dashboards/AuditHistoryDashboard/AuditHistoryDashboard";
+import { AuditInitiateDashboard } from "../dashboards/AuditInitiateDashboard/AuditInitiateDashboard";
+import { AuditSubmitted } from "../dashboards/AuditInitiateDashboard/AuditSubmitted";
+import { AuditSummary } from "../dashboards/AuditInitiateDashboard/AuditSummary";
+import { NewAudit } from "../dashboards/AuditInitiateDashboard/NewAudit";
 import { ContactDetailsDashboard } from "../dashboards/ContactDetailsDashboard/ContactDetailsDashboard";
 import { ContactSearchDashboard } from "../dashboards/ContactSearchDashboard/ContactSearchDashboard";
 import { EditListDashboard } from "../dashboards/EditListDashboard/EditListDashboard";
@@ -36,6 +40,15 @@ export const configuration: RouteConfiguration = [
     label: "Audits",
     icon: <Briefcase />,
     menu: [
+      { type: "dashboard", 
+        availability: () => true, 
+        label: "Initiate Audit", 
+        element: <AuditInitiateDashboard />, 
+        tabs: [{ type: "tab", label: "New Audit", element: <NewAudit /> },
+               { type: "tab", label: "Audit Summary", element: <AuditSummary /> },
+               { type: "tab", label: "Audit Submitted", element: <AuditSubmitted /> }
+        ] 
+      },
       {
         type: "dashboard",
         availability: () => true,
@@ -88,5 +101,23 @@ export const configuration: RouteConfiguration = [
     label: "Landingpage",
     element: <LandingPage />,
     availability: () => true
+  },
+  { 
+    type: "page", 
+    availability: () => true, 
+    label: "contactdetails", 
+    element: <ContactDetailsDashboard /> 
+  },
+  { 
+    type: "page", 
+    availability: () => true, 
+    label: "userdetails", 
+    element: <UserDetailsDashboard /> 
+  },
+  { 
+    type: "page", 
+    availability: () => true, 
+    label: "ChangeUserPassword", 
+    element: < PasswordChangeDashboard /> 
   },
 ];
