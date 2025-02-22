@@ -22,7 +22,8 @@ export function UserSearchDashboard() {
     { key: "name", label: "Name", type: "text" },
     { key: "departments", label: "Departments", type: "text" },
     { key: "location", label: "Location", type: "text" },
-    { key: "edit", label: "Edit", type: "icon", icon: "edit", width: "10px", action: (row) => navigate("/userdetails", { state: { w_number: row.w_number, name: row.name}}) },
+    { key: "edit", label: "Edit", type: "icon", icon: "edit", width: "10px", action: () => navigate("/userdetails") },
+    // { key: "edit", label: "Edit", type: "icon", icon: "edit", width: "10px", action: (row) => navigate("/userdetails", { state: { w_number: row.w_number, name: row.name}}) },
   ];
 
   const filteredData = useMemo(
