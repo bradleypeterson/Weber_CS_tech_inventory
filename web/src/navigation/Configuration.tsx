@@ -4,11 +4,14 @@ import { AssetsDetailsDashboard } from "../dashboards/AssetsDetailsDashboard/Ass
 import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard/AssetsSearchDashboard";
 import { AuditDetailsDashboard } from "../dashboards/AuditDetailsDashboard/AuditDetailsDashboard";
 import { AuditHistoryDashboard } from "../dashboards/AuditHistoryDashboard/AuditHistoryDashboard";
+import { ContactDetailsDashboard } from "../dashboards/ContactDetailsDashboard/ContactDetailsDashboard";
 import { ContactSearchDashboard } from "../dashboards/ContactSearchDashboard/ContactSearchDashboard";
 import { EditListDashboard } from "../dashboards/EditListDashboard/EditListDashboard";
 import { Elements } from "../dashboards/Elements";
 import { LandingPage } from "../dashboards/LandingPage/LandingPage";
 import { Login } from "../dashboards/Login/Login";
+import { PasswordChangeDashboard } from "../dashboards/PasswordChangeDashboard/PasswordChangeDashboard";
+import { UserDetailsDashboard } from "../dashboards/UserDetailsDashboard/UserDetailsDashboard";
 import { UserSearchDashboard } from "../dashboards/UserSearchDashboard/UserSearchDashboard";
 import { RouteConfiguration } from "./types";
 
@@ -48,7 +51,9 @@ export const configuration: RouteConfiguration = [
     label: "Admin",
     icon: <UserGear />,
     menu: [
+      // { type: "dashboard", availability: () => true, label: "Add User", element: <UserDetailsDashboard /> },
       { type: "dashboard", availability: () => true, label: "Users", element: <UserSearchDashboard /> },
+      // { type: "dashboard", availability: () => true, label: "Add Contact", element: <ContactDetailsDashboard /> },
       { type: "dashboard", availability: () => true, label: "Contacts", element: <ContactSearchDashboard /> },
       { type: "dashboard", availability: () => true, label: "List Options", element: <EditListDashboard /> }
     ],
@@ -72,5 +77,23 @@ export const configuration: RouteConfiguration = [
     label: "Landingpage",
     element: <LandingPage />,
     availability: () => true
-  }
+  },
+  { 
+    type: "page", 
+    availability: () => true, 
+    label: "AddContact", 
+    element: <ContactDetailsDashboard /> 
+  },
+  { 
+    type: "page", 
+    availability: () => true, 
+    label: "AddUser", 
+    element: <UserDetailsDashboard /> 
+  },
+  { 
+    type: "page", 
+    availability: () => true, 
+    label: "ChangeUserPassword", 
+    element: < PasswordChangeDashboard /> 
+  },
 ];

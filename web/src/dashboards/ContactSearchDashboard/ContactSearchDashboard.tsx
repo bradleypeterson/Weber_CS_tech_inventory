@@ -1,6 +1,7 @@
-import { MagnifyingGlass } from "@phosphor-icons/react";
+import { MagnifyingGlass, Plus } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
-import { Button } from "../../elements/Button/Button";
+import { Link } from "react-router";
+import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
 import { Column, Table } from "../../elements/Table/Tables";
 import styles from "./ContactSearchDashboard.module.css";
@@ -16,6 +17,9 @@ export function ContactSearchDashboard() {
   return (
     <main className={styles.layout}>
       <div className={styles.tableHeader}>
+        <Link to="/addcontact">
+          <IconButton icon={<Plus />} variant="secondary" />
+        </Link>
         <IconInput
           icon={<MagnifyingGlass />}
           width="200px"
@@ -25,13 +29,6 @@ export function ContactSearchDashboard() {
         />
       </div>
       <Table columns={columns} data={filteredData} />
-      <div className={styles.tableFooter}>
-        <Button 
-          variant="secondary" 
-          size="normal">
-          Add New Contact
-        </Button>
-      </div>
     </main>
   );
 }
@@ -43,6 +40,7 @@ const dummyData = [
 ];
 
 const columns: Column[] = [
+  { key: "w_number", label: "W Number", type: "text" },
   { key: "name", label: "Name", type: "text" },
   { key: "department", label: "Department", type: "text" },
   { key: "location", label: "Location", type: "text" },
