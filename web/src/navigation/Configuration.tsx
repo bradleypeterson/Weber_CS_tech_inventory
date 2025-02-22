@@ -51,8 +51,21 @@ export const configuration: RouteConfiguration = [
     label: "Admin",
     icon: <UserGear />,
     menu: [
-      { type: "dashboard", availability: () => true, label: "Users", element: <UserSearchDashboard /> },
-      { type: "dashboard", availability: () => true, label: "Contacts", element: <ContactSearchDashboard /> },
+      { type: "dashboard", 
+        availability: () => true, 
+        label: "Users", 
+        element: <UserSearchDashboard />,   
+        tabs: [
+          { type: "tab", label: "Details", element: <UserDetailsDashboard /> },
+          { type: "tab", label: "Change Password", element: <PasswordChangeDashboard/> }
+        ]
+      },
+      { type: "dashboard", 
+        availability: () => true, 
+        label: "Contacts", 
+        element: <ContactSearchDashboard />, 
+        tabs: [{ type: "tab", label: "Details", element: <ContactDetailsDashboard /> }]
+      },
       { type: "dashboard", availability: () => true, label: "List Options", element: <EditListDashboard /> }
     ],
     availability: () => true
@@ -75,23 +88,5 @@ export const configuration: RouteConfiguration = [
     label: "Landingpage",
     element: <LandingPage />,
     availability: () => true
-  },
-  { 
-    type: "page", 
-    availability: () => true, 
-    label: "contactdetails", 
-    element: <ContactDetailsDashboard /> 
-  },
-  { 
-    type: "page", 
-    availability: () => true, 
-    label: "userdetails", 
-    element: <UserDetailsDashboard /> 
-  },
-  { 
-    type: "page", 
-    availability: () => true, 
-    label: "ChangeUserPassword", 
-    element: < PasswordChangeDashboard /> 
   },
 ];

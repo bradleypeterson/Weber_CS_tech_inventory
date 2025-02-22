@@ -1,21 +1,21 @@
 import { MagnifyingGlass, Plus } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
 import { Column, Table } from "../../elements/Table/Tables";
+import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./ContactSearchDashboard.module.css";
 
 export function ContactSearchDashboard() {
   const [searchText, setSearchText] = useState("");
-  const navigate = useNavigate();
+  const linkTo = useLinkTo();
 
   const columns: Column[] = [
     { key: "w_number", label: "W Number", type: "text" },
     { key: "name", label: "Name", type: "text" },
     { key: "department", label: "Department", type: "text" },
     { key: "location", label: "Location", type: "text" },
-    { key: "edit", label: "Edit", type: "icon", icon: "edit", width: "10px", action: () => navigate("/contactdetails") },
+    { key: "edit", label: "Edit", type: "icon", icon: "edit", width: "10px", action:() => linkTo("Details", ["Admin", "Contacts"], "w_number=W01234567")},
   ];
 
   const filteredData = useMemo(
@@ -26,9 +26,7 @@ export function ContactSearchDashboard() {
   return (
     <main className={styles.layout}>
       <div className={styles.tableHeader}>
-        <Link to="/addcontact">
-          <IconButton icon={<Plus />} variant="secondary" />
-        </Link>
+          <IconButton icon={<Plus />} variant="secondary" onClick={() => linkTo("Details", ["Admin", "Contacts"])}/>
         <IconInput
           icon={<MagnifyingGlass />}
           width="200px"

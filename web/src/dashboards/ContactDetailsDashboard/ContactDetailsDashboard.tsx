@@ -9,10 +9,18 @@ import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
 import { TextArea } from "../../elements/TextArea/TextArea";
 import styles from "./ContactDetailsDashboard.module.css";
 
+type Data = {
+  w_number: string;
+  departments: string;
+  location: string;
+  firstName: string;
+  lastName: string;
+};
+
 export function ContactDetailsDashboard() {
   const [searchParams] = useSearchParams();
   const wNumber = useMemo(() => searchParams.get("w_number"), [searchParams]);
-  const userName = useMemo(() => searchParams.get("name"), [searchParams]);
+  const userName = "Freddy Faculty"; //useMemo(() => searchParams.get("name"), [searchParams]);
   if (wNumber !== null && userName !== null)
     return <ContactDetailsView wNumber={wNumber} userName={userName} />;
   else 
@@ -20,12 +28,17 @@ export function ContactDetailsDashboard() {
 }
 
 function ContactDetailsView({ wNumber, userName }: { wNumber: string, userName: string }) {
-  const [formData, setFormData] = useState<
-    Record<string, string | string[] | (string | number)[] | number[] | boolean | number>
-  >({});
+
+  const [formData, setFormData] = useState<Data>({
+    w_number: wNumber,
+    departments: "WEB",
+    location: "NB 311C",
+    firstName: "Freddy",
+    lastName: "Faculty",
+  });
 
   function handleInputChange(
-    name: string,
+    name: keyof Data,
     value: string | string[] | (string | number)[] | number[] | boolean | number
   ) {
     setFormData((prev) => ({
@@ -41,7 +54,7 @@ function ContactDetailsView({ wNumber, userName }: { wNumber: string, userName: 
     <main className={styles.layout}>
       <div className={styles.row}>
         <div>
-          <h2>Edit Contact Details</h2>
+          <h2>Edit User Details</h2>
           <p> {userName} | {wNumber}</p>
         </div>
         <IconButton icon={<Check />} variant="secondary" />
@@ -54,8 +67,8 @@ function ContactDetailsView({ wNumber, userName }: { wNumber: string, userName: 
               <FormField
                 key={input.name}
                 input={input}
-                value={formData[input.name] || ""}
-                onChange={(val) => handleInputChange(input.name, val)}
+                value={formData[input.name as keyof Data] || ""}
+                onChange={(val) => handleInputChange(input.name as keyof Data, val)}
               />
             ))}
           </div>

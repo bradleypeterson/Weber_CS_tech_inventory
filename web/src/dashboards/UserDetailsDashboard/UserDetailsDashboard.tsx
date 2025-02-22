@@ -1,6 +1,6 @@
 import { Check } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import { Button } from "../../elements/Button/Button";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
 import { IconButton } from "../../elements/IconButton/IconButton";
@@ -8,12 +8,21 @@ import { LabelInput } from "../../elements/LabelInput/LabelInput";
 import { MultiSelect } from "../../elements/MultiSelect/MultiSelect";
 import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
 import { TextArea } from "../../elements/TextArea/TextArea";
+import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./UserDetailsDashboard.module.css";
+
+type Data = {
+  w_number: string;
+  departments: string;
+  location: string;
+  firstName: string;
+  lastName: string;
+};
 
 export function UserDetailsDashboard() {
   const [searchParams] = useSearchParams();
   const wNumber = useMemo(() => searchParams.get("w_number"), [searchParams]);
-  const userName = useMemo(() => searchParams.get("name"), [searchParams]);
+  const userName = "Sally Student"; //useMemo(() => searchParams.get("name"), [searchParams]);
   if (wNumber !== null && userName !== null)
     return <UserDetailsView wNumber={wNumber} userName={userName} />;
   else
@@ -21,12 +30,17 @@ export function UserDetailsDashboard() {
 }
 
 function UserDetailsView({ wNumber, userName }: { wNumber: string, userName: string }) {
-  const [formData, setFormData] = useState<
-    Record<string, string | string[] | (string | number)[] | number[] | boolean | number>
-  >({});
+  const linkTo = useLinkTo();
+  const [formData, setFormData] = useState<Data>({
+    w_number: wNumber,
+    departments: "CS",
+    location: "NB 324A",
+    firstName: "Sally",
+    lastName: "Student",
+  });
 
   function handleInputChange(
-    name: string,
+    name: keyof Data,
     value: string | string[] | (string | number)[] | number[] | boolean | number
   ) {
     setFormData((prev) => ({
@@ -55,17 +69,15 @@ function UserDetailsView({ wNumber, userName }: { wNumber: string, userName: str
               <FormField
                 key={input.name}
                 input={input}
-                value={formData[input.name] || ""}
-                onChange={(val) => handleInputChange(input.name, val)}
+                value={formData[input.name as keyof Data] || ""}
+                onChange={(val) => handleInputChange(input.name as keyof Data, val)}
               />
             ))}
           </div>
         ))}
       </form>
       <div className={styles.Button}>
-        <Link to="/changeuserpassword">
-          <Button style={{ width: "200px" }} variant={"secondary"}>Change User Password</Button>
-        </Link>
+          <Button style={{ width: "200px" }} variant={"secondary"} onClick={() => linkTo("Change Password", ["Admin", "Users"], "w_number=W01234567")}>Change User Password</Button>
       </div>
     </main>
   );
@@ -115,8 +127,6 @@ function EmptyUserDetailsView() {
     </main>
   );
 }
-
-
 
 function FormField({
   input,
@@ -196,13 +206,13 @@ const formStructure: Column[] = [
         name: "departments",
         label: "Departments",
         inputType: "multi select",
-        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "WEB" }]), 500))
+        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "CS" }]), 500))
       },
       {
         name: "location",
         label: "Location",
         inputType: "single select",
-        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "NB 325G" }]), 500))
+        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "NB 324A" }]), 500))
       },
     ]
   },
