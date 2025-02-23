@@ -3,13 +3,19 @@ import { BrowserRouter, useLocation } from "react-router";
 import "./App.css";
 import { Sidebar } from "./components/Sidebar/Sidebar";
 import { Router } from "./navigation/Router";
+import { BuiltDashboard, BuiltTab } from "./navigation/types";
 import { useAccessibleRoutes } from "./navigation/useAccessibleRoutes";
 
 function Layout() {
   const location = useLocation();
   const { routes } = useAccessibleRoutes();
   const dashboardRoutes = useMemo(
-    () => new Set(routes.filter((route) => route.type === "dashboard").map((route) => route.path)),
+    () =>
+      new Set(
+        routes
+          .filter((route): route is BuiltDashboard | BuiltTab => ["dashboard", "tab"].includes(route.type))
+          .map((route) => route.path)
+      ),
     [routes]
   );
 

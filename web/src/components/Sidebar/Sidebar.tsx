@@ -28,15 +28,15 @@ export function Sidebar() {
                   setCollapsed,
                   icon: route.icon,
                   title: route.label,
-                  active: route.menu.some((dashboard) => dashboard.path === location.pathname)
+                  active: route.menu.some((dashboard) => location.pathname.includes(dashboard.path))
                 }}
               >
                 {route.menu.map((dashboard) => (
                   <SubMenuItem
                     key={dashboard.key}
                     title={dashboard.label}
-                    onClick={() => linkTo(dashboard.label, route.label)}
-                    active={location.pathname === dashboard.path}
+                    onClick={() => linkTo(dashboard.label, [route.label])}
+                    active={location.pathname.includes(dashboard.path)}
                   />
                 ))}
               </MenuItem>

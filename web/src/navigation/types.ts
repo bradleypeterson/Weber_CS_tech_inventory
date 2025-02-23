@@ -5,7 +5,7 @@ export type RouteConfiguration = FeatureItem[];
 export type FeatureItem = Menu | Dashboard | Page;
 
 export interface FeatureConfigurationBase {
-  type: "menu" | "page" | "dashboard";
+  type: "menu" | "page";
   availability: () => boolean;
   label: string;
 }
@@ -16,9 +16,12 @@ export interface Menu extends FeatureConfigurationBase {
   menu: Dashboard[];
 }
 
-export interface Dashboard extends FeatureConfigurationBase {
+export interface Dashboard {
   type: "dashboard";
+  availability: () => boolean;
+  label: string;
   element: ReactNode;
+  tabs?: Tab[];
 }
 
 export interface Page extends FeatureConfigurationBase {
@@ -27,8 +30,13 @@ export interface Page extends FeatureConfigurationBase {
   element: ReactNode;
 }
 
+export interface Tab {
+  type: "tab";
+  label: string;
+  element: ReactNode;
+}
 export interface BuiltFeatureItemBase {
-  type: "menu" | "dashboard" | "page";
+  type: "menu" | "dashboard" | "page" | "tab";
   key: string;
   label: string;
 }
@@ -51,6 +59,12 @@ export interface BuiltPage extends BuiltFeatureItemBase {
   element: ReactNode;
 }
 
-export type BuiltFeatureItem = BuiltMenu | BuiltDashboard | BuiltPage;
+export interface BuiltTab extends BuiltFeatureItemBase {
+  type: "tab";
+  path: string;
+  element: ReactNode;
+}
+
+export type BuiltFeatureItem = BuiltMenu | BuiltDashboard | BuiltPage | BuiltTab;
 
 export type BuiltFeatures = BuiltFeatureItem[];

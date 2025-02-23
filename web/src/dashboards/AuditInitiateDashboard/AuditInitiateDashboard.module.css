@@ -1,0 +1,29 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  padding-top: 30vh;
+}
+
+/* .departmentSelect {
+  width: 250px;
+  margin-top: 4rem;
+} */
+
+.scanSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.scanSection > :global(.iconInput),
+.scanSection > :global(.iconInput input) {
+  width: 1000px;
+  max-width: 1000px;
+}
+

@@ -1,6 +1,7 @@
-import { ArrowRight, Barcode, Pencil, Plus } from "@phosphor-icons/react";
+import { ArrowRight, Barcode, Pencil } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
+import { Notes } from "../../components/Notes/Notes";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
@@ -33,12 +34,12 @@ export function AssetsDetailsDashboard() {
             />
             <IconButton
               icon={<ArrowRight />}
-              onClick={() => linkTo("Asset Details", "Assets", `asset_id=${tagId}`)}
+              onClick={() => linkTo("Asset Details", ["Assets"], `asset_id=${tagId}`)}
               variant="primary"
               disabled={tagId === ""}
             />
           </div>
-          <a onClick={() => linkTo("Search", "Assets")}>Search an asset</a>
+          <a onClick={() => linkTo("Search", ["Assets"])}>Search an asset</a>
         </div>
       </main>
     );
@@ -90,23 +91,6 @@ function AssetDetailsView({ assetId }: { assetId: string }) {
       </form>
       <Notes notes={[]} />
     </main>
-  );
-}
-
-function Notes({ notes }: { notes: string[] }) {
-  return (
-    <div className={styles.notesContainer}>
-      <div className={styles.row}>
-        <h3>Notes</h3>
-        <IconButton icon={<Plus />} variant="secondary" />
-      </div>
-      <div>
-        {notes.length === 0 && <span style={{ color: "var(--white-dim)" }}>Nothing to see here</span>}
-        {notes.map((note) => (
-          <article>{note}</article>
-        ))}
-      </div>
-    </div>
   );
 }
 

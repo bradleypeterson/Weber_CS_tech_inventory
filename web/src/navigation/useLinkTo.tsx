@@ -7,8 +7,8 @@ export function useLinkTo() {
   const navigate = useNavigate();
   const location = useLocation();
   return useCallback(
-    (label: string, parentLabel?: string, queryParams?: string) => {
-      const path = buildPath(label, parentLabel);
+    (label: string, parentLabels?: string[], queryParams?: string) => {
+      const path = buildPath(label, parentLabels);
       if (routes.some((route) => route.type !== "menu" && route.path === path)) {
         const pathWithParams = `${path}${queryParams ? `?${queryParams}` : ""}`;
         if (location.pathname !== pathWithParams) navigate(pathWithParams);
