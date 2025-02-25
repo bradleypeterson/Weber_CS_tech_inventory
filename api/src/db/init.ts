@@ -166,7 +166,7 @@ async function createTables() {
       EquipmentID INT PRIMARY KEY AUTO_INCREMENT,
       TagNumber VARCHAR(16) NOT NULL,
       SerialNumber VARCHAR(32) NOT NULL,
-      Description VARCHAR(256) NOT NULL,
+      Description VARCHAR(64) NOT NULL,
       ContactPersonID INT,
       LocationID INT,
       DepartmentID INT,
@@ -252,7 +252,7 @@ async function createTables() {
 
     alter table AssetClass
     add constraint assetclass_abbreviation_list
-    check (Abbreviation in ('AO', 'AV', 'BD', 'BI', 'CE', 'CP', 'EQ', 'FA', 'IL', 'IN', 'IT', 'KE', 'LB', 'LD', 'LI', 'ME', 'MI', 'MO', 'NC', 'OE', 'OF', 'RE', 'SH', 'VH', 'VN'));
+    check (Abbreviation in ('AV', 'CE', 'CP', 'EQ', 'IT', 'SH', 'VH', 'VN'));
 
     alter table DeviceType
     add constraint devicetype_name_list
