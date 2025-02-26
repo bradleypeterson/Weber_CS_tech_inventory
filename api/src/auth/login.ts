@@ -5,7 +5,7 @@ import { ajv } from "../ajv";
 export async function login(req: Request, res: Response) {
   const params: unknown = req.body;
   if (!validateParams(params)) {
-    res.status(400).json({ status: "error", error: { message: "Invalid request body" } });
+    res.status(400).json({ status: "error", error: { message: "Invalid request" } });
     return;
   }
 
@@ -13,13 +13,13 @@ export async function login(req: Request, res: Response) {
   res.json({ status: "success", data: { token: "example" } });
 }
 
-const paramsSchema: JSONSchemaType<{ username: string; password: string }> = {
+const paramsSchema: JSONSchemaType<{ userId: string; password: string }> = {
   type: "object",
   properties: {
-    username: { type: "string" },
+    userId: { type: "string" },
     password: { type: "string" }
   },
-  required: ["password", "username"]
+  required: ["password", "userId"]
 };
 
 const validateParams = ajv.compile(paramsSchema);

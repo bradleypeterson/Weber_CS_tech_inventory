@@ -4,7 +4,8 @@ import { get } from "./helpers";
 
 export async function fetchAssetsList() {
   const response = await get("/assets/list", validateResponse);
-  return response;
+  if (response.status === "success") return response.data;
+  return undefined;
 }
 
 const validateResponseSchema: JSONSchemaType<{ EquipmentID: number; TagNumber: string }[]> = {

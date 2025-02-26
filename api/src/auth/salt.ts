@@ -1,39 +1,35 @@
 import type { JSONSchemaType } from "ajv";
 import type { Request, Response } from "express";
 import { ajv } from "../ajv";
-import { pool } from "../db";
+import { getUserSalt } from "../db/procedures/auth";
 
 export async function salt(req: Request, res: Response) {
-  const params: unknown = req.query;
-  if (!validateParams(params)) {
-    res.status(400).json({ status: "error", error: { message: "Invalid request body" } });
-    return;
+  try {
+    const params: unknown = req.query;
+    if (!validateParams(params)) {
+      res.status(400).json({ status: "error", error: { message: "Invalid request body" } });
+      return;
+    }
+
+    const salt = await getUserSalt(params.userId);
+    if (salt === null) {
+      res.status(404).json({ status: "error", error: { message: "User not found" } });
+      return;
+    }
+
+    res.json({ status: "success", data: { salt } });
+  } catch (error) {
+    console.error(`Error in salt endpoint:`, error);
+    res.status(500).json({ status: "error", error: { message: "Internal server error" } });
   }
-
-  const query = `select Salt from User where UserID = ?`;
-  const [rows] = await pool.query(query, [params.username]);
-
-  if (!Array.isArray(rows) || rows.length === 0) {
-    res.status(404).json({ status: "error", error: { message: "User not found" } });
-    return;
-  }
-
-  const firstRow = rows[0];
-
-  if (!validateResult(firstRow)) {
-    res.status(500).json({ status: "error", error: { message: "Unexpected database result" } });
-    return;
-  }
-
-  res.json({ status: "success", data: { salt: firstRow.Salt } });
 }
 
-const paramsSchema: JSONSchemaType<{ username: string }> = {
+const paramsSchema: JSONSchemaType<{ userId: string }> = {
   type: "object",
   properties: {
-    username: { type: "string" }
+    userId: { type: "string" }
   },
-  required: ["username"]
+  required: ["userId"]
 };
 
 const validateParams = ajv.compile(paramsSchema);

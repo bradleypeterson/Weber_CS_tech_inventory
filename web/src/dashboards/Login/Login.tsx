@@ -6,24 +6,26 @@ import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./Login.module.css";
 
 export function Login() {
-  const [username, setUsername] = useState("");
+  const [userId, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const linkTo = useLinkTo();
 
   async function handleSubmit() {
-    if (await login(username, password)) {
-      linkTo("Search", ["Assets"]);
-    }
+    const result = await login(userId, password);
+    if (result === true) linkTo("Search", ["Assets"]);
+    else setError(result.message);
   }
 
   return (
     <div className={styles.loginBox}>
       <h1 className={styles.title}>Login</h1>
+      {error && <span style={{ color: "red" }}>{error}</span>}
       <LabelInput
-        label="Username"
-        placeholder="enter your username"
+        label="User ID"
+        placeholder="enter your user ID"
         width="100%"
-        value={username}
+        value={userId}
         onChange={(val) => setUsername(val)}
       />
       <LabelInput
