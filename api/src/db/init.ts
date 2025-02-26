@@ -54,6 +54,42 @@ async function createDatabase() {
   }
 }
 
+async function dropTables() {
+  try {
+    await pool.query("SET FOREIGN_KEY_CHECKS = 0;");
+
+    const dropTableQueries = `
+      DROP TABLE IF EXISTS UserPermission;
+      DROP TABLE IF EXISTS PersonDepartment;
+      DROP TABLE IF EXISTS Archive;
+      DROP TABLE IF EXISTS Note;
+      DROP TABLE IF EXISTS Audit;
+      DROP TABLE IF EXISTS Equipment;
+      DROP TABLE IF EXISTS Person;
+      DROP TABLE IF EXISTS Location;
+      DROP TABLE IF EXISTS ReplacementFiscalYear;
+      DROP TABLE IF EXISTS Building;
+      DROP TABLE IF EXISTS DeviceType;
+      DROP TABLE IF EXISTS \`Condition\`;
+      DROP TABLE IF EXISTS AuditStatus;
+      DROP TABLE IF EXISTS AssetClass;
+      DROP TABLE IF EXISTS Department;
+      DROP TABLE IF EXISTS User;
+      DROP TABLE IF EXISTS Permission;
+    `;
+
+    await pool.query(dropTableQueries);
+
+    await pool.query("SET FOREIGN_KEY_CHECKS = 1;");
+
+    c.success("Tables dropped successfully");
+  } catch (error) {
+    c.failure("Table dropping failed");
+    console.error(error);
+    throw error;
+  }
+}
+
 async function createTables() {
   try {
     const createTables = `
@@ -248,7 +284,7 @@ async function createTables() {
 
     alter table AssetClass
     add constraint assetclass_name_list
-    check (Name in ('Art Objects', 'AudioVisual and Projection Equipment', 'Building', 'Building Improvement', 'Communication and Electronic Equipment', 'Computer Equipment and Peripherals', 'General Equipment', 'Firearms and Weapons', 'Instruction and Lab Equipment', 'Infrastructure', 'Assets Under $2500', 'Institutional Kitchen Equipment', 'Library Equipment', 'Land', 'Land Improvements', 'Medical Equipment', 'Musical Instruments', 'Museum Objects', 'Non-Capital Equipment', 'Office Equipment', 'Office Furnitue', 'Residential Equipment and Furniture', 'Shop and Maintenance Equipment', 'Vehicles', 'Vehicles Not Owned'));
+    check (Name in ('Art Objects', 'AudioVisual and Projection Equipment', 'Computer Equipment and Peripherals', 'General Equipment', 'Infrastructure', 'Shop and Maintenance Equipment', 'Vehicles', 'Vehicles Not Owned'));
 
     alter table AssetClass
     add constraint assetclass_abbreviation_list
@@ -286,14 +322,17 @@ async function initDatabase() {
   const start = performance.now();
   try {
     await createDatabase();
+    await dropTables();
     await createTables();
 
     console.log("Done", Math.round(performance.now() - start), "ms");
+    return true;
   } catch (error) {
     console.log(error);
-  } finally {
-    await pool.end();
+    return false;
   }
 }
 
-void initDatabase();
+if (require.main === module) {
+  void initDatabase().finally(() => pool.end());
+}
