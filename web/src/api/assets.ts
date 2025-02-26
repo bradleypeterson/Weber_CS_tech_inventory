@@ -4,7 +4,6 @@ import { get } from "./helpers";
 
 export async function fetchAssetsList() {
   const response = await get("/assets/list", validateResponse);
-  console.log("rse", response);
   return response;
 }
 

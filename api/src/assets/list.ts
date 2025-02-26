@@ -10,7 +10,6 @@ export async function listAssets(req: Request, res: Response) {
     res.status(404).json({ status: "error", error: { message: "Could not find assets" } });
     return;
   }
-  console.log(rows);
 
   if (!validateRows(rows)) {
     console.log(validateRows.errors);

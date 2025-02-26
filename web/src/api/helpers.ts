@@ -48,7 +48,6 @@ export async function get<T>(endpoint: string, validator: ValidateFunction<T>): 
       console.error(validateApiResponse.errors);
       throw Error("Invalid api response");
     }
-    console.log("RES", response);
     if (response.status === "error") {
       console.error(response.error);
       throw Error(response.error.message);
