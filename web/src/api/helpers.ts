@@ -44,7 +44,11 @@ export async function get<T>(endpoint: string, validator: ValidateFunction<T>): 
   const result = await fetch(url, options);
   if (result.ok) {
     const response = await result.json();
-    if (!validateApiResponse(response)) throw Error("Invalid api response");
+    if (!validateApiResponse(response)) {
+      console.error(validateApiResponse.errors);
+      throw Error("Invalid api response");
+    }
+    console.log("RES", response);
     if (response.status === "error") {
       console.error(response.error);
       throw Error(response.error.message);
@@ -66,7 +70,12 @@ const apiResponseSchema = {
       type: "object",
       properties: {
         status: { type: "string", enum: ["success"] },
-        data: { type: "object", additionalProperties: true } // Allows any structure for `data`
+        data: {
+          oneOf: [
+            { type: "object", additionalProperties: true },
+            { type: "array", items: { type: "object", additionalProperties: true } }
+          ] // Allows any structure for `data`
+        }
       },
       required: ["status", "data"],
       additionalProperties: false

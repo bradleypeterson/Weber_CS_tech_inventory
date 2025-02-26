@@ -3,6 +3,7 @@ import cors from "cors";
 import { config } from "dotenv";
 import express, { json } from "express";
 import morgan from "morgan";
+import { assetRouter } from "./assets";
 import { authRouter } from "./auth";
 config(); // Load environment variables
 
@@ -23,5 +24,6 @@ app.use(
 app.use(cookieParser());
 
 app.use("/auth", authRouter);
+app.use("/assets", assetRouter);
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

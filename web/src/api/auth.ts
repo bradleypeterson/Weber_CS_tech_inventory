@@ -8,6 +8,7 @@ export async function login(username: string, password: string) {
   const hashDigest = sha256(password + salt);
   const hashedPassword = hashDigest.toString();
   const response = await post(`/auth/login`, { username, password: hashedPassword }, validateLoginResponse);
+
   localStorage.setItem("token", response.token);
 
   return true;
