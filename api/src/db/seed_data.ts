@@ -85,12 +85,6 @@ async function seedDatabase() {
     );
 
     await pool.query(
-      `INSERT INTO Permission(Name, Description) VALUES
-        ('SuperAdmin', 'Temp role working as all permissions until we get that picklist figured out');
-        `
-    );
-
-    await pool.query(
       `INSERT INTO Location(BuildingID, RoomNumber, Barcode) VALUES 
         (1, '101', 'NB101'),
         (2, '102', 'EH101'),
@@ -160,6 +154,19 @@ async function seedDatabase() {
     await pool.query(
       `INSERT INTO Audit (CreatedBy, EquipmentID, AuditTime, AuditNote, AuditStatusID) VALUES
         (1, 3, '2025-01-01 11:00:00', 'This needs to be archived', 2);
+        `
+    );
+
+    await pool.query(
+      `INSERT INTO Permission (Name, Description) VALUES
+        ('SuperAdmin', 'All permissions for admin account including changing user passwords and permissions'),
+        ('Add/Edit Assets', 'Add/Edit Assets'),
+        ('Archive Assets', 'Archive Assets'),
+        ('Import/Export CSV Data', 'Import/Export CSV Data'),
+        ('Add/Edit Contact Persons', 'Add/Edit Contact Persons'),
+        ('Add/Edit List Options', 'Add/Edit List Options'),
+        ('Add/Edit/View Users', 'Add/Edit/View Users including changing user passwords'),
+        ('Set User Permissions', 'Set User Permissions');
         `
     );
 
