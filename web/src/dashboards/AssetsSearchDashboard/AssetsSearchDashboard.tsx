@@ -1,5 +1,7 @@
 import { MagnifyingGlass, Trash } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
+import { useQuery } from "react-query";
+import { fetchAssetsList } from "../../api/assets";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
 import { Column, Table } from "../../elements/Table/Tables";
@@ -7,10 +9,16 @@ import styles from "./AssetsSearchDashboard.module.css";
 
 export function AssetsSearchDashboard() {
   const [searchText, setSearchText] = useState("");
+  const { data } = useQuery("AssetsList", () => fetchAssetsList());
 
   const filteredData = useMemo(
-    () => dummyData.filter((row) => Object.values(row).some((value) => value.toLowerCase().includes(searchText))),
-    [searchText]
+    () =>
+      searchText === ""
+        ? (data ?? [])
+        : (data?.filter((row) =>
+            Object.values(row).some((value) => value.toString().toLowerCase().includes(searchText))
+          ) ?? []),
+    [searchText, data]
   );
 
   return (
@@ -30,48 +38,10 @@ export function AssetsSearchDashboard() {
   );
 }
 
-const dummyData = [
-  {
-    tag_number: "100102",
-    department: "Physics",
-    asset_class: "COMPUTERS",
-    device_type: "Laptop",
-    contact_person: "Alice Johnson"
-  },
-  {
-    tag_number: "100248",
-    department: "Mathematics",
-    asset_class: "MONITORS",
-    device_type: "Monitor",
-    contact_person: "David Smith"
-  },
-  {
-    tag_number: "100311",
-    department: "Computer Science",
-    asset_class: "PRINTERS",
-    device_type: "Printer",
-    contact_person: "Brad Petersen"
-  },
-  {
-    tag_number: "100456",
-    department: "Biology",
-    asset_class: "SERVERS",
-    device_type: "Rack Server",
-    contact_person: "Emma Wilson"
-  },
-  {
-    tag_number: "100579",
-    department: "Chemistry",
-    asset_class: "TABLETS",
-    device_type: "iPad",
-    contact_person: "John Doe"
-  }
-];
-
 const columns: Column[] = [
   {
     label: "Tag Number",
-    key: "tag_number",
+    key: "TagNumber",
     type: "text"
   },
   {

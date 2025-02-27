@@ -3,12 +3,16 @@ import sha256 from "crypto-js/sha256";
 import { ajv } from "../ajv";
 import { get, post } from "./helpers";
 
-export async function login(username: string, password: string) {
-  const { salt } = await get(`/auth/salt?username=${username}`, validateSaltResponse);
-  const hashDigest = sha256(password + salt);
+export async function login(userId: string, password: string) {
+  const saltResponse = await get(`/auth/salt?userId=${userId}`, validateSaltResponse);
+  if (saltResponse.status === "error") return saltResponse.error;
+
+  const hashDigest = sha256(password + saltResponse.data.salt);
   const hashedPassword = hashDigest.toString();
-  const response = await post(`/auth/login`, { username, password: hashedPassword }, validateLoginResponse);
-  localStorage.setItem("token", response.token);
+  const loginResponse = await post(`/auth/login`, { userId, password: hashedPassword }, validateLoginResponse);
+  if (loginResponse.status === "error") return loginResponse.error;
+
+  localStorage.setItem("token", loginResponse.data.token);
 
   return true;
 }
