@@ -5,6 +5,7 @@ import express, { json } from "express";
 import morgan from "morgan";
 import { assetRouter } from "./assets";
 import { authRouter } from "./auth";
+import { validateToken } from "./auth/validateToken";
 config(); // Load environment variables
 
 const app = express();
@@ -24,6 +25,9 @@ app.use(
 app.use(cookieParser());
 
 app.use("/auth", authRouter);
+
+// Routes below this line require the user to be logged in
+app.use(validateToken);
 app.use("/assets", assetRouter);
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

@@ -13,7 +13,10 @@ export async function post<T>(
     method: "POST",
     redirect: "follow",
     credentials: "include",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    },
     body: JSON.stringify(body)
   };
 
@@ -43,7 +46,10 @@ export async function get<T>(
     method: "GET",
     redirect: "follow",
     credentials: "include",
-    headers: { "Content-Type": "application/json" }
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    }
   };
 
   const result = await fetch(url, options);

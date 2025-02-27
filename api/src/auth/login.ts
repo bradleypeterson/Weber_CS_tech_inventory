@@ -1,6 +1,9 @@
 import type { JSONSchemaType } from "ajv";
+import { compare } from "bcrypt";
 import type { Request, Response } from "express";
+import { createToken } from ".";
 import { ajv } from "../ajv";
+import { getUserDetails } from "../db/procedures/auth";
 
 export async function login(req: Request, res: Response) {
   const params: unknown = req.body;
@@ -9,8 +12,17 @@ export async function login(req: Request, res: Response) {
     return;
   }
 
-  await new Promise((res) => setTimeout(res, 300));
-  res.json({ status: "success", data: { token: "example" } });
+  const user = await getUserDetails(params.userId);
+
+  if (user !== null && user.HashedPassword !== undefined && (await compare(params.password, user.HashedPassword))) {
+    // Correct password
+    delete user.HashedPassword;
+    const token = createToken(user);
+    res.json({ status: "success", data: { token, permissions: user.Permissions } });
+    return;
+  }
+
+  res.status(400).json({ status: "error", error: { message: "Invalid UserId or Password" } });
 }
 
 const paramsSchema: JSONSchemaType<{ userId: string; password: string }> = {
