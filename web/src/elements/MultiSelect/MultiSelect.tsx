@@ -106,11 +106,9 @@ export function MultiSelect<T>(props: Props<T>) {
       >
         <div ref={valueListRef} className={styles.valueList}>
           <div className={styles.valueList}>
-            {displayedOptions.length > 0 ? (
-              displayedOptions.map((option, i) => <span key={i}>{option}</span>)
-            ) : (
-              <span>{props.placeholder}</span>
-            )}
+            {displayedOptions.length > 0
+              ? displayedOptions.map((option, i) => <span key={i}>{option}</span>)
+              : props.placeholder && <span className={styles.placeholder}>{props.placeholder}</span>}
           </div>
           {remainingTags && (
             <span ref={remainingTagsRef} className={styles.remainingTags}>
