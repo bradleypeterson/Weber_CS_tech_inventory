@@ -1,9 +1,11 @@
 import { ReactNode } from "react";
+import { FilterValues } from "../filters/FilterConfiguration";
 
 export type RouteConfiguration = FeatureItem[];
 
 export type FeatureItem = Menu | Dashboard | Page;
 
+type FilterName = keyof FilterValues;
 export interface FeatureConfigurationBase {
   type: "menu" | "page";
   availability: () => boolean;
@@ -22,7 +24,7 @@ export interface Dashboard {
   label: string;
   element: ReactNode;
   tabs?: Tab[];
-  filters?: string[];
+  filters?: FilterName[];
 }
 
 export interface Page extends FeatureConfigurationBase {
@@ -35,7 +37,7 @@ export interface Tab {
   type: "tab";
   label: string;
   element: ReactNode;
-  filters?: string[];
+  filters?: FilterName[];
 }
 export interface BuiltFeatureItemBase {
   type: "menu" | "dashboard" | "page" | "tab";
@@ -53,7 +55,7 @@ export interface BuiltDashboard extends BuiltFeatureItemBase {
   type: "dashboard";
   path: string;
   element: ReactNode;
-  filters?: string[];
+  filters?: FilterName[];
 }
 
 export interface BuiltPage extends BuiltFeatureItemBase {
@@ -66,7 +68,7 @@ export interface BuiltTab extends BuiltFeatureItemBase {
   type: "tab";
   path: string;
   element: ReactNode;
-  filters?: string[];
+  filters?: FilterName[];
 }
 
 export type BuiltFeatureItem = BuiltMenu | BuiltDashboard | BuiltPage | BuiltTab;

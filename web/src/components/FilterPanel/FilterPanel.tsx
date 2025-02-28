@@ -1,12 +1,12 @@
 import isEqual from "lodash.isequal";
 import { Fragment, useMemo } from "react";
 import { Button } from "../../elements/Button/Button";
-import { useDashboardFilters } from "../../filters/useDashboardFilters";
+import { useDashboardFilterConfigurations } from "../../filters/useDashboardFilterConfigurations";
 import { useFilters } from "../../filters/useFilters";
 import styles from "./FilterPanel.module.css";
 
 export function FilterPanel() {
-  const { filters: filterConfigurations } = useDashboardFilters();
+  const { filters: filterConfigurations } = useDashboardFilterConfigurations();
   const { filters, selectedFilters, apply, resetFilters } = useFilters();
 
   const applyDisabled = useMemo(() => isEqual(filters, selectedFilters), [filters, selectedFilters]);

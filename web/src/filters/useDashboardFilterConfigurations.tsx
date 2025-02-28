@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useDashboard } from "../navigation/useDashboard";
 import { FilterConfig, filterConfiguration } from "./FilterConfiguration";
 
-export function useDashboardFilters() {
+export function useDashboardFilterConfigurations() {
   const { dashboard } = useDashboard();
 
   const filters = useMemo(() => {
