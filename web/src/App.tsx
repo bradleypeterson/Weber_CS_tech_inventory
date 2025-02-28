@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { BrowserRouter, useLocation } from "react-router";
 import "./App.css";
+import { FilterPanel } from "./components/FilterPanel/FilterPanel";
 import { Sidebar } from "./components/Sidebar/Sidebar";
 import { Router } from "./navigation/Router";
 import { BuiltDashboard, BuiltTab } from "./navigation/types";
@@ -19,11 +20,29 @@ function Layout() {
     [routes]
   );
 
+  console.log(routes);
   const showSidebar = useMemo(() => dashboardRoutes.has(location.pathname), [location, dashboardRoutes]);
+  const showFilterPanel = useMemo(
+    () =>
+      routes
+        .filter((route): route is BuiltDashboard | BuiltTab => ["dashboard", "tab"].includes(route.type))
+        .some(
+          (route) => route.path.includes(location.pathname) && route.filters !== undefined && route.filters.length > 0
+        ),
+    [routes, location]
+  );
+
+  const classNames = useMemo(() => {
+    const names = [];
+    if (!showSidebar) names.push("no-sidebar");
+    if (showFilterPanel) names.push("show-filter-panel");
+    return names;
+  }, [showFilterPanel, showSidebar]);
 
   return (
-    <div id="app-layout" className={!showSidebar ? "no-sidebar" : ""}>
+    <div id="app-layout" className={classNames.join(" ")}>
       {showSidebar && <Sidebar />}
+      {showFilterPanel && <FilterPanel />}
       <Router />
     </div>
   );

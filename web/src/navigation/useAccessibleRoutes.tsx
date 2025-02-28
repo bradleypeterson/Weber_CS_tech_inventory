@@ -32,7 +32,8 @@ function buildMenuFeature(menu: Menu) {
       label: dashboard.label,
       path: buildPath(dashboard.label, [menu.label]),
       key: buildKey(dashboard.label, [menu.label]),
-      element: dashboard.element
+      element: dashboard.element,
+      filters: dashboard.filters
     };
 
     for (const tab of dashboard.tabs ?? []) {
@@ -41,7 +42,8 @@ function buildMenuFeature(menu: Menu) {
         label: tab.label,
         path: buildPath(tab.label, [menu.label, dashboard.label]),
         key: buildKey(tab.label, [menu.label, dashboard.label]),
-        element: tab.element
+        element: tab.element,
+        filters: tab.filters
       };
       items.push(builtTab);
       tabs.push(builtTab);

@@ -4,6 +4,12 @@ export type RouteConfiguration = FeatureItem[];
 
 export type FeatureItem = Menu | Dashboard | Page;
 
+export type Filter = {
+  label: string;
+  type: "input" | "textarea" | "checkbox" | "single select" | "multi select";
+  key: string;
+};
+
 export interface FeatureConfigurationBase {
   type: "menu" | "page";
   availability: () => boolean;
@@ -22,6 +28,7 @@ export interface Dashboard {
   label: string;
   element: ReactNode;
   tabs?: Tab[];
+  filters?: Filter[];
 }
 
 export interface Page extends FeatureConfigurationBase {
@@ -34,6 +41,7 @@ export interface Tab {
   type: "tab";
   label: string;
   element: ReactNode;
+  filters?: Filter[];
 }
 export interface BuiltFeatureItemBase {
   type: "menu" | "dashboard" | "page" | "tab";
@@ -51,6 +59,7 @@ export interface BuiltDashboard extends BuiltFeatureItemBase {
   type: "dashboard";
   path: string;
   element: ReactNode;
+  filters?: Filter[];
 }
 
 export interface BuiltPage extends BuiltFeatureItemBase {
@@ -63,6 +72,7 @@ export interface BuiltTab extends BuiltFeatureItemBase {
   type: "tab";
   path: string;
   element: ReactNode;
+  filters?: Filter[];
 }
 
 export type BuiltFeatureItem = BuiltMenu | BuiltDashboard | BuiltPage | BuiltTab;

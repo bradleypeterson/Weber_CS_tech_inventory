@@ -5,6 +5,14 @@
   transition: grid-template-columns 0.1s ease-in-out;
 }
 
+#app-layout.show-filter-panel {
+  grid-template-columns: auto auto 1fr;
+}
+
+#app-layout.show-filter-panel.no-sidebar {
+  grid-template-columns: auto 1fr;
+}
+
 #app-layout.no-sidebar {
   grid-template-columns: 1fr;
 }
