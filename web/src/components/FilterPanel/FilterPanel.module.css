@@ -18,3 +18,11 @@
   transition: 0.2s ease-in-out;
   border-left: 1px solid var(--gray);
 }
+
+.row {
+  width: 100%;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+}

@@ -1,6 +1,29 @@
+import isEqual from "lodash.isequal";
+import { Fragment, useMemo } from "react";
+import { Button } from "../../elements/Button/Button";
 import { useDashboardFilters } from "../../filters/useDashboardFilters";
+import { useFilters } from "../../filters/useFilters";
 import styles from "./FilterPanel.module.css";
+
 export function FilterPanel() {
-  const { filters } = useDashboardFilters();
-  return <aside className={styles.filterPanel}>{filters && filters.map((filter) => filter.Edit)}</aside>;
+  const { filters: filterConfigurations } = useDashboardFilters();
+  const { filters, selectedFilters, apply, resetFilters } = useFilters();
+
+  const applyDisabled = useMemo(() => isEqual(filters, selectedFilters), [filters, selectedFilters]);
+
+  return (
+    <aside className={styles.filterPanel}>
+      {filterConfigurations && filterConfigurations.map((filter, i) => <Fragment key={i}>{filter.Edit}</Fragment>)}
+      {filterConfigurations && (
+        <div className={styles.row}>
+          <Button variant="secondary" onClick={resetFilters}>
+            Reset
+          </Button>
+          <Button variant="primary" disabled={applyDisabled} onClick={apply}>
+            Apply
+          </Button>
+        </div>
+      )}
+    </aside>
+  );
 }

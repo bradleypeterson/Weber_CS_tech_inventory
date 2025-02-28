@@ -3,6 +3,7 @@ import { BrowserRouter, useLocation } from "react-router";
 import "./App.css";
 import { FilterPanel } from "./components/FilterPanel/FilterPanel";
 import { Sidebar } from "./components/Sidebar/Sidebar";
+import { FilterProvider } from "./filters/FilterProvider";
 import { Router } from "./navigation/Router";
 import { BuiltDashboard, BuiltTab } from "./navigation/types";
 import { useAccessibleRoutes } from "./navigation/useAccessibleRoutes";
@@ -20,7 +21,6 @@ function Layout() {
     [routes]
   );
 
-  console.log(routes);
   const showSidebar = useMemo(() => dashboardRoutes.has(location.pathname), [location, dashboardRoutes]);
   const showFilterPanel = useMemo(
     () =>
@@ -41,9 +41,11 @@ function Layout() {
 
   return (
     <div id="app-layout" className={classNames.join(" ")}>
-      {showSidebar && <Sidebar />}
-      {showFilterPanel && <FilterPanel />}
-      <Router />
+      <FilterProvider>
+        {showSidebar && <Sidebar />}
+        {showFilterPanel && <FilterPanel />}
+        <Router />
+      </FilterProvider>
     </div>
   );
 }
