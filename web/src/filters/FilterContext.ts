@@ -1,8 +1,5 @@
 import { createContext } from "react";
-
-export type FilterValues = {
-  Department?: number[];
-};
+import { FilterValues } from "./FilterConfiguration";
 
 export type FilterContextType = {
   filters: FilterValues;

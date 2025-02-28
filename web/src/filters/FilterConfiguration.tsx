@@ -5,7 +5,11 @@ export type FilterConfig = {
   Edit: ReactNode;
 };
 
-export const filterConfiguration: Record<string, FilterConfig> = {
+export type FilterValues = {
+  Department?: number[];
+};
+
+export const filterConfiguration: Record<keyof FilterValues, FilterConfig> = {
   Department: {
     Edit: <DepartmentFilter />
   }
