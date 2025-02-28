@@ -34,7 +34,7 @@ export const configuration: RouteConfiguration = [
         availability: () => true,
         label: "Search",
         element: <AssetsSearchDashboard />,
-        filters: ["Department"]
+        filters: ["Department", "Asset Class"]
       },
       { type: "dashboard", availability: () => true, label: "Asset Details", element: <AssetsDetailsDashboard /> },
       { type: "dashboard", availability: () => true, label: "Add", element: <AssetsAddDashboard /> }

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { AssetClassFilter } from "./AssetClassFilter/AssetClassFilter";
 import { DepartmentFilter } from "./DepartmentFilter/DepartmentFilter";
 
 export type FilterConfig = {
@@ -7,10 +8,14 @@ export type FilterConfig = {
 
 export type FilterValues = {
   Department?: number[];
+  "Asset Class"?: number[];
 };
 
-export const filterConfiguration: Record<keyof FilterValues, FilterConfig> = {
+export const filterConfiguration: Partial<Record<keyof FilterValues, FilterConfig>> = {
   Department: {
     Edit: <DepartmentFilter />
+  },
+  "Asset Class": {
+    Edit: <AssetClassFilter />
   }
 };
