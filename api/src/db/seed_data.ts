@@ -103,11 +103,24 @@ async function seedDatabase() {
     );
 
     await pool.query(
-      `INSERT INTO User(PersonID, HashedPassword) VALUES
-        (1, 'a'),
-        (2, 'a'),
-        (3, 'a'),
-        (4, 'a');
+      `INSERT INTO User(PersonID, HashedPassword, Salt) VALUES
+        (1, 'a','2cef97f7a9744f60ceb9f93839e09929'),
+        (2, 'a','2cef97f7a9744f60ceb9f93839e09929'),
+        (3, 'a','2cef97f7a9744f60ceb9f93839e09929'),
+        (4, 'a','2cef97f7a9744f60ceb9f93839e09929');
+        `
+    );
+
+    await pool.query(
+      `INSERT INTO Permission (Name, Description) VALUES
+        ('SuperAdmin', 'All permissions for admin account including changing user passwords and permissions'),
+        ('Add/Edit Assets', 'Add/Edit Assets'),
+        ('Archive Assets', 'Archive Assets'),
+        ('Import/Export CSV Data', 'Import/Export CSV Data'),
+        ('Add/Edit Contact Persons', 'Add/Edit Contact Persons'),
+        ('Add/Edit List Options', 'Add/Edit List Options'),
+        ('Add/Edit/View Users', 'Add/Edit/View Users including changing user passwords'),
+        ('Set User Permissions', 'Set User Permissions');
         `
     );
 
@@ -154,19 +167,6 @@ async function seedDatabase() {
     await pool.query(
       `INSERT INTO Audit (CreatedBy, EquipmentID, AuditTime, AuditNote, AuditStatusID) VALUES
         (1, 3, '2025-01-01 11:00:00', 'This needs to be archived', 2);
-        `
-    );
-
-    await pool.query(
-      `INSERT INTO Permission (Name, Description) VALUES
-        ('SuperAdmin', 'All permissions for admin account including changing user passwords and permissions'),
-        ('Add/Edit Assets', 'Add/Edit Assets'),
-        ('Archive Assets', 'Archive Assets'),
-        ('Import/Export CSV Data', 'Import/Export CSV Data'),
-        ('Add/Edit Contact Persons', 'Add/Edit Contact Persons'),
-        ('Add/Edit List Options', 'Add/Edit List Options'),
-        ('Add/Edit/View Users', 'Add/Edit/View Users including changing user passwords'),
-        ('Set User Permissions', 'Set User Permissions');
         `
     );
 
