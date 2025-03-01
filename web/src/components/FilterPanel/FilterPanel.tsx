@@ -6,7 +6,7 @@ import { useFilters } from "../../filters/useFilters";
 import styles from "./FilterPanel.module.css";
 
 export function FilterPanel() {
-  const { filters: filterConfigurations } = useDashboardFilterConfigurations();
+  const { filterConfigurations } = useDashboardFilterConfigurations();
   const { filters, selectedFilters, apply, resetFilters } = useFilters();
 
   const applyDisabled = useMemo(() => isEqual(filters, selectedFilters), [filters, selectedFilters]);

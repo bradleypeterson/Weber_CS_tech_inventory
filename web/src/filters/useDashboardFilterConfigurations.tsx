@@ -5,7 +5,7 @@ import { FilterConfig, filterConfiguration } from "./FilterConfiguration";
 export function useDashboardFilterConfigurations() {
   const { dashboard } = useDashboard();
 
-  const filters = useMemo(() => {
+  const filterConfigurations = useMemo(() => {
     if (!dashboard || dashboard.filters === undefined) return undefined;
     const configurations: FilterConfig[] = [];
     for (const filter of dashboard.filters) {
@@ -16,5 +16,5 @@ export function useDashboardFilterConfigurations() {
     return configurations;
   }, [dashboard]);
 
-  return { filters };
+  return { filters: dashboard?.filters, filterConfigurations };
 }
