@@ -151,6 +151,7 @@ async function createTables() {
       UserID INT PRIMARY KEY AUTO_INCREMENT,
       PersonID INT NOT NULL UNIQUE,
       HashedPassword VARCHAR(250) NOT NULL,
+      Salt VARCHAR(255) NOT NULL,
       FOREIGN KEY (PersonID) REFERENCES Person(PersonID)
     );
 
