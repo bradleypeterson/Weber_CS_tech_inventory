@@ -104,10 +104,10 @@ async function seedDatabase() {
 
     await pool.query(
       `INSERT INTO User(PersonID, HashedPassword, Salt) VALUES
-        (1, 'a','2cef97f7a9744f60ceb9f93839e09929'),
-        (2, 'a','2cef97f7a9744f60ceb9f93839e09929'),
-        (3, 'a','2cef97f7a9744f60ceb9f93839e09929'),
-        (4, 'a','2cef97f7a9744f60ceb9f93839e09929');
+        (1, '6386b1dfb33a3a4439e15e45363d4ab3c51a8fa758086d9a51670834a78f8bbf','2cef97f7a9744f60ceb9f93839e09929'),
+        (2, '6386b1dfb33a3a4439e15e45363d4ab3c51a8fa758086d9a51670834a78f8bbf','2cef97f7a9744f60ceb9f93839e09929'),
+        (3, '6386b1dfb33a3a4439e15e45363d4ab3c51a8fa758086d9a51670834a78f8bbf','2cef97f7a9744f60ceb9f93839e09929'),
+        (4, '6386b1dfb33a3a4439e15e45363d4ab3c51a8fa758086d9a51670834a78f8bbf','2cef97f7a9744f60ceb9f93839e09929');
         `
     );
 
