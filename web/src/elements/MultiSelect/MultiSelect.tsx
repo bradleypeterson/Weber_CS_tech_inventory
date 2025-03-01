@@ -27,8 +27,8 @@ export function MultiSelect<T>(props: Props<T>) {
   const toggleOpen = () => setOpen((prev) => !prev);
 
   function onOptionClick(value: T) {
-    if (value === undefined || props.values === undefined) return;
-    const newValues = [...props.values];
+    if (value === undefined) return;
+    const newValues = [...(props.values ?? [])];
     const index = newValues.findIndex((newValue) => newValue === value);
     if (index > -1) newValues.splice(index, 1);
     else newValues.push(value);
@@ -106,11 +106,9 @@ export function MultiSelect<T>(props: Props<T>) {
       >
         <div ref={valueListRef} className={styles.valueList}>
           <div className={styles.valueList}>
-            {displayedOptions.length > 0 ? (
-              displayedOptions.map((option, i) => <span key={i}>{option}</span>)
-            ) : (
-              <span>{props.placeholder}</span>
-            )}
+            {displayedOptions.length > 0
+              ? displayedOptions.map((option, i) => <span key={i}>{option}</span>)
+              : props.placeholder && <span className={styles.placeholder}>{props.placeholder}</span>}
           </div>
           {remainingTags && (
             <span ref={remainingTagsRef} className={styles.remainingTags}>

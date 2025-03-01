@@ -5,21 +5,26 @@ import { fetchAssetsList } from "../../api/assets";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
 import { Column, Table } from "../../elements/Table/Tables";
+import { useFilters } from "../../filters/useFilters";
 import styles from "./AssetsSearchDashboard.module.css";
 
 export function AssetsSearchDashboard() {
   const [searchText, setSearchText] = useState("");
   const { data } = useQuery("AssetsList", () => fetchAssetsList());
+  const { filters } = useFilters();
 
-  const filteredData = useMemo(
-    () =>
+  const filteredData = useMemo(() => {
+    const filteredData = data?.filter(
+      (row) => filters["Asset Class"]?.includes(row.AssetClassID) && filters.Department?.includes(row.DepartmentID)
+    );
+    const searchedData =
       searchText === ""
-        ? (data ?? [])
-        : (data?.filter((row) =>
+        ? (filteredData ?? [])
+        : (filteredData?.filter((row) =>
             Object.values(row).some((value) => value.toString().toLowerCase().includes(searchText))
-          ) ?? []),
-    [searchText, data]
-  );
+          ) ?? []);
+    return searchedData;
+  }, [searchText, data, filters]);
 
   return (
     <main className={styles.layout}>

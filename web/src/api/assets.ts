@@ -8,15 +8,19 @@ export async function fetchAssetsList() {
   return undefined;
 }
 
-const validateResponseSchema: JSONSchemaType<{ EquipmentID: number; TagNumber: string }[]> = {
+const validateResponseSchema: JSONSchemaType<
+  { EquipmentID: number; TagNumber: string; DepartmentID: number; AssetClassID: number }[]
+> = {
   type: "array",
   items: {
     type: "object",
     properties: {
       EquipmentID: { type: "number" },
+      DepartmentID: { type: "number" },
+      AssetClassID: { type: "number" },
       TagNumber: { type: "string" }
     },
-    required: ["EquipmentID", "TagNumber"]
+    required: ["EquipmentID", "TagNumber", "AssetClassID", "DepartmentID"]
   }
 };
 
