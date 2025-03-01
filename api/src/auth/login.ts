@@ -1,5 +1,4 @@
 import type { JSONSchemaType } from "ajv";
-import { compare } from "bcrypt";
 import type { Request, Response } from "express";
 import { createToken } from ".";
 import { ajv } from "../ajv";
@@ -13,8 +12,8 @@ export async function login(req: Request, res: Response) {
   }
 
   const user = await getUserDetails(params.userId);
-
-  if (user !== null && user.HashedPassword !== undefined && (await compare(params.password, user.HashedPassword))) {
+  console.log(params.password);
+  if (user !== null && user.HashedPassword !== undefined && params.password === user.HashedPassword) {
     // Correct password
     delete user.HashedPassword;
     const token = createToken(user);
