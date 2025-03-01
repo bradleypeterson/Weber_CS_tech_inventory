@@ -9,3 +9,8 @@ export type Department = {
   Name: string;
   Abbreviation: string;
 };
+
+export type Permission = {
+  PermissionID: number;
+  Name: string;
+};

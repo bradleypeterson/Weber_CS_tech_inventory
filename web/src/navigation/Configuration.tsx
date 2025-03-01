@@ -77,9 +77,10 @@ export const configuration: RouteConfiguration = [
         availability: () => true,
         label: "Users",
         element: <UserSearchDashboard />,
+        filters: ["Permission"],
         tabs: [
-          { type: "tab", label: "Details", element: <UserDetailsDashboard /> },
-          { type: "tab", label: "Change Password", element: <PasswordChangeDashboard /> }
+          { type: "tab", label: "Details", element: <UserDetailsDashboard />, filters: ["Permission"] },
+          { type: "tab", label: "Change Password", element: <PasswordChangeDashboard />, filters: ["Permission"] }
         ]
       },
       {

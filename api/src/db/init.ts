@@ -114,7 +114,7 @@ async function createTables() {
 
     create table if not exists Building(
       BuildingID INT PRIMARY KEY AUTO_INCREMENT,
-      Name VARCHAR(100) NOT NULL,
+      Name VARCHAR(50) NOT NULL,
       Abbreviation VARCHAR(3) NOT NULL
     );
 
@@ -211,7 +211,7 @@ async function createTables() {
       FiscalYearID INT,
       ConditionID INT NOT NULL,
       DeviceTypeID INT NOT NULL,
-      Manufacturer VARCHAR(50),
+      Manufacturer VARCHAR(25),
       PartNumber VARCHAR(50),
       Rapid7 BOOLEAN,
       CrowdStrike BOOLEAN,
@@ -307,6 +307,10 @@ async function createTables() {
     add constraint condition_abbreviation_list
     check (ConditionAbbreviation in ('NW', 'EX', 'GD', 'FR', 'PR', 'DD', 'OB'));
 
+    alter table Permission
+    add constraint permission_name_list
+    check (Name in ('Add/Edit Assets', 'Archive Assets', 'Import/Export CSV Data', 'Add/Edit Contact Persons', 'Add/Edit List Options', 'Add/Edit/View Users', 'Set User Permissions'));
+
     `;
 
     await pool.query(addConstraints);
@@ -334,6 +338,8 @@ async function initDatabase() {
   }
 }
 
-if (require.main === module) {
-  void initDatabase().finally(() => pool.end());
-}
+// if (require.main === module) {
+//   void initDatabase().finally(() => pool.end());
+// }
+
+void initDatabase()
