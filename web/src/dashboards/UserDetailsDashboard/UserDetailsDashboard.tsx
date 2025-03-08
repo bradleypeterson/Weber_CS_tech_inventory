@@ -52,6 +52,9 @@ function UserDetailsView({ wNumber, userName }: { wNumber: string, userName: str
   function handleSubmit() {
     console.log("SUBMIT");
   }
+
+  const formStructureFiltered = formStructure.filter(column => column.title !== "Password");
+
   return (
     <main className={styles.layout}>
       <div className={styles.row}>
@@ -62,7 +65,7 @@ function UserDetailsView({ wNumber, userName }: { wNumber: string, userName: str
         <IconButton icon={<Check />} variant="secondary" />
       </div>
       <form className={styles.inputFieldContainer} onSubmit={handleSubmit}>
-        {formStructure.map((column) => (
+        {formStructureFiltered.map((column) => (
           <div key={column.title} className={styles.formColumn}>
             <h3>{column.title}</h3>
             {column.inputs.map((input) => (
@@ -101,6 +104,9 @@ function EmptyUserDetailsView() {
   function handleSubmit() {
     console.log("SUBMIT");
   }
+
+  const formStructureWithPassword = formStructure;
+
   return (
     <main className={styles.layout}>
       <div className={styles.row}>
@@ -110,7 +116,7 @@ function EmptyUserDetailsView() {
         <IconButton icon={<Check />} variant="secondary" />
       </div>
       <form className={styles.inputFieldContainer} onSubmit={handleSubmit}>
-        {formStructure.map((column) => (
+        {formStructureWithPassword.map((column) => (
           <div key={column.title} className={styles.formColumn}>
             <h3>{column.title}</h3>
             {column.inputs.map((input) => (
@@ -226,6 +232,18 @@ const formStructure: Column[] = [
       { name: "addEditLists", label: "Add/Edit List Options", inputType: "checkbox" },
       { name: "addEditViewUsers", label: "Add/Edit/View Users", inputType: "checkbox" },
       { name: "setUserPermissions", label: "Set User Permissions", inputType: "checkbox" },
+    ]
+  },
+  {
+    title: "Password",
+    inputs: [
+      { name: "newPassword", label: "New Password", inputType: "input" },
+      { name: "confirmNewPassword", label: "Confirm New Password", inputType: "input" },
+      { name: "passwordsMatch", label: "Passwords Match", inputType: "checkbox" },
+      { name: "sixteenChars", label: "At Least 16 Characters", inputType: "checkbox" },
+      { name: "number", label: "At Least One Number", inputType: "checkbox" },
+      { name: "uppercase", label: "At Least One Uppercase Letter", inputType: "checkbox" },
+      { name: "lowercase", label: "At Least One Lowercase Letter", inputType: "checkbox" },
     ]
   },
 ];

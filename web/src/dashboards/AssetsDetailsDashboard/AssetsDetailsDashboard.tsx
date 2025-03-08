@@ -213,7 +213,7 @@ const formStructure: Column[] = [
       { name: "manufacturer", label: "Manufacturer", inputType: "input" },
       { name: "partNumber", label: "Part Number", inputType: "input" },
       { name: "rapid7", label: "Rapid 7", inputType: "checkbox" },
-      { name: "cloudStrike", label: "Cloud Strike", inputType: "checkbox" }
+      { name: "crowdStrike", label: "CrowdStrike", inputType: "checkbox" }
     ]
   },
   {

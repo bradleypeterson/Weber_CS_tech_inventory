@@ -38,7 +38,7 @@ function PasswordChangeView({ wNumber, userName }: { wNumber: string, userName: 
     <main className={styles.layout}>
       <div className={styles.row}>
         <div>
-          <h2>Change User Password</h2>
+          <h2>Change Password</h2>
           <p> {userName} | {wNumber}</p>
         </div>
       </div>
@@ -58,7 +58,7 @@ function PasswordChangeView({ wNumber, userName }: { wNumber: string, userName: 
         ))}
       </form>
       <div className={styles.Button}>
-        <Button style={{ width: "200px" }} variant={"secondary"}>Change User Password</Button>
+        <Button style={{ width: "200px" }} variant={"secondary"}>Change Password</Button>
       </div>
     </main>
   );
