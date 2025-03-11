@@ -60,7 +60,7 @@ export function Elements() {
       <br></br>
       <Table columns={columns} data={data} selectable={true} onDataChange={setData} />
       <br />
-      <Checkbox />
+      <Checkbox label="Checkbox" />
       <br />
       <TextArea placeholder="placeholder" width="220px" />
       <br />
