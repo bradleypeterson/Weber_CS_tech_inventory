@@ -153,7 +153,7 @@ function FormField({
 
   return (
     <div className={styles.formField}>
-      <label>{input.label}</label>
+      {input.inputType !== "checkbox" && (<label>{input.label}</label>)}
 
       {input.inputType === "input" && (
         <LabelInput
@@ -166,7 +166,7 @@ function FormField({
         <TextArea value={typeof value === "string" ? value : ""} onChange={(val) => onChange(val)} />
       )}
 
-      {input.inputType === "checkbox" && <Checkbox checked={Boolean(value)} onChange={(val) => onChange(val)} />}
+      {input.inputType === "checkbox" && <Checkbox checked={Boolean(value)} label={input.label} onChange={(val) => onChange(val)} />}
 
       {input.inputType === "single select" && (
         <SingleSelect

@@ -79,8 +79,8 @@ export const configuration: RouteConfiguration = [
         element: <UserSearchDashboard />,
         filters: ["Permission"],
         tabs: [
-          { type: "tab", label: "Details", element: <UserDetailsDashboard />, filters: ["Permission"] },
-          { type: "tab", label: "Change Password", element: <PasswordChangeDashboard />, filters: ["Permission"] }
+          { type: "tab", label: "Details", element: <UserDetailsDashboard /> },
+          { type: "tab", label: "Change Password", element: <PasswordChangeDashboard /> }
         ]
       },
       {
@@ -88,7 +88,8 @@ export const configuration: RouteConfiguration = [
         availability: () => true,
         label: "Contacts",
         element: <ContactSearchDashboard />,
-        tabs: [{ type: "tab", label: "Details", element: <ContactDetailsDashboard /> }]
+        filters: ["Department"],
+        tabs: [{ type: "tab", label: "Details", filters: ["Department"], element: <ContactDetailsDashboard /> }]
       },
       { type: "dashboard", availability: () => true, label: "List Options", element: <EditListDashboard /> }
     ],
