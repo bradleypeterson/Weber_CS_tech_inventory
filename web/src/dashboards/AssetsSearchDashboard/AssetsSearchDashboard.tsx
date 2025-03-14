@@ -49,6 +49,7 @@ export function AssetsSearchDashboard() {
       render: (equipmentId) => (
         <>
           <Checkbox
+            color="black"
             onChange={(value) => handleCheckbox(value, equipmentId)}
             checked={selectedAssets.includes(equipmentId)}
           />
