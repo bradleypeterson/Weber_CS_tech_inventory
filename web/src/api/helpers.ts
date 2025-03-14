@@ -1,4 +1,4 @@
-import { ValidateFunction } from "ajv";
+import { JSONSchemaType, ValidateFunction } from "ajv";
 import { APIErrorResponse, APIResponse, APISuccessResponse } from "../../../@types/api";
 import { ajv } from "../ajv";
 const apiURL = import.meta.env.VITE_API_URL;
@@ -106,3 +106,10 @@ const apiResponseSchema = {
 } as const;
 
 const validateApiResponse: ValidateFunction<APIResponse> = ajv.compile(apiResponseSchema);
+
+const emptyResponseSchema: JSONSchemaType<Record<string, unknown>> = {
+  type: "object",
+  additionalProperties: true
+};
+
+export const validateEmptyResponse = ajv.compile(emptyResponseSchema);

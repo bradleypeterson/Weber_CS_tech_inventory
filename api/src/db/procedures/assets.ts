@@ -125,3 +125,31 @@ export async function getAllAssetsOverview() {
     throw new Error("An error occurred while getting assets");
   }
 }
+
+export async function dbUpdateAsset(
+  assetId: number,
+  updates: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
+) {
+  try {
+    const setClauses: string[] = [];
+    const values: any[] = [];
+
+    for (const [key, value] of Object.entries(updates)) {
+      setClauses.push(`\`${key}\` = ?`);
+      values.push(value);
+    }
+
+    const query = `
+      update Equipment
+      set ${setClauses.join(", ")}
+      where EquipmentID = ?
+    `;
+
+    values.push(assetId);
+
+    await pool.query(query, values);
+  } catch (error) {
+    console.error(`Error in updateAsset`, error);
+    throw new Error("An error occurred while updating asset.");
+  }
+}

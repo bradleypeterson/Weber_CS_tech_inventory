@@ -28,6 +28,11 @@
   border: 1px solid var(--white-dim);
 }
 
+.select.disabled:hover {
+  border: 1px solid var(--gray);
+  cursor: not-allowed;
+}
+
 .select span {
   background: var(--gray-blue);
   padding: 0.25rem 0.5rem;

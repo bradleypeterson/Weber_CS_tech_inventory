@@ -1,8 +1,8 @@
-import { ArrowRight, Barcode, Pencil } from "@phosphor-icons/react";
+import { ArrowRight, Barcode, Check, Pencil } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useSearchParams } from "react-router";
-import { fetchAssetDetails } from "../../api/assets";
+import { fetchAssetDetails, updateAssetDetails } from "../../api/assets";
 import { Notes } from "../../components/Notes/Notes";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
 import { IconButton } from "../../elements/IconButton/IconButton";
@@ -50,7 +50,14 @@ export function AssetsDetailsDashboard() {
 }
 
 function AssetDetailsView({ assetId }: { assetId: string }) {
-  const { data: assetDetails, isLoading } = useQuery({
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
+  const {
+    data: assetDetails,
+    isLoading,
+    isError
+  } = useQuery({
     queryKey: ["Asset Details", assetId],
     queryFn: () => fetchAssetDetails(Number(assetId))
   });
@@ -61,7 +68,6 @@ function AssetDetailsView({ assetId }: { assetId: string }) {
 
   useEffect(
     function syncAssetDetails() {
-      console.log(assetDetails);
       if (assetDetails === undefined) return;
       if (Object.keys(formData).length > 0) return;
       setFormData(assetDetails);
@@ -79,11 +85,28 @@ function AssetDetailsView({ assetId }: { assetId: string }) {
     }));
   }
 
-  function handleSubmit() {
-    console.log("SUBMIT");
+  async function handleSubmit() {
+    let changedFields: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>;
+    if (assetDetails === undefined) changedFields = formData;
+    else changedFields = getChangedFields(assetDetails, formData);
+    if (Object.keys(changedFields).length === 0) {
+      setIsEditing(false);
+      return;
+    }
+
+    setIsSaving(true);
+    if (!(await updateAssetDetails(Number(assetId), changedFields)))
+      setError("An error occurred while updating this asset");
+    else {
+      setError("");
+      setIsEditing(false);
+    }
+
+    setIsSaving(false);
   }
 
   if (isLoading) return <>Loading</>;
+  if (isError) return <>Unknown Asset</>;
 
   return (
     <main className={styles.layout}>
@@ -92,9 +115,12 @@ function AssetDetailsView({ assetId }: { assetId: string }) {
           <h2>Asset Details</h2>
           <p>#{assetId}</p>
         </div>
-        <IconButton icon={<Pencil />} variant="secondary" />
+        {isSaving && <>Saving...</>}
+        {error && <span style={{ color: "red" }}>{error}</span>}
+        {!isEditing && <IconButton icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />}
+        {isEditing && <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} />}
       </div>
-      <form className={styles.inputFieldContainer} onSubmit={handleSubmit}>
+      <form className={styles.inputFieldContainer}>
         {formStructure.map((column) => (
           <div key={column.title} className={styles.formColumn}>
             <h3>{column.title}</h3>
@@ -104,6 +130,7 @@ function AssetDetailsView({ assetId }: { assetId: string }) {
                 input={input}
                 value={formData[input.name] || ""}
                 onChange={(val) => handleInputChange(input.name, val)}
+                disabled={!isEditing}
               />
             ))}
           </div>
@@ -117,11 +144,13 @@ function AssetDetailsView({ assetId }: { assetId: string }) {
 function FormField({
   input,
   value,
-  onChange
+  onChange,
+  disabled
 }: {
   input: AssetInputField;
   value: string | string[] | (string | number)[] | number[] | boolean | number | null;
   onChange: (val: string | string[] | (string | number)[] | number[] | boolean | number | null) => void;
+  disabled: boolean;
 }) {
   const [options, setOptions] = useState<{ label: string; value: string | number }[]>([]);
 
@@ -139,20 +168,28 @@ function FormField({
         <LabelInput
           value={typeof value === "string" || typeof value === "number" ? value : ""}
           onChange={(val) => onChange(val)}
+          disabled={disabled}
         />
       )}
 
       {input.inputType === "textarea" && (
-        <TextArea value={typeof value === "string" ? value : ""} onChange={(val) => onChange(val)} />
+        <TextArea
+          value={typeof value === "string" ? value : ""}
+          onChange={(val) => onChange(val)}
+          disabled={disabled}
+        />
       )}
 
-      {input.inputType === "checkbox" && <Checkbox checked={Boolean(value)} onChange={(val) => onChange(val)} />}
+      {input.inputType === "checkbox" && (
+        <Checkbox checked={Boolean(value)} onChange={(val) => onChange(val)} disabled={disabled} />
+      )}
 
       {input.inputType === "single select" && (
         <SingleSelect
           options={options}
           value={typeof value === "boolean" ? undefined : (value as string)}
           onChange={(val) => onChange(val)}
+          disabled={disabled}
         />
       )}
 
@@ -161,10 +198,27 @@ function FormField({
           options={options}
           values={Array.isArray(value) ? value : []}
           onChange={(selectedValues) => onChange(selectedValues)}
+          disabled={disabled}
         />
       )}
     </div>
   );
+}
+
+function getChangedFields(
+  original: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>,
+  updated: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
+) {
+  const changedFields: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null> =
+    {};
+
+  for (const key in updated) {
+    if (JSON.stringify(original[key]) !== JSON.stringify(updated[key])) {
+      changedFields[key] = updated[key];
+    }
+  }
+
+  return changedFields;
 }
 
 type InputType = "input" | "textarea" | "checkbox" | "single select" | "multi select";
