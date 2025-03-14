@@ -1,4 +1,4 @@
-import { pool } from "./init";
+import { pool } from "./index";
 
 async function seedDatabase() {
   try {

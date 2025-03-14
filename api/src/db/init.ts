@@ -306,11 +306,6 @@ async function createTables() {
     alter table \`Condition\`
     add constraint condition_abbreviation_list
     check (ConditionAbbreviation in ('NW', 'EX', 'GD', 'FR', 'PR', 'DD', 'OB'));
-
-    alter table Permission
-    add constraint permission_name_list
-    check (Name in ('Add/Edit Assets', 'Archive Assets', 'Import/Export CSV Data', 'Add/Edit Contact Persons', 'Add/Edit List Options', 'Add/Edit/View Users', 'Set User Permissions'));
-
     `;
 
     await pool.query(addConstraints);
@@ -342,4 +337,4 @@ async function initDatabase() {
 //   void initDatabase().finally(() => pool.end());
 // }
 
-void initDatabase()
+void initDatabase();
