@@ -16,7 +16,7 @@ export function AssetsDetailsDashboard() {
   const [tagId, setTagId] = useState("");
   const linkTo = useLinkTo();
   const [searchParams] = useSearchParams();
-  const assetId = useMemo(() => searchParams.get("asset_id"), [searchParams]);
+  const assetId = useMemo(() => searchParams.get("assetId"), [searchParams]);
 
   if (assetId === null)
     return (
@@ -34,7 +34,7 @@ export function AssetsDetailsDashboard() {
             />
             <IconButton
               icon={<ArrowRight />}
-              onClick={() => linkTo("Asset Details", ["Assets"], `asset_id=${tagId}`)}
+              onClick={() => linkTo("Asset Details", ["Assets"], `assetId=${tagId}`)}
               variant="primary"
               disabled={tagId === ""}
             />

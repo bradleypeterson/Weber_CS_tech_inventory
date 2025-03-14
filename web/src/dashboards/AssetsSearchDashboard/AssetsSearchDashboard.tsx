@@ -8,6 +8,7 @@ import { Column, DynamicTable } from "../../elements/DynamicTable/DynamicTable";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
 import { useFilters } from "../../filters/useFilters";
+import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./AssetsSearchDashboard.module.css";
 
 export function AssetsSearchDashboard() {
@@ -15,6 +16,7 @@ export function AssetsSearchDashboard() {
   const [selectedAssets, setSelectedAssets] = useState<number[]>([]);
   const { data } = useQuery("AssetsList", () => fetchAssetOverviewList());
   const { filters } = useFilters();
+  const linkTo = useLinkTo();
 
   const filteredData = useMemo(() => {
     const filteredData = data?.filter(
@@ -29,6 +31,9 @@ export function AssetsSearchDashboard() {
     return searchedData;
   }, [searchText, data, filters]);
 
+  const editDisabled = useMemo(() => selectedAssets.length !== 1, [selectedAssets]);
+  const deleteDisabled = useMemo(() => selectedAssets.length === 0, [selectedAssets]);
+
   function handleCheckbox(checked: boolean, equipmentID: number) {
     setSelectedAssets((prev) => {
       const nextSelectedAssets = [...prev];
@@ -40,6 +45,11 @@ export function AssetsSearchDashboard() {
       }
       return nextSelectedAssets;
     });
+  }
+
+  function handleOnEdit() {
+    if (selectedAssets.length !== 1) return;
+    linkTo("Asset Details", ["Assets"], `assetId=${selectedAssets[0]}`);
   }
 
   const columns: Column<AssetOverview>[] = [
@@ -77,8 +87,8 @@ export function AssetsSearchDashboard() {
     <main className={styles.layout}>
       <div className={styles.tableHeader}>
         <div className={styles.row}>
-          <IconButton icon={<Trash />} variant="secondary" />
-          <IconButton icon={<Pencil />} variant="secondary" />
+          <IconButton icon={<Trash />} variant="secondary" disabled={deleteDisabled} />
+          <IconButton icon={<Pencil />} variant="secondary" disabled={editDisabled} onClick={handleOnEdit} />
         </div>
         <IconInput
           icon={<MagnifyingGlass />}
