@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { FilterValues } from "./FilterConfiguration";
 import { FilterContext } from "./FilterContext";
 
@@ -6,9 +6,21 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const [filters, setFilters] = useState<FilterValues>({});
   const [selectedFilters, setSelectedFilters] = useState<FilterValues>({});
 
+  useEffect(function syncPreviousFilter() {
+    const storedFilters = localStorage.getItem("filters");
+    if (storedFilters === null) return;
+    const parsedFilters = JSON.parse(storedFilters);
+    setFilters(parsedFilters);
+    setSelectedFilters(parsedFilters);
+  }, []);
+
   function setFilter<K extends keyof FilterValues>(key: K, value: FilterValues[K]) {
-    console.log(key, value);
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    setFilters((prev) => {
+      const newFilters = { ...prev, [key]: value };
+      console.log(newFilters);
+      localStorage.setItem("filters", JSON.stringify(newFilters));
+      return newFilters;
+    });
   }
 
   function selectFilter<K extends keyof FilterValues>(key: K, value: FilterValues[K]) {
@@ -20,7 +32,11 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   }
 
   function apply() {
-    setFilters((prev) => ({ ...prev, ...selectedFilters }));
+    setFilters((prev) => {
+      const newFilters = { ...prev, ...selectedFilters };
+      localStorage.setItem("filters", JSON.stringify(newFilters));
+      return newFilters;
+    });
   }
 
   return (
