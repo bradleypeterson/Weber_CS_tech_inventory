@@ -1,6 +1,6 @@
 import type { RowDataPacket } from "mysql2";
 import { pool } from "..";
-import type { Asset, AssetOverview } from "../../../../@types/data";
+import type { Asset, AssetDetails, AssetOverview } from "../../../../@types/data";
 
 interface AssetRow extends RowDataPacket, Asset {}
 
@@ -35,6 +35,64 @@ export async function getAllAssets() {
   } catch (error) {
     console.error(`Error in getAllAssets`, error);
     throw new Error("An error occurred while getting assets");
+  }
+}
+
+interface AssetDetailsRow extends RowDataPacket, AssetDetails {}
+export async function getAssetDetails(assetId: number): Promise<AssetDetailsRow | undefined> {
+  try {
+    const query = `
+    SELECT 
+      a.EquipmentID,
+      a.TagNumber,
+      a.SerialNumber,
+      a.Description,
+      d.DepartmentID,
+      d.Name as DepartmentName,
+      l.LocationID,
+      l.RoomNumber,
+      l.Barcode,
+      b.Name as BuildingName,
+      b.Abbreviation as BuildingAbbr,
+      a.ContactPersonID,
+      c.FirstName as ContactPersonFirstName,
+      c.LastName as ContactPersonLastName,
+      ac.AssetClassID,
+      ac.Name as AssetClassName,
+      f.ReplacementID as FiscalYearID,
+      f.Year as FiscalYear,
+      cond.ConditionID,
+      cond.ConditionName,
+      dt.DeviceTypeID,
+      dt.Name as DeviceTypeName,
+      a.Manufacturer,
+      a.PartNumber,
+      a.Rapid7,
+      a.CrowdStrike,
+      a.ArchiveStatus,
+      a.PONumber,
+      a.SecondaryNumber,
+      a.AccountingDate,
+      CAST(AccountCost AS FLOAT) AS AccountCost
+    FROM Equipment a
+    LEFT JOIN Department d ON a.DepartmentID = d.DepartmentID
+    LEFT JOIN Location l ON a.LocationID = l.LocationID
+    LEFT JOIN Building b on l.BuildingID = b.BuildingID 
+    LEFT JOIN Person c ON a.ContactPersonID = c.PersonID
+    LEFT JOIN AssetClass ac ON a.AssetClassID = ac.AssetClassID
+    LEFT JOIN ReplacementFiscalYear f ON a.FiscalYearID = f.ReplacementID
+    LEFT JOIN \`Condition\` cond ON a.ConditionID = cond.ConditionID
+    LEFT JOIN DeviceType dt ON a.DeviceTypeID = dt.DeviceTypeID
+    WHERE a.EquipmentID = ?
+    LIMIT 1;
+  `;
+
+    const [rows] = await pool.query<AssetDetailsRow[]>(query, [assetId]);
+    const asset: AssetDetailsRow | undefined = rows[0];
+    return asset;
+  } catch (error) {
+    console.error(`Error in getAssetDetails`, error);
+    throw new Error("An error occurred while getting asset details");
   }
 }
 

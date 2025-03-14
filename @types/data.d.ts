@@ -34,8 +34,8 @@ type Asset = {
   ArchiveStatus?: 1 | 0 | null;
   PONumber?: string | null;
   SecondaryNumber?: string | null;
-  AccountingDate?: string | null; // Storing datetime as ISO string
-  AccountCost?: number | null; // Representing decimal(10,2) as number
+  AccountingDate?: string | null;
+  AccountCost?: number | null;
 };
 
 type AssetOverview = {
@@ -49,4 +49,38 @@ type AssetOverview = {
   AssetClass: string;
   DeviceTypeID: number;
   DeviceType: string;
+};
+
+type AssetDetails = {
+  EquipmentID: number;
+  TagNumber: string;
+  SerialNumber: string;
+  Description: string;
+  DepartmentID?: number | null;
+  DepartmentName?: string | null;
+  LocationID?: number | null;
+  RoomNumber?: string | null;
+  Barcode?: string | null;
+  BuildingName?: string | null;
+  BuildingAbbr?: string | null;
+  ContactPersonID?: number | null;
+  ContactPersonFirstName?: string | null;
+  ContactPersonLastName?: string | null;
+  AssetClassID: number;
+  AssetClassName?: string | null;
+  FiscalYearID?: number | null;
+  FiscalYear?: string | null;
+  ConditionID: number;
+  ConditionName?: string | null;
+  DeviceTypeID: number;
+  DeviceTypeName?: string | null;
+  Manufacturer?: string | null;
+  PartNumber?: string | null;
+  Rapid7?: 1 | 0 | null;
+  CrowdStrike?: 1 | 0 | null;
+  ArchiveStatus?: 1 | 0 | null;
+  PONumber?: string | null;
+  SecondaryNumber?: string | null;
+  AccountingDate?: string | null;
+  AccountCost?: number | null;
 };
