@@ -45,13 +45,12 @@ export function AssetsSearchDashboard() {
   const columns: Column<AssetOverview>[] = [
     {
       label: "",
-      dataIndex: "EquipmentID",
-      render: (equipmentId) => (
+      render: (row: AssetOverview) => (
         <>
           <Checkbox
             color="black"
-            onChange={(value) => handleCheckbox(value, equipmentId)}
-            checked={selectedAssets.includes(equipmentId)}
+            onChange={(value) => handleCheckbox(value, row.EquipmentID)}
+            checked={selectedAssets.includes(row.EquipmentID)}
           />
         </>
       )
@@ -71,14 +70,6 @@ export function AssetsSearchDashboard() {
     {
       label: "Device Type",
       dataIndex: "DeviceType"
-    },
-    {
-      label: "Contact Person",
-      render: (row: AssetOverview) => (
-        <>
-          {row.ContactPersonFirstName} {row.ContactPersonLastName}
-        </>
-      )
     }
   ];
 

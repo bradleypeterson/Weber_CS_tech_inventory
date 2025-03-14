@@ -6,12 +6,8 @@ interface BaseColumn {
   align?: "left" | "center" | "right";
 }
 
-interface DataColumn<T, K extends keyof T> extends BaseColumn {
+export interface DataColumn<T, K extends keyof T = keyof T> extends BaseColumn {
   dataIndex: K;
-  render?:
-    | ((value: T[K]) => ReactNode)
-    | ((value: T[K], record: T) => ReactNode)
-    | ((value: T[K], record: T, index: number) => ReactNode);
 }
 
 interface RenderColumn<T> extends BaseColumn {
@@ -59,7 +55,7 @@ export function DynamicTable<T>(props: Props<T>) {
               if ("dataIndex" in col)
                 return (
                   <td key={j} className={align}>
-                    {col.render ? col.render(row[col.dataIndex], row, i) : renderValue(row[col.dataIndex])}
+                    {renderValue(row[col.dataIndex])}
                   </td>
                 );
 
