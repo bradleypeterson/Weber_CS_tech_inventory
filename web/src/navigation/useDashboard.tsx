@@ -6,12 +6,13 @@ import { useAccessibleRoutes } from "./useAccessibleRoutes";
 export function useDashboard() {
   const location = useLocation();
   const { routes } = useAccessibleRoutes();
+  console.log(location);
 
   const dashboard = useMemo(
     () =>
       routes
         .filter((route): route is BuiltDashboard | BuiltTab => ["dashboard", "tab"].includes(route.type))
-        .find((route) => route.path.includes(location.pathname)),
+        .find((route) => route.path === location.pathname),
     [routes, location]
   );
 
