@@ -18,12 +18,13 @@ export function UserSearchDashboard() {
   const { data } = useQuery('UsersList', () => fetchUserList());
   const {filters} = useFilters();
 
-  //TODO: Fix Filters
   const filteredData = useMemo(() => {
-    const filteredData = data?.filter(
-      (row) => (row.Permissions ?? []).some((permission) => filters.Permission?.includes(permission)) &&
-      (row.DepartmentID ?? []).some((department) => filters.Department?.includes(department))
-    );  
+    const filteredData = data?.filter((row) => {
+      if ((!filters.Permission || filters.Permission.length === 0) && (!filters.Department || filters.Department.length === 0)) return true;
+      const hasPermission = row.Permissions.some((permission) => filters.Permission?.includes(permission));
+      const hasDepartment = row.DepartmentIDs.some((department) => filters.Department?.includes(department));
+      return hasPermission && hasDepartment;
+  });
   const searchedData =
   searchText === ""
     ? (filteredData ?? [])
@@ -91,7 +92,7 @@ export function UserSearchDashboard() {
           onChange={(val) => setSearchText(val.toLowerCase())}
         />
       </div>
-      <DynamicTable columns={columns} data={data} />
+      <DynamicTable columns={columns} data={filteredData} />
     </main>
   );
 }

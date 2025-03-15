@@ -10,3 +10,4 @@ export async function listUsers(req: Request, res: Response) {
     res.status(500).json({ status: "error", error: { message: "Could not list all users" } });
   }
 }
+

@@ -1,6 +1,8 @@
-import { Check } from "@phosphor-icons/react";
+import { Check, Pencil } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "react-query";
 import { useSearchParams } from "react-router";
+import { fetchUserDetails, updateUserDetails } from "../../api/users";
 import { Button } from "../../elements/Button/Button";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
 import { IconButton } from "../../elements/IconButton/IconButton";
@@ -11,36 +13,45 @@ import { TextArea } from "../../elements/TextArea/TextArea";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./UserDetailsDashboard.module.css";
 
-type Data = {
-  w_number: string;
-  departments: string;
-  location: string;
-  firstName: string;
-  lastName: string;
-};
-
 export function UserDetailsDashboard() {
   const [searchParams] = useSearchParams();
-  const wNumber = useMemo(() => searchParams.get("w_number"), [searchParams]);
-  const userName = "Sally Student"; //useMemo(() => searchParams.get("name"), [searchParams]);
-  if (wNumber !== null && userName !== null)
-    return <UserDetailsView wNumber={wNumber} userName={userName} />;
-  else
-    return <EmptyUserDetailsView />;
+  const personID = useMemo(() => searchParams.get("personID"), [searchParams]);
+  
+  if (personID !== null)
+    return <UserDetailsView personID={personID} />;
+  
+  return <EmptyUserDetailsView />;
 }
 
-function UserDetailsView({ wNumber, userName }: { wNumber: string, userName: string }) {
+function UserDetailsView({ personID }: { personID: string }) {
   const linkTo = useLinkTo();
-  const [formData, setFormData] = useState<Data>({
-    w_number: wNumber,
-    departments: "CS",
-    location: "NB 324A",
-    firstName: "Sally",
-    lastName: "Student",
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
+  const {
+    data: userDetails,
+    isLoading,
+    isError
+  } = useQuery({
+    queryKey: ["User Details", personID],
+    queryFn: () => fetchUserDetails(Number(personID))
   });
 
+  const [formData, setFormData] = useState<
+    Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
+  >({});
+
+  useEffect(
+    function syncAssetDetails() {
+      if (userDetails === undefined) return;
+      if (Object.keys(formData).length > 0) return;
+      setFormData(userDetails);
+    },
+    [userDetails, formData]
+  );
+
   function handleInputChange(
-    name: keyof Data,
+    name: string,
     value: string | string[] | (string | number)[] | number[] | boolean | number
   ) {
     setFormData((prev) => ({
@@ -49,20 +60,41 @@ function UserDetailsView({ wNumber, userName }: { wNumber: string, userName: str
     }));
   }
 
-  function handleSubmit() {
-    console.log("SUBMIT");
-  }
+ async function handleSubmit() {
+     let changedFields: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>;
+     if (userDetails === undefined) changedFields = formData;
+     else changedFields = getChangedFields(userDetails, formData);
+     if (Object.keys(changedFields).length === 0) {
+       setIsEditing(false);
+       return;
+     }
+ 
+     setIsSaving(true);
+     if (!(await updateUserDetails(Number(personID), changedFields)))
+       setError("An error occurred while updating this user");
+     else {
+       setError("");
+       setIsEditing(false);
+     }
+ 
+     setIsSaving(false);
+   }
+ 
+   if (isLoading) return <>Loading</>;
+   if (isError) return <>Unknown User</>;
 
   const formStructureFiltered = formStructure.filter(column => column.title !== "Password");
-
   return (
     <main className={styles.layout}>
       <div className={styles.row}>
         <div>
           <h2>Edit User Details</h2>
-          <p> {userName} | {wNumber}</p>
+          <p> {userDetails?.Name} | {userDetails?.WNumber}</p>
         </div>
-        <IconButton icon={<Check />} variant="secondary" />
+        {isSaving && <>Saving...</>}
+        {error && <span style={{ color: "red" }}>{error}</span>}
+        {!isEditing && <IconButton icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />}
+        {isEditing && <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} />} 
       </div>
       <form className={styles.inputFieldContainer} onSubmit={handleSubmit}>
         {formStructureFiltered.map((column) => (
@@ -72,20 +104,22 @@ function UserDetailsView({ wNumber, userName }: { wNumber: string, userName: str
               <FormField
                 key={input.name}
                 input={input}
-                value={formData[input.name as keyof Data] || ""}
-                onChange={(val) => handleInputChange(input.name as keyof Data, val)}
+                value={formData[input.name] || ""}
+                onChange={(val) => handleInputChange(input.name, val)}
+                disabled={!isEditing}
               />
             ))}
           </div>
         ))}
       </form>
       <div className={styles.Button}>
-          <Button style={{ width: "200px" }} variant={"secondary"} onClick={() => linkTo("Change Password", ["Admin", "Users"], "w_number=W01234567")}>Change User Password</Button>
+          <Button style={{ width: "200px" }} variant={"secondary"} onClick={() => linkTo("Change Password", ["Admin", "Users"], "personID=personID")}>Change User Password</Button>
       </div>
     </main>
   );
 }
 
+//TODO: Finish for adding new user
 function EmptyUserDetailsView() {
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number>
@@ -113,9 +147,9 @@ function EmptyUserDetailsView() {
         <div>
           <h2>New User Details</h2>
         </div>
-        <IconButton icon={<Check />} variant="secondary" />
+        <IconButton icon={<Check />} variant="secondary" onClick={handleSubmit} />
       </div>
-      <form className={styles.inputFieldContainer} onSubmit={handleSubmit}>
+      <form className={styles.inputFieldContainer}>
         {formStructureWithPassword.map((column) => (
           <div key={column.title} className={styles.formColumn}>
             <h3>{column.title}</h3>
@@ -125,6 +159,7 @@ function EmptyUserDetailsView() {
                 input={input}
                 value={formData[input.name] || ""}
                 onChange={(val) => handleInputChange(input.name, val)}
+                disabled={false}
               />
             ))}
           </div>
@@ -137,11 +172,13 @@ function EmptyUserDetailsView() {
 function FormField({
   input,
   value,
-  onChange
+  onChange,
+  disabled
 }: {
   input: UserInputField;
   value: string | string[] | (string | number)[] | number[] | boolean | number;
   onChange: (val: string | string[] | (string | number)[] | number[] | boolean | number) => void;
+  disabled: boolean;
 }) {
   const [options, setOptions] = useState<{ label: string; value: string | number }[]>([]);
 
@@ -159,20 +196,29 @@ function FormField({
         <LabelInput
           value={typeof value === "string" || typeof value === "number" ? value : ""}
           onChange={(val) => onChange(val)}
+          disabled={disabled}
         />
       )}
 
       {input.inputType === "textarea" && (
-        <TextArea value={typeof value === "string" ? value : ""} onChange={(val) => onChange(val)} />
+        <TextArea value={typeof value === "string" ? value : ""} onChange={(val) => onChange(val)} disabled={disabled} />
       )}
 
-      {input.inputType === "checkbox" && <Checkbox checked={Boolean(value)} label={input.label} onChange={(val) => onChange(val)} />}
+      {input.inputType === "checkbox" && (
+        <Checkbox 
+          checked={Boolean(value)} 
+          label={input.label} 
+          onChange={(val) => onChange(val)} 
+          disabled={disabled}
+        />
+        )}
 
       {input.inputType === "single select" && (
         <SingleSelect
           options={options}
           value={typeof value === "boolean" ? undefined : (value as string)}
           onChange={(val) => onChange(val)}
+          disabled={disabled}
         />
       )}
 
@@ -181,10 +227,27 @@ function FormField({
           options={options}
           values={Array.isArray(value) ? value : []}
           onChange={(selectedValues) => onChange(selectedValues)}
+          disabled={disabled}
         />
       )}
     </div>
   );
+}
+
+function getChangedFields(
+  original: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>,
+  updated: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
+) {
+  const changedFields: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null> =
+    {};
+
+  for (const key in updated) {
+    if (JSON.stringify(original[key]) !== JSON.stringify(updated[key])) {
+      changedFields[key] = updated[key];
+    }
+  }
+
+  return changedFields;
 }
 
 type InputType = "input" | "textarea" | "checkbox" | "single select" | "multi select";
