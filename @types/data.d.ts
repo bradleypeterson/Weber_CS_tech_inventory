@@ -86,20 +86,33 @@ type AssetDetails = {
 };
 
 type ContactOverview = {
-  PersonID?: number;
-  WNumber?: number;
-  Name?: string;
-  Department?: string;
-  Location?: string;
-  DepartmentID?: number;
+  PersonID: number;
+  WNumber: string;
+  Name: string;
+  Department: string;
+  Location: string;
+  DepartmentID: number;
+};
+
+type User = {
+  PersonID: number;
+  WNumber: string;
+  Name: string;
+  FirstName: string;
+  LastName: string;
+  Location: string;
+  LocationID: number;
+  Departments: string;
+  DepartmentIDs: number[];
+  Permissions: number[];
 };
 
 type UserOverview = {
-  PersonID?: number;
-  WNumber?: number;
-  Name?: string;
-  Department?: string;
-  Location?: string;
-  DepartmentID?: number[];
-  Permissions?: number[];
+  PersonID: number;
+  WNumber: string;
+  Name: string;
+  Department: string;
+  Location: string;
+  DepartmentIDs: number[];
+  Permissions: number[];
 };

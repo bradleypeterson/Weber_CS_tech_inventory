@@ -1,5 +1,5 @@
 import type { JSONSchemaType } from "ajv";
-import type { Asset, AssetDetails, AssetOverview, ContactOverview, UserOverview } from "./data";
+import type { Asset, AssetDetails, AssetOverview, ContactOverview, User, UserOverview } from "./data";
 
 export const assetSchema: JSONSchemaType<Asset> = {
   type: "object",
@@ -124,17 +124,17 @@ export const contactOverviewSchema: JSONSchemaType<ContactOverview> = {
     PersonID: { type: "number" },
     WNumber: { type: "string" },
     Name: { type: "string"},
-    DepartmentID: { type: "number"},
     Department: { type: "string"},
     Location: { type: "string" },
+    DepartmentID: { type: "number"},
   },
   required: [
     "PersonID",
     "WNumber",
     "Name",
-    "DepartmentID",
     "Department",
     "Location",
+    "DepartmentID",
   ],
 };
 
@@ -149,9 +149,9 @@ export const userOverviewSchema: JSONSchemaType<UserOverview> = {
     PersonID: { type: "number" },
     WNumber: { type: "string" },
     Name: { type: "string" },
-    DepartmentID: { type: "array", items: { type: "number" } },
     Department: { type: "string" },
     Location: { type: "string" },
+    DepartmentIDs: { type: "array", items: { type: "number" } },
     Permissions: { type: "array", items: { type: "number" } },
   },
   required: [
@@ -159,8 +159,8 @@ export const userOverviewSchema: JSONSchemaType<UserOverview> = {
     "WNumber",
     "Name",
     "Department",
-    "DepartmentID",
     "Location",
+    "DepartmentIDs",
     "Permissions",
   ],
 };
@@ -168,4 +168,37 @@ export const userOverviewSchema: JSONSchemaType<UserOverview> = {
 export const userOverviewArraySchema: JSONSchemaType<UserOverview[]> = {
   type: "array",
   items: userOverviewSchema,
+};
+
+export const userSchema: JSONSchemaType<User> = {
+  type: "object",
+  properties: {
+    PersonID: { type: "number" },
+    WNumber: { type: "string" },
+    Name: { type: "string" },
+    FirstName: { type: "string" },
+    LastName: { type: "string" },
+    Location: { type: "string" },
+    LocationID: { type: "number" },
+    Departments: { type: "string" },
+    DepartmentIDs: { type: "array", items: { type: "number" } },
+    Permissions: { type: "array", items: { type: "number" } },
+  },
+  required: [
+    "PersonID",
+    "WNumber",
+    "Name",
+    "FirstName",
+    "LastName",
+    "Location",
+    "LocationID",
+    "Departments",
+    "DepartmentIDs",
+    "Permissions",
+  ],
+};
+
+export const userArraySchema: JSONSchemaType<User[]> = {
+  type: "array",
+  items: userSchema,
 };
