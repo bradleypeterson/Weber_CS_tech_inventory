@@ -19,11 +19,8 @@ interface AuditResponse {
 
 export function AuditInitiateDashboard() {
   const [barcode, setBarcode] = useState("");
-  const linkTo = useLinkTo();
-
-  
-
-  
+  const [error, setError] = useState("");
+  const linkTo = useLinkTo();  
 
   const initiateAudit = useMutation<AuditResponse, Error, string>({
     mutationFn: async (roomBarcode: string) => {
@@ -53,6 +50,7 @@ export function AuditInitiateDashboard() {
     },
     onSuccess: (data) => {
       // Navigate to new audit page with room info
+      setError("");
       linkTo(
         "New Audit", 
         ["Audits", "Initiate Audit"], 
@@ -62,7 +60,7 @@ export function AuditInitiateDashboard() {
     onError: (error) => {
       console.error('Failed to initiate audit:', error);
       setBarcode("");
-      alert(error.message); // should I use elements/Modal instead?
+      setError("Room not found");
     }
   });
 
@@ -73,27 +71,32 @@ export function AuditInitiateDashboard() {
 
   return (
     <main className={styles.layout}>
-       <h1>Room Audit</h1>     
+      <h1>Room Audit</h1>     
       <div className={styles.scanSection}>
-        <IconInput
-          placeholder="Scan Barcode to Begin Audit"
-          icon={<Barcode />}
-          width="350px"
-          value={barcode}
-          onChange={(value) => setBarcode(value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              handleSubmit();
-            }
-          }}
-          autoFocus
-        />
-        <IconButton
-          icon={<ArrowRight />}
-          variant="primary"
-          disabled={barcode === "" || initiateAudit.isLoading}
-          onClick={handleSubmit}
-        />
+        <div className={styles.errorMessage}>
+          {error}
+        </div>
+        <div className={styles.inputRow}>
+          <IconInput
+            placeholder="Scan Barcode to Begin Audit"
+            icon={<Barcode />}
+            width="350px"
+            value={barcode}
+            onChange={(value) => setBarcode(value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSubmit();
+              }
+            }}
+            autoFocus
+          />
+          <IconButton
+            icon={<ArrowRight />}
+            variant="primary"
+            disabled={barcode === "" || initiateAudit.isLoading}
+            onClick={handleSubmit}
+          />
+        </div>
       </div>
     </main>
   );
