@@ -11,6 +11,7 @@ import { validateToken } from "./auth/validateToken";
 import { buildingRouter } from "./building";
 import { contactRouter } from "./contacts";
 import { departmentRouter } from "./department";
+import { permissionsRouter } from "./permissions";
 import { roomRouter } from "./room";
 import { userRouter } from "./users";
 config(); // Load environment variables
@@ -41,6 +42,7 @@ app.use(validateToken);
 app.use("/assets", assetRouter);
 app.use("/asset-classes", assetClassRouter);
 app.use("/departments", departmentRouter);
+app.use("/permissions", permissionsRouter);
 app.use("/contacts", contactRouter);
 app.use("/users", userRouter);
 app.use("/audits", auditRouter);

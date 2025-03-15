@@ -1,5 +1,5 @@
 import { User, UserOverview } from "../../../@types/data";
-import { userArraySchema, userOverviewArraySchema } from "../../../@types/schemas";
+import { userOverviewArraySchema, userSchema } from "../../../@types/schemas";
 import { ajv } from "../ajv";
 import { get, post, validateEmptyResponse } from "./helpers";
 
@@ -10,7 +10,7 @@ export async function fetchUserList(): Promise<UserOverview[] | undefined> {
 }
 
 export async function fetchUserDetails(personID: number): Promise<User | undefined> {
-  const response = await get(`/users/${personID}`, ajv.compile(userArraySchema));
+  const response = await get(`/users/${personID}`, ajv.compile(userSchema));
   if (response.status === "success") return response.data;
   return undefined;
 }

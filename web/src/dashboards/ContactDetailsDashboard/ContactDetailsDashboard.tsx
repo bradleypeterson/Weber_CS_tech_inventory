@@ -19,19 +19,17 @@ type Data = {
 
 export function ContactDetailsDashboard() {
   const [searchParams] = useSearchParams();
-  const personId = useMemo(() => searchParams.get("personId"), [searchParams]);
-
-  const userName = "Freddy Faculty"; //useMemo(() => searchParams.get("name"), [searchParams]);
-  if (personId !== null)
-    return <ContactDetailsView wNumber={wNumber} userName={userName} />;
+  const personID = useMemo(() => searchParams.get("personID"), [searchParams]);
+  if (personID !== null)
+    return <ContactDetailsView personID = {personID} />;
   else 
     return <EmptyContactDetailsView/>;
 }
 
-function ContactDetailsView({ wNumber, userName }: { wNumber: string, userName: string }) {
+function ContactDetailsView({ personID }: { personID: string}) {
 
   const [formData, setFormData] = useState<Data>({
-    w_number: wNumber,
+    w_number: "wNumber",
     departments: "WEB",
     location: "NB 311C",
     firstName: "Freddy",
@@ -56,7 +54,8 @@ function ContactDetailsView({ wNumber, userName }: { wNumber: string, userName: 
       <div className={styles.row}>
         <div>
           <h2>Edit User Details</h2>
-          <p> {userName} | {wNumber}</p>
+          {/* <p> {userName} | {wNumber}</p> */}
+          <p> </p>
         </div>
         <IconButton icon={<Check />} variant="secondary" />
       </div>

@@ -19,12 +19,10 @@ export function UserSearchDashboard() {
   const {filters} = useFilters();
 
   const filteredData = useMemo(() => {
-    const filteredData = data?.filter((row) => {
-      if ((!filters.Permission || filters.Permission.length === 0) && (!filters.Department || filters.Department.length === 0)) return true;
-      const hasPermission = row.Permissions.some((permission) => filters.Permission?.includes(permission));
-      const hasDepartment = row.DepartmentIDs.some((department) => filters.Department?.includes(department));
-      return hasPermission && hasDepartment;
-  });
+    const filteredData = data?.filter(
+      (row) => row.DepartmentIDs?.some(department => filters.Department?.includes(department))
+      // && row.Permissions?.filter(permission => filters.Permission?.includes(permission))
+  );
   const searchedData =
   searchText === ""
     ? (filteredData ?? [])
@@ -55,7 +53,7 @@ export function UserSearchDashboard() {
 
   function handleOnEdit() {
     if (selectedUser.length !== 1) return;
-    linkTo("Details", ["Admin", "Users"], `personId=${selectedUser[0]}`);
+    linkTo("Details", ["Admin", "Users"], `personID=${selectedUser[0]}`);
   }
   
   const columns: Column<UserOverview>[] = [

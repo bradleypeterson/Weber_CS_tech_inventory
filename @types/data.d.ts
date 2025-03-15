@@ -108,7 +108,6 @@ type ContactOverview = {
 };
 
 type User = {
-  PersonID: number;
   WNumber: string;
   Name: string;
   FirstName: string;

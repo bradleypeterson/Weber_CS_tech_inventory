@@ -42,7 +42,7 @@ function UserDetailsView({ personID }: { personID: string }) {
   >({});
 
   useEffect(
-    function syncAssetDetails() {
+    function syncUserDetails() {
       if (userDetails === undefined) return;
       if (Object.keys(formData).length > 0) return;
       setFormData(userDetails);
@@ -84,11 +84,12 @@ function UserDetailsView({ personID }: { personID: string }) {
    if (isError) return <>Unknown User</>;
 
   const formStructureFiltered = formStructure.filter(column => column.title !== "Password");
+  
   return (
     <main className={styles.layout}>
       <div className={styles.row}>
         <div>
-          <h2>Edit User Details</h2>
+          <h2>User Details</h2>
           <p> {userDetails?.Name} | {userDetails?.WNumber}</p>
         </div>
         {isSaving && <>Saving...</>}

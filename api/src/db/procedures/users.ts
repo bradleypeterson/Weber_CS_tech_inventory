@@ -29,11 +29,10 @@ export async function getAllUsers() {
 }
 
 interface UserDetailsRow extends RowDataPacket, User {}
-export async function getUserDetails(personID: number): Promise<UserDetailsRow | undefined> {
+export async function getUserDetails(personID: number): Promise<User | undefined> {
   try {
     const query = `
       SELECT 
-        p.PersonID,
         WNumber, 
         CONCAT(FirstName, " ", LastName) as Name, 
         FirstName,
@@ -49,6 +48,7 @@ export async function getUserDetails(personID: number): Promise<UserDetailsRow |
       JOIN persondepartment pd on pd.PersonID = p.PersonID 
       JOIN department d on d.DepartmentID = pd.DepartmentID
       JOIN location l on l.LocationID = p.LocationID 
+      WHERE p.PersonID = ?
       GROUP BY p.PersonID
                   `;
     const [rows] = await pool.query<UserDetailsRow[]>(query, [personID]);
