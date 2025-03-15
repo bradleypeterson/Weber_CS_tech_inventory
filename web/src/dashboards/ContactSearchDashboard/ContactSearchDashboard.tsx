@@ -1,32 +1,86 @@
-import { MagnifyingGlass, Plus } from "@phosphor-icons/react";
+import { MagnifyingGlass, Pencil, Plus } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
+import { useQuery } from "react-query";
+import { ContactOverview } from "../../../../@types/data";
+import { fetchContactList } from "../../api/contacts";
+import { Checkbox } from "../../elements/Checkbox/Checkbox";
+import { Column, DynamicTable } from "../../elements/DynamicTable/DynamicTable";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
-import { Column, Table } from "../../elements/Table/Tables";
+import { useFilters } from "../../filters/useFilters";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./ContactSearchDashboard.module.css";
 
 export function ContactSearchDashboard() {
   const [searchText, setSearchText] = useState("");
+  const [selectedContact, setSelectedContact] = useState<number[]>([]);
   const linkTo = useLinkTo();
+  const { data } = useQuery('ContactsList', () => fetchContactList());
+  const {filters} = useFilters();
 
-  const columns: Column[] = [
-    { key: "w_number", label: "W Number", type: "text" },
-    { key: "name", label: "Name", type: "text" },
-    { key: "department", label: "Department", type: "text" },
-    { key: "location", label: "Location", type: "text" },
-    { key: "edit", label: "Edit", type: "icon", icon: "edit", width: "10px", action:() => linkTo("Details", ["Admin", "Contacts"], "w_number=W01234567")},
-  ];
-
-  const filteredData = useMemo(
-    () => dummyData.filter((row) => Object.values(row).some((value) => value.toLowerCase().includes(searchText))),
-    [searchText]
+  const filteredData = useMemo(() => {
+    const filteredData = data?.filter(
+    (row) => filters.Department?.includes(row.DepartmentID ?? 0)
   );
+  const searchedData =
+  searchText === ""
+    ? (filteredData ?? [])
+    : (filteredData?.filter((row) =>
+        Object.values(row).some((value) => value.toString().toLowerCase().includes(searchText))
+      ) ?? []);
+  return searchedData;
+  }, [searchText, data, filters]);
+
+  const editDisabled = useMemo(() => selectedContact.length !== 1, [selectedContact]);
+
+  function handleCheckbox(checked: boolean, personID: number) {
+    setSelectedContact((prev) => {
+      const nextSelectedContacts = [...prev];
+      if (checked) {
+        nextSelectedContacts.push(personID);
+      } else {
+        const index = nextSelectedContacts.findIndex((id) => id === personID);
+        if (index > -1) nextSelectedContacts.splice(index, 1);
+      }
+      return nextSelectedContacts;
+  });
+}
+
+  function handlePlusClick() {
+    linkTo("Details", ["Admin", "Contacts"]);
+  }
+
+  function handleOnEdit() {
+    if (selectedContact.length !== 1) return;
+    linkTo("Details", ["Admin", "Contacts"], `personId=${selectedContact[0]}`);
+  }
+
+  const columns: Column<ContactOverview>[] = [
+      {
+        label: "",
+        render: (row: ContactOverview) => (
+          <>
+            <Checkbox
+              color="black"
+              onChange={(value) => row.PersonID !== undefined && handleCheckbox(value, row.PersonID)}
+              checked={row.PersonID !== undefined && selectedContact.includes(row.PersonID)}
+            />
+          </>
+        )
+      },
+      { label: "W Number", dataIndex: "WNumber" },
+      { label: "Name", dataIndex: "Name" },
+      { label: "Department", dataIndex: "Department" },
+      { label: "Location", dataIndex: "Location" },
+    ];
 
   return (
     <main className={styles.layout}>
       <div className={styles.tableHeader}>
-          <IconButton icon={<Plus />} variant="secondary" onClick={() => linkTo("Details", ["Admin", "Contacts"])}/>
+        <div className={styles.row}>
+          <IconButton icon={<Plus />} variant="secondary" onClick={handlePlusClick}/>
+          <IconButton icon={<Pencil />} variant="secondary" disabled={editDisabled} onClick={handleOnEdit} />
+        </div>
         <IconInput
           icon={<MagnifyingGlass />}
           width="200px"
@@ -35,15 +89,7 @@ export function ContactSearchDashboard() {
           onChange={(val) => setSearchText(val.toLowerCase())}
         />
       </div>
-      <Table columns={columns} data={filteredData} />
+      <DynamicTable columns={columns} data={filteredData} />
     </main>
   );
 }
-
-const dummyData = [
-  { w_number: "W01234567", name: "Freddy Faculty", department: "WEB", location: "NB 311C" },
-  { w_number: "W00001234", name: "Annie Adjunct", department: "CS", location: "remote" },
-  { w_number: "W00123456", name: "John Smith", department: "NET", location: "EH 311B" }
-];
-
-

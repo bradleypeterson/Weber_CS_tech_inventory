@@ -1,5 +1,5 @@
 import type { JSONSchemaType } from "ajv";
-import type { Asset, AssetDetails, AssetOverview } from "./data";
+import type { Asset, AssetDetails, AssetOverview, ContactOverview, UserOverview } from "./data";
 
 export const assetSchema: JSONSchemaType<Asset> = {
   type: "object",
@@ -116,4 +116,56 @@ export const assetDetailsSchema: JSONSchemaType<AssetDetails> = {
     "DeviceTypeID",
   ],
   additionalProperties: false,
+};
+
+export const contactOverviewSchema: JSONSchemaType<ContactOverview> = {
+  type: "object",
+  properties: {
+    PersonID: { type: "number" },
+    WNumber: { type: "string" },
+    Name: { type: "string"},
+    DepartmentID: { type: "number"},
+    Department: { type: "string"},
+    Location: { type: "string" },
+  },
+  required: [
+    "PersonID",
+    "WNumber",
+    "Name",
+    "DepartmentID",
+    "Department",
+    "Location",
+  ],
+};
+
+export const contactOverviewArraySchema: JSONSchemaType<ContactOverview[]> = {
+  type: "array",
+  items: contactOverviewSchema,
+};
+
+export const userOverviewSchema: JSONSchemaType<UserOverview> = {
+  type: "object",
+  properties: {
+    PersonID: { type: "number" },
+    WNumber: { type: "string" },
+    Name: { type: "string" },
+    DepartmentID: { type: "array", items: { type: "number" } },
+    Department: { type: "string" },
+    Location: { type: "string" },
+    Permissions: { type: "array", items: { type: "number" } },
+  },
+  required: [
+    "PersonID",
+    "WNumber",
+    "Name",
+    "Department",
+    "DepartmentID",
+    "Location",
+    "Permissions",
+  ],
+};
+
+export const userOverviewArraySchema: JSONSchemaType<UserOverview[]> = {
+  type: "array",
+  items: userOverviewSchema,
 };

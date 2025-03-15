@@ -19,9 +19,10 @@ type Data = {
 
 export function ContactDetailsDashboard() {
   const [searchParams] = useSearchParams();
-  const wNumber = useMemo(() => searchParams.get("w_number"), [searchParams]);
+  const personId = useMemo(() => searchParams.get("personId"), [searchParams]);
+
   const userName = "Freddy Faculty"; //useMemo(() => searchParams.get("name"), [searchParams]);
-  if (wNumber !== null && userName !== null)
+  if (personId !== null)
     return <ContactDetailsView wNumber={wNumber} userName={userName} />;
   else 
     return <EmptyContactDetailsView/>;

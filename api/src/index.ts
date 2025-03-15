@@ -7,7 +7,9 @@ import { assetClassRouter } from "./assetClass";
 import { assetRouter } from "./assets";
 import { authRouter } from "./auth";
 import { validateToken } from "./auth/validateToken";
+import { contactRouter } from "./contacts";
 import { departmentRouter } from "./department";
+import { userRouter } from "./users";
 config(); // Load environment variables
 
 const app = express();
@@ -36,5 +38,7 @@ app.use(validateToken);
 app.use("/assets", assetRouter);
 app.use("/asset-classes", assetClassRouter);
 app.use("/departments", departmentRouter);
+app.use("/contacts", contactRouter);
+app.use("/users", userRouter);
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

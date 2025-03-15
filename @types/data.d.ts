@@ -84,3 +84,22 @@ type AssetDetails = {
   AccountingDate?: string | null;
   AccountCost?: number | null;
 };
+
+type ContactOverview = {
+  PersonID?: number;
+  WNumber?: number;
+  Name?: string;
+  Department?: string;
+  Location?: string;
+  DepartmentID?: number;
+};
+
+type UserOverview = {
+  PersonID?: number;
+  WNumber?: number;
+  Name?: string;
+  Department?: string;
+  Location?: string;
+  DepartmentID?: number[];
+  Permissions?: number[];
+};
