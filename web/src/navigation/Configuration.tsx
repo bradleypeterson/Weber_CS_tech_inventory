@@ -51,7 +51,6 @@ export const configuration: RouteConfiguration = [
         availability: () => true,
         label: "Initiate Audit",
         element: <AuditInitiateDashboard />,
-        filters: ["Department"],
         tabs: [
           { 
             type: "tab", 
