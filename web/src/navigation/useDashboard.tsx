@@ -6,7 +6,6 @@ import { useAccessibleRoutes } from "./useAccessibleRoutes";
 export function useDashboard() {
   const location = useLocation();
   const { routes } = useAccessibleRoutes();
-  console.log(location);
 
   const dashboard = useMemo(
     () =>
