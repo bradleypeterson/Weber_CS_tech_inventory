@@ -5,10 +5,13 @@ import express, { json } from "express";
 import morgan from "morgan";
 import { assetClassRouter } from "./assetClass";
 import { assetRouter } from "./assets";
+import { auditRouter } from "./audit";
 import { authRouter } from "./auth";
 import { validateToken } from "./auth/validateToken";
+import { buildingRouter } from "./building";
 import { contactRouter } from "./contacts";
 import { departmentRouter } from "./department";
+import { roomRouter } from "./room";
 import { userRouter } from "./users";
 config(); // Load environment variables
 
@@ -40,5 +43,8 @@ app.use("/asset-classes", assetClassRouter);
 app.use("/departments", departmentRouter);
 app.use("/contacts", contactRouter);
 app.use("/users", userRouter);
+app.use("/audits", auditRouter);
+app.use("/buildings", buildingRouter);
+app.use("/rooms", roomRouter);
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

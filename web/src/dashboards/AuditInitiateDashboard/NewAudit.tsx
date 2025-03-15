@@ -1,64 +1,95 @@
-import { useState } from "react";
+import { useMemo } from "react";
+import { useQuery } from "react-query";
+import { useSearchParams } from "react-router-dom";
+import type { APIResponse } from "../../../../@types/api";
 import { Notes } from "../../components/Notes/Notes";
-import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
 import { Column, Table } from "../../elements/Table/Tables";
+import { useFilters } from "../../filters/useFilters";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./NewAudit.module.css";
 
+interface EquipmentDetailsRow {
+  EquipmentID: number;
+  TagNumber: string;
+  SerialNumber: string;
+  Description: string;
+  DepartmentID: number;
+  DepartmentName: string;
+  LocationID: number;
+  RoomNumber: string;
+  BuildingID: number;
+  BuildingName: string;
+  BuildingAbbr: string;
+  DeviceTypeName: string;
+}
+
 export function NewAudit() {
-  const [department, setDepartment] = useState("");
-  const [building, setBuilding] = useState("");
-  const [room, setRoom] = useState("");
   const linkTo = useLinkTo();
-  
+  const { filters } = useFilters();
+  const [searchParams] = useSearchParams();
+  const roomId = searchParams.get('room_id');
+
+  const { data: equipmentData, isLoading } = useQuery<APIResponse<EquipmentDetailsRow[]>>(
+    ["equipmentInRoom", roomId],
+    async () => {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('Not authenticated');
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/audits/equipment/${roomId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch equipment data');
+      }
+
+      return response.json();
+    },
+    {
+      enabled: !!roomId
+    }
+  );
+
+  const filteredData = useMemo(() => {
+    if (!equipmentData || equipmentData.status !== "success") return [];
+    
+    return equipmentData.data.filter((row: EquipmentDetailsRow) => {
+      const departmentMatch = !filters.Department?.length || filters.Department.includes(row.DepartmentID);
+      const buildingMatch = !filters.Building?.length || filters.Building.includes(row.BuildingID);
+      const locationMatch = !filters.Room?.length || filters.Room.includes(row.LocationID);
+      
+      return departmentMatch && buildingMatch && locationMatch;
+    });
+  }, [filters, equipmentData]);
+
+  if (isLoading) return <div>Loading...</div>;
+
   return (
-    <main className={styles.layout}>
-      <div className={styles.selectors}>
-        <SingleSelect
-          options={[
-            { value: "cs", label: "Computer Science" },
-          ]}
-          value={department}
-          onChange={setDepartment}
-          placeholder="Department"
-        />
-        <SingleSelect
-          options={[
-            { value: "nb", label: "NB" },
-          ]}
-          value={building}
-          onChange={setBuilding}
-          placeholder="Building"
-        />
-        <SingleSelect
-          options={[
-            { value: "311", label: "311" },
-          ]}
-          value={room}
-          onChange={setRoom}
-          placeholder="Room"
-        />
-      </div>
-
-      <Table columns={columns} data={dummyData} />
-
-      <Notes notes={[]} />
-
-      <div className={styles.buttons}>
-        <button 
-          className={styles.cancelButton}
-          onClick={() => linkTo("Initiate Audit", ["Audits"])}
-        >
-          Cancel
-        </button>
-        <button 
-          className={styles.submitButton}
-          onClick={() => linkTo("Audit Summary", ["Audits", "Initiate Audit"])}
-        >
-          Submit
-        </button>
-      </div>
-    </main>
+    <div className={styles.layout}>
+      <main className={styles.content}>
+        <Table columns={columns} data={filteredData} />
+        <Notes notes={[]} />
+        <div className={styles.buttons}>
+          <button 
+            className={styles.cancelButton}
+            onClick={() => linkTo("Initiate Audit", ["Audits"])}
+          >
+            Cancel
+          </button>
+          <button 
+            className={styles.submitButton}
+            onClick={() => linkTo("Audit Summary", ["Audits", "Initiate Audit"])}
+          >
+            Submit
+          </button>
+        </div>
+      </main>
+    </div>
   );
 }
 
@@ -71,27 +102,27 @@ const columns: Column[] = [
   },
   {
     label: "Tag Number",
-    key: "tag_number",
+    key: "TagNumber",
     type: "text"
   },
   {
-    label: "Department",
-    key: "department",
+    label: "Description",
+    key: "Description",
     type: "text"
   },
   {
-    label: "Asset Class",
-    key: "asset_class",
+    label: "Serial Number",
+    key: "SerialNumber",
     type: "text"
   },
   {
-    label: "Device Type",
-    key: "device_type",
+    label: "Room",
+    key: "RoomNumber",
     type: "text"
   },
   {
-    label: "Contact Person",
-    key: "contact_person",
+    label: "Building",
+    key: "BuildingName",
     type: "text"
   },
   {
@@ -103,56 +134,5 @@ const columns: Column[] = [
       { value: "missing", label: "Missing" },
       { value: "wrong_location", label: "Wrong Location" }
     ]
-  }
-];
-
-const dummyData = [
-  {
-    tag_number: "10062070",
-    department: "Computer Science",
-    asset_class: "PRINTERS",
-    device_type: "Printer",
-    contact_person: "Brad Petersen",
-    status: "pick status"
-  },
-  {
-    tag_number: "10062071",
-    department: "Computer Science",
-    asset_class: "COMPUTERS",
-    device_type: "Desktop",
-    contact_person: "Brad Petersen",
-    status: "pick status"
-  },
-  {
-    tag_number: "10062072",
-    department: "Computer Science",
-    asset_class: "MONITORS",
-    device_type: "Monitor",
-    contact_person: "Brad Petersen",
-    status: "pick status"
-  },
-  {
-    tag_number: "10062073",
-    department: "Computer Science",
-    asset_class: "NETWORKING",
-    device_type: "Switch",
-    contact_person: "Brad Petersen",
-    status: "pick status"
-  },
-  {
-    tag_number: "10062074",
-    department: "Computer Science",
-    asset_class: "TABLETS",
-    device_type: "iPad",
-    contact_person: "Brad Petersen",
-    status: "pick status"
-  },
-  {
-    tag_number: "10062075",
-    department: "Computer Science",
-    asset_class: "SERVERS",
-    device_type: "Rack Server",
-    contact_person: "Brad Petersen",
-    status: "pick status"
   }
 ];

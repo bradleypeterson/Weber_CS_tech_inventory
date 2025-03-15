@@ -4,6 +4,19 @@ export type AssetClass = {
   Abbreviation: string;
 };
 
+export type Building = {
+  BuildingID: number;
+  Name: string;
+  Abbreviation: string;
+}
+
+export type Room = {
+  LocationID: number;
+  RoomNumber: string;
+  BuildingID: number;
+  Barcode: string;
+} 
+
 export type Department = {
   DepartmentID: number;
   Name: string;

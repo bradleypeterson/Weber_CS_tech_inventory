@@ -7,6 +7,7 @@ An asset tracker for Weber State University
     git clone https://github.com/bradleypeterson/Weber_CS_tech_inventory.git
     cd web && npm install
     cd api && npm install
+    cd @types && npm install
 
 Next add a .env file to both the web project and api project.
 
@@ -21,10 +22,11 @@ Next add a .env file to both the web project and api project.
     DB_USER=[MYSQL USER]
     DB_PASSWORD=[MYSQL PASSWORD]
     DB_PORT=[MYSQL PORT]
+    JWT_SECRET=[SECRET]
 
 Finally build the database
 
-    cd api && npm run dbinit
+    cd api && npm run dbinit && npm run dbseed
 
 ## Running the Project
 
