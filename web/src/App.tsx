@@ -26,9 +26,7 @@ function Layout() {
     () =>
       routes
         .filter((route): route is BuiltDashboard | BuiltTab => ["dashboard", "tab"].includes(route.type))
-        .some(
-          (route) => route.path.includes(location.pathname) && route.filters !== undefined && route.filters.length > 0
-        ),
+        .some((route) => route.path === location.pathname && route.filters !== undefined && route.filters.length > 0),
     [routes, location]
   );
 
