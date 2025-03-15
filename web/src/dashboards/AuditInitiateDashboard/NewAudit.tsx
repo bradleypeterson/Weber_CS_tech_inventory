@@ -1,8 +1,11 @@
-import { useMemo } from "react";
-import { useQuery } from "react-query";
+import { ArrowRight, Barcode } from "@phosphor-icons/react";
+import { useMemo, useState } from "react";
+import { useMutation, useQuery } from "react-query";
 import { useSearchParams } from "react-router-dom";
 import type { APIResponse } from "../../../../@types/api";
 import { Notes } from "../../components/Notes/Notes";
+import { IconButton } from "../../elements/IconButton/IconButton";
+import { IconInput } from "../../elements/IconInput/IconInput";
 import { Column, Table } from "../../elements/Table/Tables";
 import { useFilters } from "../../filters/useFilters";
 import { useLinkTo } from "../../navigation/useLinkTo";
@@ -28,6 +31,8 @@ export function NewAudit() {
   const { filters } = useFilters();
   const [searchParams] = useSearchParams();
   const roomId = searchParams.get('room_id');
+  const [barcode, setBarcode] = useState("");
+  const [error, setError] = useState("");
 
   const { data: equipmentData, isLoading } = useQuery<APIResponse<EquipmentDetailsRow[]>>(
     ["equipmentInRoom", roomId],
@@ -55,6 +60,48 @@ export function NewAudit() {
     }
   );
 
+  const scanItem = useMutation({
+    mutationFn: async (itemBarcode: string) => {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('Not authenticated');
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/audits/scan-item`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          itemBarcode,
+          roomId
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Failed to scan item');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      setError("");
+      setBarcode("");
+      // Optionally refresh the equipment data
+      // queryClient.invalidateQueries(["equipmentInRoom", roomId]);
+    },
+    onError: (error) => {
+      console.error('Failed to scan item:', error);
+      setBarcode("");
+      setError("Invalid item barcode");
+    }
+  });
+
+  const handleScanSubmit = () => {
+    if (!barcode) return;
+    scanItem.mutate(barcode);
+  };
+
   const filteredData = useMemo(() => {
     if (!equipmentData || equipmentData.status !== "success") return [];
     
@@ -72,6 +119,32 @@ export function NewAudit() {
   return (
     <div className={styles.layout}>
       <main className={styles.content}>
+        <div className={styles.scanSection}>
+          <div className={styles.errorMessage}>
+            {error}
+          </div>
+          <div className={styles.inputRow}>
+            <IconInput
+              placeholder="Scan Item Barcode"
+              icon={<Barcode />}
+              width="350px"
+              value={barcode}
+              onChange={(value) => setBarcode(value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleScanSubmit();
+                }
+              }}
+              autoFocus
+            />
+            <IconButton
+              icon={<ArrowRight />}
+              variant="primary"
+              disabled={barcode === "" || scanItem.isLoading}
+              onClick={handleScanSubmit}
+            />
+          </div>
+        </div>
         <Table columns={columns} data={filteredData} />
         <Notes notes={[]} />
         <div className={styles.buttons}>
