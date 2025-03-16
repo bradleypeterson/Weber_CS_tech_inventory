@@ -52,9 +52,9 @@ export const configuration: RouteConfiguration = [
         label: "Initiate Audit",
         element: <AuditInitiateDashboard />,
         tabs: [
-          { 
-            type: "tab", 
-            label: "New Audit", 
+          {
+            type: "tab",
+            label: "New Audit",
             element: <NewAudit />,
             filters: ["Department", "Building", "Room"]
           },
@@ -82,7 +82,7 @@ export const configuration: RouteConfiguration = [
         availability: () => true,
         label: "Users",
         element: <UserSearchDashboard />,
-        filters: ["Permission"],
+        filters: ["Permission", "Department"],
         tabs: [
           { type: "tab", label: "Details", element: <UserDetailsDashboard /> },
           { type: "tab", label: "Change Password", element: <PasswordChangeDashboard /> }
@@ -104,7 +104,9 @@ export const configuration: RouteConfiguration = [
     type: "menu",
     label: "My Account",
     icon: <User />,
-    menu: [{ type: "dashboard", availability: () => true, label: "Change Password", element: <PasswordChangeDashboard /> }],
+    menu: [
+      { type: "dashboard", availability: () => true, label: "Change Password", element: <PasswordChangeDashboard /> }
+    ],
     availability: () => true
   },
   {
@@ -114,7 +116,7 @@ export const configuration: RouteConfiguration = [
     menu: [{ type: "dashboard", availability: () => true, label: "Elements", element: <Elements /> }],
     availability: () => true
   },
-  
+
   {
     type: "page",
     label: "Login",
