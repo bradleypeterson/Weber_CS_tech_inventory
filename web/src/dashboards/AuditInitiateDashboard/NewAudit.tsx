@@ -145,7 +145,7 @@ export function NewAudit() {
             />
           </div>
         </div>
-        <Table columns={columns} data={filteredData} />
+        <Table columns={columns} data={filteredData} selectable={true} />
         <Notes notes={[]} />
         <div className={styles.buttons}>
           <button 
@@ -166,13 +166,7 @@ export function NewAudit() {
   );
 }
 
-const columns: Column[] = [
-  {
-    label: "",
-    key: "checkbox",
-    type: "icon",
-    width: "40px"
-  },
+const columns: Column[] = [  
   {
     label: "Tag Number",
     key: "TagNumber",
