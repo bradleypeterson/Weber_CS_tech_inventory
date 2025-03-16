@@ -95,4 +95,36 @@ export async function createNewAudit(createdBy: number, equipmentId: number): Pr
     console.error(`Error in createNewAudit:`, error);
     throw new Error("Failed to create new audit");
   }
+}
+
+export async function getEquipmentByTagNumber(tagNumber: string): Promise<EquipmentDetailsRow | null> {
+  try {
+    const query = `
+      SELECT 
+        e.EquipmentID,
+        e.TagNumber,
+        e.SerialNumber,
+        e.Description,
+        d.DepartmentID,
+        d.Name as DepartmentName,
+        l.LocationID,
+        l.RoomNumber,
+        b.BuildingID,
+        b.Name as BuildingName,
+        b.Abbreviation as BuildingAbbr,
+        dt.Name as DeviceTypeName
+      FROM Equipment e
+      LEFT JOIN Department d ON e.DepartmentID = d.DepartmentID
+      LEFT JOIN Location l ON e.LocationID = l.LocationID
+      LEFT JOIN Building b on l.BuildingID = b.BuildingID 
+      LEFT JOIN DeviceType dt ON e.DeviceTypeID = dt.DeviceTypeID
+      WHERE e.TagNumber = ? AND e.ArchiveStatus = 0
+      LIMIT 1
+    `;
+    const [rows] = await pool.query<EquipmentDetailsRow[]>(query, [tagNumber]);
+    return rows[0] || null;
+  } catch (error) {
+    console.error(`Error in getEquipmentByTagNumber:`, error);
+    throw new Error("Failed to get equipment by tag number");
+  }
 } 

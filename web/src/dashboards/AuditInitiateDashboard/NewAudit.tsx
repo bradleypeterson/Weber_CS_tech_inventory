@@ -6,6 +6,7 @@ import type { APIResponse } from "../../../../@types/api";
 import { Notes } from "../../components/Notes/Notes";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
+import { Modal } from "../../elements/Modal/Modal";
 import { Column, Table } from "../../elements/Table/Tables";
 import { useFilters } from "../../filters/useFilters";
 import { useLinkTo } from "../../navigation/useLinkTo";
@@ -24,6 +25,7 @@ interface EquipmentDetailsRow {
   BuildingName: string;
   BuildingAbbr: string;
   DeviceTypeName: string;
+  status?: number;
 }
 
 export function NewAudit() {
@@ -33,6 +35,9 @@ export function NewAudit() {
   const roomId = searchParams.get('room_id');
   const [barcode, setBarcode] = useState("");
   const [error, setError] = useState("");
+  const [itemStatuses, setItemStatuses] = useState<Record<string, number>>({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pendingItem, setPendingItem] = useState<EquipmentDetailsRow | null>(null);
 
   const { data: equipmentData, isLoading } = useQuery<APIResponse<EquipmentDetailsRow[]>>(
     ["equipmentInRoom", roomId],
@@ -84,11 +89,22 @@ export function NewAudit() {
 
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setError("");
       setBarcode("");
-      // Optionally refresh the equipment data
-      // queryClient.invalidateQueries(["equipmentInRoom", roomId]);
+
+      if (data.status === "not_assigned_to_room") {
+        setPendingItem(data.data);
+        setIsModalOpen(true);
+      } else {
+        // Set status to "Found" (1) when item is scanned
+        if (data.data.TagNumber) {
+          setItemStatuses(prev => ({
+            ...prev,
+            [data.data.TagNumber]: 1
+          }));
+        }
+      }
     },
     onError: (error) => {
       console.error('Failed to scan item:', error);
@@ -102,6 +118,38 @@ export function NewAudit() {
     scanItem.mutate(barcode);
   };
 
+  const handleStatusChange = (value: number, rowIndex: number) => {
+    if (!equipmentData?.data?.[rowIndex]) return;
+    const tagNumber = equipmentData.data[rowIndex].TagNumber;
+    setItemStatuses(prev => ({
+      ...prev,
+      [tagNumber]: value
+    }));
+  };
+
+  const handleAddItemToAudit = () => {
+    if (pendingItem) {
+      // Add item to the list with "Turned-In" status (4)
+      setItemStatuses(prev => ({
+        ...prev,
+        [pendingItem.TagNumber]: 4
+      }));
+      
+      // Add item to equipment data
+      if (equipmentData?.status === "success") {
+        equipmentData.data.push(pendingItem);
+      }
+    }
+    setIsModalOpen(false);
+    setPendingItem(null);
+  };
+
+  const handleCancelAdd = () => {
+    setIsModalOpen(false);
+    setPendingItem(null);
+    setBarcode("");
+  };
+
   const filteredData = useMemo(() => {
     if (!equipmentData || equipmentData.status !== "success") return [];
     
@@ -111,8 +159,11 @@ export function NewAudit() {
       const locationMatch = !filters.Room?.length || filters.Room.includes(row.LocationID);
       
       return departmentMatch && buildingMatch && locationMatch;
-    });
-  }, [filters, equipmentData]);
+    }).map(row => ({
+      ...row,
+      status: itemStatuses[row.TagNumber] || undefined
+    }));
+  }, [filters, equipmentData, itemStatuses]);
 
   if (isLoading) return <div>Loading...</div>;
 
@@ -145,7 +196,28 @@ export function NewAudit() {
             />
           </div>
         </div>
-        <Table columns={columns} data={filteredData} selectable={true} />
+        <Table 
+          columns={columns} 
+          data={filteredData} 
+          selectable={true} 
+          onDataChange={(newData: EquipmentDetailsRow[]) => {
+            // Find the changed row by comparing with current data
+            const changedRow = newData.find((row: EquipmentDetailsRow, index: number) => 
+              row.status !== filteredData[index].status
+            );
+            
+            if (changedRow && typeof changedRow.status === 'number') {
+              // Find the index in the original data
+              const rowIndex = equipmentData?.data.findIndex(
+                (item: EquipmentDetailsRow) => item.TagNumber === changedRow.TagNumber
+              ) ?? -1;
+              
+              if (rowIndex !== -1) {
+                handleStatusChange(changedRow.status, rowIndex);
+              }
+            }
+          }}
+        />
         <Notes notes={[]} />
         <div className={styles.buttons}>
           <button 
@@ -162,6 +234,24 @@ export function NewAudit() {
           </button>
         </div>
       </main>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCancelAdd}
+        title="Item not Assigned to this Room"
+      >
+        <div className={styles.modalContent}>
+          <p>Would you like to add it to the Audit</p>
+          <div className={styles.modalButtons}>
+            <button onClick={handleCancelAdd} className={styles.cancelButton}>
+              Cancel
+            </button>
+            <button onClick={handleAddItemToAudit} className={styles.submitButton}>
+              Yes
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -197,9 +287,10 @@ const columns: Column[] = [
     key: "status",
     type: "dropdown",
     options: [
-      { value: "present", label: "Present" },
-      { value: "missing", label: "Missing" },
-      { value: "wrong_location", label: "Wrong Location" }
+      { value: 1, label: "Found" },
+      { value: 2, label: "Damaged" },
+      { value: 3, label: "Missing" },
+      { value: 4, label: "Turned-In" }
     ]
   }
 ];
