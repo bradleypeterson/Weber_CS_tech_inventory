@@ -52,7 +52,7 @@ export function ContactSearchDashboard() {
 
   function handleOnEdit() {
     if (selectedContact.length !== 1) return;
-    linkTo("Details", ["Admin", "Contacts"], `personId=${selectedContact[0]}`);
+    linkTo("Details", ["Admin", "Contacts"], `personID=${selectedContact[0]}`);
   }
 
   const columns: Column<ContactOverview>[] = [

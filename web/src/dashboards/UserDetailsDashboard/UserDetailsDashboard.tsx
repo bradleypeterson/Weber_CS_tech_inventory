@@ -97,7 +97,7 @@ function UserDetailsView({ personID }: { personID: string }) {
         {!isEditing && <IconButton icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />}
         {isEditing && <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} />} 
       </div>
-      <form className={styles.inputFieldContainer} onSubmit={handleSubmit}>
+      <form className={styles.inputFieldContainer}>
         {formStructureFiltered.map((column) => (
           <div key={column.title} className={styles.formColumn}>
             <h3>{column.title}</h3>
@@ -269,17 +269,17 @@ const formStructure: Column[] = [
   {
     title: "User Info",
     inputs: [
-      { name: "firstName", label: "First Name", inputType: "input" },
-      { name: "lastName", label: "Last Name", inputType: "input" },
-      { name: "w_number", label: "W Number", inputType: "input" },
+      { name: "FirstName", label: "First Name", inputType: "input" },
+      { name: "LastName", label: "Last Name", inputType: "input" },
+      { name: "WNumber", label: "W Number", inputType: "input" },
       {
-        name: "departments",
+        name: "Departments",
         label: "Departments",
         inputType: "multi select",
         fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "CS" }]), 500))
       },
       {
-        name: "location",
+        name: "Location",
         label: "Location",
         inputType: "single select",
         fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "NB 324A" }]), 500))
@@ -289,13 +289,13 @@ const formStructure: Column[] = [
   {
     title: "Permissions",
     inputs: [
-      { name: "addEditAssets", label: "Add/Edit Assets", inputType: "checkbox" },
-      { name: "archiveAssets", label: "Archive Assets", inputType: "checkbox" },
-      { name: "csvImportExport", label: "Import/Export CSV Data", inputType: "checkbox" },
-      { name: "AddEditContacts", label: "Add/Edit Contact Persons", inputType: "checkbox" },
-      { name: "addEditLists", label: "Add/Edit List Options", inputType: "checkbox" },
-      { name: "addEditViewUsers", label: "Add/Edit/View Users", inputType: "checkbox" },
-      { name: "setUserPermissions", label: "Set User Permissions", inputType: "checkbox" },
+      { name: "Add/Edit Assets", label: "Add/Edit Assets", inputType: "checkbox" },
+      { name: "Archive Assets", label: "Archive Assets", inputType: "checkbox" },
+      { name: "Import/Export CSV Data", label: "Import/Export CSV Data", inputType: "checkbox" },
+      { name: "Add/Edit Contact Persons", label: "Add/Edit Contact Persons", inputType: "checkbox" },
+      { name: "Add/Edit List Options", label: "Add/Edit List Options", inputType: "checkbox" },
+      { name: "Add/Edit/View Users", label: "Add/Edit/View Users", inputType: "checkbox" },
+      { name: "Set User Permissions", label: "Set User Permissions", inputType: "checkbox" },
     ]
   },
   {

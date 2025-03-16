@@ -98,6 +98,15 @@ type AssetDetails = {
   AccountCost?: number | null;
 };
 
+type Contact = {
+  WNumber: string;
+  Name: string;
+  FirstName: string;
+  LastName: string;
+  Location: string;
+  Department: string;
+};
+
 type ContactOverview = {
   PersonID: number;
   WNumber: string;

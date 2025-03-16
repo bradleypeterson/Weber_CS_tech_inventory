@@ -1,5 +1,5 @@
 import type { JSONSchemaType } from "ajv";
-import type { Asset, AssetDetails, AssetOverview, ContactOverview, User, UserOverview } from "./data";
+import type { Asset, AssetDetails, AssetOverview, Contact, ContactOverview, User, UserOverview } from "./data";
 
 export const assetSchema: JSONSchemaType<Asset> = {
   type: "object",
@@ -116,6 +116,31 @@ export const assetDetailsSchema: JSONSchemaType<AssetDetails> = {
     "DeviceTypeID",
   ],
   additionalProperties: false,
+};
+
+export const contactSchema: JSONSchemaType<Contact> = {
+  type: "object",
+  properties: {
+    WNumber: { type: "string" },
+    Name: { type: "string" },
+    FirstName: { type: "string"},
+    LastName: { type: "string" },
+    Department: { type: "string"},
+    Location: { type: "string" },
+  },
+  required: [
+    "WNumber",
+    "Name",
+    "FirstName",
+    "LastName",
+    "Department",
+    "Location",
+  ],
+};
+
+export const contactArraySchema: JSONSchemaType<Contact[]> = {
+  type: "array",
+  items: contactSchema,
 };
 
 export const contactOverviewSchema: JSONSchemaType<ContactOverview> = {
