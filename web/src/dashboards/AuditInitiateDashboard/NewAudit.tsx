@@ -44,6 +44,7 @@ export function NewAudit() {
   const [notes, setNotes] = useState<string[]>([]);
   const queryClient = useQueryClient();
   const hasLoadedFromStorage = useRef(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Handle navigation attempts
   const handleNavigationAttempt = (destination: string) => {
@@ -315,6 +316,28 @@ export function NewAudit() {
       }));
   }, [filters, equipmentData, itemStatuses]);
 
+  const handleSubmit = () => {
+    // Check if all items have a status
+    const itemsWithoutStatus = filteredData.filter((item: EquipmentDetailsRow) => item.status === undefined || item.status === null);
+    
+    if (itemsWithoutStatus.length > 0) {
+      setSubmitError(`Please assign a status to all items (${itemsWithoutStatus.length} remaining)`);
+      return;
+    }
+    
+    // Clear error and proceed with submission
+    setSubmitError(null);
+    linkTo("Audit Summary", ["Audits", "Initiate Audit"]);
+  };
+
+  // Also check and update error message whenever filtered data or statuses change
+  useEffect(() => {
+    const itemsWithoutStatus = filteredData.filter((item: EquipmentDetailsRow) => item.status === undefined || item.status === null);
+    if (itemsWithoutStatus.length === 0) {
+      setSubmitError(null);
+    }
+  }, [filteredData]);
+
   if (isLoading) return <div>Loading...</div>;
 
   return (
@@ -370,18 +393,23 @@ export function NewAudit() {
         />
         <Notes notes={notes} />
         <div className={styles.buttons}>
-          <button 
-            className={styles.cancelButton}
-            onClick={() => handleNavigationAttempt("Initiate Audit")}
-          >
-            Cancel
-          </button>
-          <button 
-            className={styles.submitButton}
-            onClick={() => linkTo("Audit Summary", ["Audits", "Initiate Audit"])}
-          >
-            Submit
-          </button>
+          <div className={styles.errorMessage}>
+            {submitError}
+          </div>
+          <div className={styles.buttonRow}>
+            <button 
+              className={styles.cancelButton}
+              onClick={() => handleNavigationAttempt("Initiate Audit")}
+            >
+              Cancel
+            </button>
+            <button 
+              className={styles.submitButton}
+              onClick={handleSubmit}
+            >
+              Submit
+            </button>
+          </div>
         </div>
       </main>
 
