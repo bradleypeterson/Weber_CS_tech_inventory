@@ -41,6 +41,7 @@ export function NewAudit() {
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
   const [pendingItem, setPendingItem] = useState<EquipmentDetailsRow | null>(null);
   const [addedItems, setAddedItems] = useState<EquipmentDetailsRow[]>([]);
+  const [notes, setNotes] = useState<string[]>([]);
   const queryClient = useQueryClient();
   const hasLoadedFromStorage = useRef(false);
 
@@ -59,6 +60,7 @@ export function NewAudit() {
     if (roomId) {
       // Clear localStorage
       localStorage.removeItem(`audit_added_items_${roomId}`);
+      localStorage.removeItem(`audit_notes_${roomId}`);
       
       // Reset all state
       setAddedItems([]);
@@ -66,6 +68,7 @@ export function NewAudit() {
       setPendingItem(null);
       setBarcode("");
       setError("");
+      setNotes([]);
       
       // Clear React Query cache for this room
       queryClient.removeQueries(["equipmentInRoom", roomId]);
@@ -81,6 +84,8 @@ export function NewAudit() {
   useEffect(() => {
     if (!hasLoadedFromStorage.current && roomId) {
       const savedItems = localStorage.getItem(`audit_added_items_${roomId}`);
+      const savedNotes = localStorage.getItem(`audit_notes_${roomId}`);
+
       if (savedItems) {
         try {
           const items = JSON.parse(savedItems) as EquipmentDetailsRow[];
@@ -99,11 +104,22 @@ export function NewAudit() {
           localStorage.removeItem(`audit_added_items_${roomId}`);
         }
       }
+
+      if (savedNotes) {
+        try {
+          const notes = JSON.parse(savedNotes) as string[];
+          setNotes(notes);
+        } catch (error) {
+          console.error('Error loading saved notes:', error);
+          localStorage.removeItem(`audit_notes_${roomId}`);
+        }
+      }
+
       hasLoadedFromStorage.current = true;
     }
   }, [roomId]);
 
-  // Save to localStorage whenever items change
+  // Save to localStorage whenever items or notes change
   useEffect(() => {
     if (roomId && hasLoadedFromStorage.current) {
       if (addedItems.length > 0) {
@@ -111,8 +127,14 @@ export function NewAudit() {
       } else {
         localStorage.removeItem(`audit_added_items_${roomId}`);
       }
+
+      if (notes.length > 0) {
+        localStorage.setItem(`audit_notes_${roomId}`, JSON.stringify(notes));
+      } else {
+        localStorage.removeItem(`audit_notes_${roomId}`);
+      }
     }
-  }, [addedItems, roomId]);
+  }, [addedItems, notes, roomId]);
 
   const { data: equipmentData, isLoading } = useQuery<APIResponse<EquipmentDetailsRow[]>>(
     ["equipmentInRoom", roomId],
@@ -163,6 +185,7 @@ export function NewAudit() {
       setPendingItem(null);
       setBarcode("");
       setError("");
+      setNotes([]);
       hasLoadedFromStorage.current = false;
       
       // Force a fresh query
@@ -242,6 +265,11 @@ export function NewAudit() {
       
       // Add to our local state of added items
       setAddedItems(prev => [...prev, pendingItem]);
+
+      // Add automatic note for unassigned item using building abbreviation + room number
+      const locationBarcode = `${pendingItem.BuildingAbbr}${pendingItem.RoomNumber}`;
+      const newNote = `Item: ${pendingItem.TagNumber} ${pendingItem.DeviceTypeName} found at ${locationBarcode}`;
+      setNotes(prev => [...prev, newNote]);
       
       // Update the cache with the new item
       queryClient.setQueryData<APIResponse<EquipmentDetailsRow[]>>(
@@ -340,7 +368,7 @@ export function NewAudit() {
             }
           }}
         />
-        <Notes notes={[]} />
+        <Notes notes={notes} />
         <div className={styles.buttons}>
           <button 
             className={styles.cancelButton}
