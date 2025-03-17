@@ -18,8 +18,8 @@ export function Notes({ notes }: { notes: string[] }) {
         </div>
         <div>
           {notes.length === 0 && <span style={{ color: "var(--white-dim)" }}>Nothing to see here</span>}
-          {notes.map((note) => (
-            <article>{note}</article>
+          {notes.map((note, index) => (
+            <article key={`note-${index}`}>{note}</article>
           ))}
         </div>
       </div>

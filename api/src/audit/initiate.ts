@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { createNewAudit, getEquipmentByLocation, validateRoomBarcode } from "../db/procedures/audits";
+import { getEquipmentByLocation, validateRoomBarcode } from "../db/procedures/audits";
 
 interface RequestUser {
   UserID: number;
@@ -13,7 +13,6 @@ export async function initiateAudit(req: Request<unknown, unknown, AuditRequestB
   try {
     const { roomBarcode } = req.body;
     const user = res.locals.user as RequestUser;
-    const userId = user.UserID;
 
     // Validate room barcode
     const room = await validateRoomBarcode(roomBarcode);
@@ -28,13 +27,6 @@ export async function initiateAudit(req: Request<unknown, unknown, AuditRequestB
     // Get equipment in the room (but don't fail if empty)
     const equipment = await getEquipmentByLocation(room.LocationID);
     console.log(`Found ${equipment.length} items in room ${roomBarcode}`);
-
-    // Create audit records for existing equipment (if any)
-    const auditResults = equipment.length > 0 
-      ? await Promise.all(
-          equipment.map(item => createNewAudit(userId, item.EquipmentID))
-        )
-      : [];
     
     res.json({ 
       status: "success", 
@@ -42,7 +34,6 @@ export async function initiateAudit(req: Request<unknown, unknown, AuditRequestB
         roomNumber: room.RoomNumber,
         locationId: room.LocationID,
         equipmentCount: equipment.length,
-        auditIds: auditResults.map(result => result.insertId),
         isEmptyRoom: equipment.length === 0
       } 
     });

@@ -5,7 +5,6 @@ import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard/Asset
 import { AuditDetailsDashboard } from "../dashboards/AuditDetailsDashboard/AuditDetailsDashboard";
 import { AuditHistoryDashboard } from "../dashboards/AuditHistoryDashboard/AuditHistoryDashboard";
 import { AuditInitiateDashboard } from "../dashboards/AuditInitiateDashboard/AuditInitiateDashboard";
-import { AuditSubmitted } from "../dashboards/AuditInitiateDashboard/AuditSubmitted";
 import { AuditSummary } from "../dashboards/AuditInitiateDashboard/AuditSummary";
 import { NewAudit } from "../dashboards/AuditInitiateDashboard/NewAudit";
 import { ContactDetailsDashboard } from "../dashboards/ContactDetailsDashboard/ContactDetailsDashboard";
@@ -58,8 +57,7 @@ export const configuration: RouteConfiguration = [
             element: <NewAudit />,
             filters: ["Department", "Building", "Room"]
           },
-          { type: "tab", label: "Audit Summary", element: <AuditSummary /> },
-          { type: "tab", label: "Audit Submitted", element: <AuditSubmitted /> }
+          { type: "tab", label: "Audit Summary", element: <AuditSummary /> }
         ]
       },
       {

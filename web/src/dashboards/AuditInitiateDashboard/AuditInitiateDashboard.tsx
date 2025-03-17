@@ -29,6 +29,14 @@ export function AuditInitiateDashboard() {
         throw new Error('Not authenticated - please log in');
       }
 
+      // Clear all audit-related data from localStorage before starting new audit
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith('audit_') || key === 'current_room_id') {
+          localStorage.removeItem(key);
+        }
+      });
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/audits/initiate`, {
         method: 'POST',
         headers: {

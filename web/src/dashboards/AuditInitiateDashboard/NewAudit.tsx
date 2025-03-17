@@ -57,72 +57,99 @@ export function NewAudit() {
   };
 
   const handleNavigate = (destination: string) => {
-    // Clear all audit-related data
-    if (roomId) {
-      // Clear localStorage
-      localStorage.removeItem(`audit_added_items_${roomId}`);
-      localStorage.removeItem(`audit_notes_${roomId}`);
-      
-      // Reset all state
-      setAddedItems([]);
-      setItemStatuses({});
-      setPendingItem(null);
-      setBarcode("");
-      setError("");
-      setNotes([]);
-      
-      // Clear React Query cache for this room
-      queryClient.removeQueries(["equipmentInRoom", roomId]);
-      
-      // Reset the storage load flag
-      hasLoadedFromStorage.current = false;
+    // Only clear state when explicitly starting a new audit or canceling
+    if (destination === "Initiate Audit") {
+      clearAllState();
     }
     
     linkTo(destination, destination === "Initiate Audit" ? ["Audits"] : undefined);
   };
 
-  // Load from localStorage first, before any queries run
+  // Check if we're returning from summary page or refreshing
   useEffect(() => {
-    if (!hasLoadedFromStorage.current && roomId) {
+    const storedRoomId = localStorage.getItem('current_room_id');
+    
+    // If we have a roomId and it matches the stored room, restore state
+    if (roomId && storedRoomId === roomId) {
       const savedItems = localStorage.getItem(`audit_added_items_${roomId}`);
       const savedNotes = localStorage.getItem(`audit_notes_${roomId}`);
+      const savedStatuses = localStorage.getItem(`audit_item_statuses_${roomId}`);
 
       if (savedItems) {
         try {
           const items = JSON.parse(savedItems) as EquipmentDetailsRow[];
           setAddedItems(items);
-          // Restore the "Turned-In" status for added items
-          const newStatuses: Record<string, number> = {};
-          items.forEach(item => {
-            newStatuses[item.TagNumber] = 4;
-          });
-          setItemStatuses(prev => ({
-            ...prev,
-            ...newStatuses
-          }));
+          // Update the React Query cache with the added items
+          queryClient.setQueryData<APIResponse<EquipmentDetailsRow[]>>(
+            ["equipmentInRoom", roomId],
+            (oldData: APIResponse<EquipmentDetailsRow[]> | undefined) => {
+              if (!oldData || oldData.status !== "success") {
+                return {
+                  status: "success",
+                  data: items
+                };
+              }
+              // Combine existing data with added items, avoiding duplicates
+              const existingTagNumbers = new Set(oldData.data.map((item: EquipmentDetailsRow) => item.TagNumber));
+              const newItems = items.filter((item: EquipmentDetailsRow) => !existingTagNumbers.has(item.TagNumber));
+              return {
+                ...oldData,
+                data: [...oldData.data, ...newItems]
+              };
+            }
+          );
         } catch (error) {
           console.error('Error loading saved items:', error);
-          localStorage.removeItem(`audit_added_items_${roomId}`);
         }
       }
 
       if (savedNotes) {
         try {
-          const notes = JSON.parse(savedNotes) as string[];
-          setNotes(notes);
+          setNotes(JSON.parse(savedNotes));
         } catch (error) {
           console.error('Error loading saved notes:', error);
-          localStorage.removeItem(`audit_notes_${roomId}`);
         }
       }
 
-      hasLoadedFromStorage.current = true;
+      if (savedStatuses) {
+        try {
+          setItemStatuses(JSON.parse(savedStatuses));
+        } catch (error) {
+          console.error('Error loading saved statuses:', error);
+        }
+      }
+    } else if (!storedRoomId) {
+      // Only clear state if there's no stored room ID (new audit)
+      clearAllState();
     }
-  }, [roomId]);
+  }, [roomId, queryClient]);
 
-  // Save to localStorage whenever items or notes change
+  // Function to clear all state and storage
+  const clearAllState = () => {
+    // Clear localStorage
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.startsWith('audit_') || key === 'current_room_id') {
+        localStorage.removeItem(key);
+      }
+    });
+
+    // Reset all state
+    setAddedItems([]);
+    setItemStatuses({});
+    setPendingItem(null);
+    setBarcode("");
+    setError("");
+    setNotes([]);
+    setSubmitError(null);
+
+    // Clear React Query cache for all equipment data
+    queryClient.removeQueries(["equipmentInRoom"]);
+  };
+
+  // Save state to localStorage when it changes
   useEffect(() => {
-    if (roomId && hasLoadedFromStorage.current) {
+    if (roomId) {
       if (addedItems.length > 0) {
         localStorage.setItem(`audit_added_items_${roomId}`, JSON.stringify(addedItems));
       } else {
@@ -134,8 +161,16 @@ export function NewAudit() {
       } else {
         localStorage.removeItem(`audit_notes_${roomId}`);
       }
+
+      if (Object.keys(itemStatuses).length > 0) {
+        localStorage.setItem(`audit_item_statuses_${roomId}`, JSON.stringify(itemStatuses));
+        localStorage.setItem('current_room_id', roomId);
+      } else {
+        localStorage.removeItem(`audit_item_statuses_${roomId}`);
+        localStorage.removeItem('current_room_id');
+      }
     }
-  }, [addedItems, notes, roomId]);
+  }, [addedItems, notes, itemStatuses, roomId]);
 
   const { data: equipmentData, isLoading } = useQuery<APIResponse<EquipmentDetailsRow[]>>(
     ["equipmentInRoom", roomId],
@@ -158,11 +193,23 @@ export function NewAudit() {
 
       const data = await response.json();
       
-      // Combine server data with locally added items
+      // Get stored items for this room
+      const savedItems = localStorage.getItem(`audit_added_items_${roomId}`);
+      let additionalItems: EquipmentDetailsRow[] = [];
+
+      if (savedItems) {
+        try {
+          additionalItems = JSON.parse(savedItems);
+        } catch (error) {
+          console.error('Error parsing saved items:', error);
+        }
+      }
+      
+      // Combine server data with stored items
       if (data.status === "success") {
         return {
           ...data,
-          data: [...data.data, ...addedItems]
+          data: [...data.data, ...additionalItems]
         };
       }
       
@@ -170,29 +217,12 @@ export function NewAudit() {
     },
     {
       enabled: !!roomId,
-      staleTime: 0, // Disable stale time to always fetch fresh data
-      cacheTime: 0, // Disable cache to ensure fresh data on room change
-      refetchOnMount: true, // Always refetch when component mounts
-      refetchOnWindowFocus: true // Refetch when window regains focus
+      staleTime: Infinity,
+      cacheTime: Infinity,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false
     }
   );
-
-  // Reset state when room changes
-  useEffect(() => {
-    if (roomId) {
-      // Reset all state for new room
-      setAddedItems([]);
-      setItemStatuses({});
-      setPendingItem(null);
-      setBarcode("");
-      setError("");
-      setNotes([]);
-      hasLoadedFromStorage.current = false;
-      
-      // Force a fresh query
-      queryClient.invalidateQueries(["equipmentInRoom", roomId]);
-    }
-  }, [roomId, queryClient]);
 
   const scanItem = useMutation({
     mutationFn: async (itemBarcode: string) => {
@@ -226,8 +256,8 @@ export function NewAudit() {
         setPendingItem(data.data);
         setIsModalOpen(true);
       } else {
-        // Set status to "Found" (1) when item is scanned
-        if (data.data.TagNumber) {
+        // Only set status to "Found" if the item doesn't already have a status
+        if (data.data.TagNumber && !itemStatuses[data.data.TagNumber]) {
           setItemStatuses(prev => ({
             ...prev,
             [data.data.TagNumber]: 1
@@ -257,7 +287,18 @@ export function NewAudit() {
   };
 
   const handleAddItemToAudit = () => {
-    if (pendingItem) {
+    if (pendingItem && equipmentData?.data?.[0]) {
+      // Check if item is already in the list
+      const isItemAlreadyAdded = addedItems.some((item: EquipmentDetailsRow) => item.TagNumber === pendingItem.TagNumber) ||
+        equipmentData.data.some((item: EquipmentDetailsRow) => item.TagNumber === pendingItem.TagNumber);
+
+      if (isItemAlreadyAdded) {
+        setError(`Item ${pendingItem.TagNumber} is already in the audit list`);
+        setIsModalOpen(false);
+        setPendingItem(null);
+        return;
+      }
+
       // Add item to the list with "Turned-In" status (4)
       setItemStatuses(prev => ({
         ...prev,
@@ -267,9 +308,10 @@ export function NewAudit() {
       // Add to our local state of added items
       setAddedItems(prev => [...prev, pendingItem]);
 
-      // Add automatic note for unassigned item using building abbreviation + room number
-      const locationBarcode = `${pendingItem.BuildingAbbr}${pendingItem.RoomNumber}`;
-      const newNote = `Item: ${pendingItem.TagNumber} ${pendingItem.DeviceTypeName} found at ${locationBarcode}`;
+      // Add automatic note for unassigned item using current room's building abbreviation + room number
+      const currentRoom = equipmentData.data[0];
+      const locationBarcode = `${currentRoom.BuildingAbbr}${currentRoom.RoomNumber}`;
+      const newNote = `Item: ${pendingItem.TagNumber} ${pendingItem.Description} found at ${locationBarcode}`;
       setNotes(prev => [...prev, newNote]);
       
       // Update the cache with the new item
@@ -312,7 +354,7 @@ export function NewAudit() {
       })
       .map((row: EquipmentDetailsRow) => ({
         ...row,
-        status: itemStatuses[row.TagNumber] || undefined
+        status: itemStatuses[row.TagNumber] ?? row.status
       }));
   }, [filters, equipmentData, itemStatuses]);
 
@@ -323,6 +365,12 @@ export function NewAudit() {
     if (itemsWithoutStatus.length > 0) {
       setSubmitError(`Please assign a status to all items (${itemsWithoutStatus.length} remaining)`);
       return;
+    }
+    
+    // Store current room ID and item statuses for the summary page
+    if (roomId) {
+      localStorage.setItem('current_room_id', roomId);
+      localStorage.setItem(`audit_item_statuses_${roomId}`, JSON.stringify(itemStatuses));
     }
     
     // Clear error and proceed with submission

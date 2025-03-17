@@ -72,24 +72,60 @@ export async function getEquipmentByLocation(locationId: number): Promise<Equipm
   }
 }
 
-export async function createNewAudit(createdBy: number, equipmentId: number): Promise<ResultSetHeader> {
+export async function createNote(createdBy: number, equipmentId: number, note: string): Promise<ResultSetHeader> {
+  try {
+    const query = `
+      INSERT INTO Note (
+        CreatedBy,
+        EquipmentID,
+        Note,
+        CreatedAt
+      ) VALUES (
+        ?,
+        ?,
+        ?,
+        NOW()
+      )
+    `;
+    const [result] = await pool.query<ResultSetHeader>(query, [createdBy, equipmentId, note]);
+    return result;
+  } catch (error) {
+    console.error(`Error in createNote:`, error);
+    throw new Error("Failed to create note");
+  }
+}
+
+export async function createNewAudit(
+  createdBy: number, 
+  equipmentId: number, 
+  statusId: number, 
+  note: string,
+  auditTime: Date = new Date()
+): Promise<ResultSetHeader> {
   try {
     const query = `
       INSERT INTO Audit (
-        CreatedBy, 
-        EquipmentID, 
+        CreatedBy,
+        EquipmentID,
         AuditTime,
-        AuditNote,
         AuditStatusID
       ) VALUES (
-        ?, 
         ?,
-        NOW(),
-        'Initial room audit',
-        1
+        ?,
+        ?,
+        ?
       )
     `;
-    const [result] = await pool.query<ResultSetHeader>(query, [createdBy, equipmentId]);
+    const [result] = await pool.query<ResultSetHeader>(
+      query, 
+      [createdBy, equipmentId, auditTime, statusId]
+    );
+    
+    // If there's a note, create it in the note table
+    if (note) {
+      await createNote(createdBy, equipmentId, note);
+    }
+    
     return result;
   } catch (error) {
     console.error(`Error in createNewAudit:`, error);
@@ -97,34 +133,30 @@ export async function createNewAudit(createdBy: number, equipmentId: number): Pr
   }
 }
 
-export async function getEquipmentByTagNumber(tagNumber: string): Promise<EquipmentDetailsRow | null> {
-  try {
-    const query = `
-      SELECT 
-        e.EquipmentID,
-        e.TagNumber,
-        e.SerialNumber,
-        e.Description,
-        d.DepartmentID,
-        d.Name as DepartmentName,
-        l.LocationID,
-        l.RoomNumber,
-        b.BuildingID,
-        b.Name as BuildingName,
-        b.Abbreviation as BuildingAbbr,
-        dt.Name as DeviceTypeName
-      FROM Equipment e
-      LEFT JOIN Department d ON e.DepartmentID = d.DepartmentID
-      LEFT JOIN Location l ON e.LocationID = l.LocationID
-      LEFT JOIN Building b on l.BuildingID = b.BuildingID 
-      LEFT JOIN DeviceType dt ON e.DeviceTypeID = dt.DeviceTypeID
-      WHERE e.TagNumber = ? AND e.ArchiveStatus = 0
-      LIMIT 1
-    `;
-    const [rows] = await pool.query<EquipmentDetailsRow[]>(query, [tagNumber]);
-    return rows[0] || null;
-  } catch (error) {
-    console.error(`Error in getEquipmentByTagNumber:`, error);
-    throw new Error("Failed to get equipment by tag number");
-  }
+export async function getEquipmentByTagNumber(tagNumber: string) {
+  const sql = `
+    SELECT
+      e.EquipmentID,
+      e.TagNumber,
+      e.SerialNumber,
+      e.Description,
+      d.DepartmentID,
+      d.Name as DepartmentName,
+      l.LocationID,
+      l.RoomNumber,
+      b.BuildingID,
+      b.Name as BuildingName,
+      b.Abbreviation as BuildingAbbr,
+      dt.Name as DeviceTypeName
+    FROM Equipment e
+    LEFT JOIN Department d ON e.DepartmentID = d.DepartmentID
+    LEFT JOIN Location l ON e.LocationID = l.LocationID
+    LEFT JOIN Building b ON l.BuildingID = b.BuildingID
+    LEFT JOIN DeviceType dt ON e.DeviceTypeID = dt.DeviceTypeID
+    WHERE e.TagNumber = ? AND e.ArchiveStatus = 0
+    LIMIT 1
+  `;
+
+  const [rows] = await pool.execute<RowDataPacket[]>(sql, [tagNumber]);
+  return rows[0];
 } 

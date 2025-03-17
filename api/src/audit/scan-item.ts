@@ -17,11 +17,11 @@ export async function scanItem(req: Request, res: Response) {
     const equipment = await getEquipmentByLocation(Number(roomId));
     
     // Find the scanned item in the room's equipment
-    const scannedItem = equipment.find(item => item.TagNumber === itemBarcode);
+    const scannedItem = equipment.find(item => String(item.TagNumber) === String(itemBarcode));
 
     // If not found in room, check if it exists at all
     if (!scannedItem) {
-      const validItem = await getEquipmentByTagNumber(itemBarcode);
+      const validItem = await getEquipmentByTagNumber(String(itemBarcode));
       
       if (!validItem) {
         res.status(404).json({

@@ -1,34 +1,14 @@
 import { Briefcase, MagnifyingGlass } from "@phosphor-icons/react";
+import { JSONSchemaType } from "ajv";
 import { useMemo, useState } from "react";
+import { useQuery } from "react-query";
+import { ajv } from "../../ajv";
+import { get } from "../../api/helpers";
 import { Column, DynamicTable } from "../../elements/DynamicTable/DynamicTable";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./AuditHistoryDashboard.module.css";
-
-export function AuditHistoryDashboard() {
-  const [searchText, setSearchText] = useState("");
-  const filteredData = useMemo(
-    () => data.filter((row) => Object.values(row).some((value) => value.toString().toLowerCase().includes(searchText))),
-    [searchText]
-  );
-
-  return (
-    <main className={styles.layout}>
-      <div className={styles.row}>
-        <h2>Audit History</h2>
-        <IconInput
-          icon={<MagnifyingGlass />}
-          width="200px"
-          placeholder="search"
-          value={searchText}
-          onChange={(val) => setSearchText(val.toLowerCase())}
-        />
-      </div>
-      <DynamicTable columns={BuildColumns()} data={filteredData} width="100%" />
-    </main>
-  );
-}
 
 type Data = {
   date: string;
@@ -38,8 +18,29 @@ type Data = {
   itemsMissing: boolean;
 };
 
-function BuildColumns() {
-  const linkTo = useLinkTo();
+interface ApiResponse {
+  status: string;
+  data: Data[];
+}
+
+const auditHistorySchema: JSONSchemaType<Data[]> = {
+  type: "array",
+  items: {
+    type: "object",
+    properties: {
+      date: { type: "string" },
+      building: { type: "string" },
+      room: { type: "string" },
+      auditor: { type: "string" },
+      itemsMissing: { type: "boolean" }
+    },
+    required: ["date", "building", "room", "auditor", "itemsMissing"]
+  }
+};
+
+const validateAuditHistory = ajv.compile(auditHistorySchema);
+
+function BuildColumns(linkTo: ReturnType<typeof useLinkTo>) {
   const columns: Column<Data>[] = [
     {
       label: "",
@@ -70,33 +71,62 @@ function BuildColumns() {
     },
     {
       dataIndex: "itemsMissing",
-      label: "Items Missing"
+      label: "Items Missing",
+      render: (record: Data) => record.itemsMissing ? "Yes" : "No"
     }
   ];
 
   return columns;
 }
 
-const data: Data[] = [
-  {
-    date: "2024-02-10",
-    building: "Tracy Hall",
-    room: "303",
-    auditor: "Alice Johnson",
-    itemsMissing: false
-  },
-  {
-    date: "2023-09-15",
-    building: "Tracy Hall",
-    room: "301",
-    auditor: "Bob Smith",
-    itemsMissing: true
-  },
-  {
-    date: "2023-11-21",
-    building: "Tracy Hall",
-    room: "302",
-    auditor: "Charlie Brown",
-    itemsMissing: true
+export function AuditHistoryDashboard() {
+  const linkTo = useLinkTo();
+  const { data: auditHistory, isLoading, error } = useQuery<ApiResponse>(
+    "auditHistory",
+    async () => {
+      const response = await get("/audits/history", validateAuditHistory);
+      if (response.status === "error") {
+        throw new Error(response.error.message);
+      }
+      return response;
+    }
+  );
+
+  const [searchText, setSearchText] = useState("");
+
+  const filteredData = useMemo(
+    () => {
+      if (!auditHistory?.data) return [];
+      return auditHistory.data.filter((row) => 
+        Object.values(row).some((value) => 
+          value.toString().toLowerCase().includes(searchText)
+        )
+      );
+    },
+    [searchText, auditHistory]
+  );
+
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
-];
+
+  if (error) {
+    return <div>Error loading audit history: {(error as Error).message}</div>;
+  }
+
+  return (
+    <main className={styles.layout}>
+      <div className={styles.row}>
+        <h2>Audit History</h2>
+        <IconInput
+          icon={<MagnifyingGlass />}
+          width="200px"
+          placeholder="search"
+          value={searchText}
+          onChange={(val) => setSearchText(val.toLowerCase())}
+        />
+      </div>
+      <DynamicTable columns={BuildColumns(linkTo)} data={filteredData} width="100%" />
+    </main>
+  );
+}
