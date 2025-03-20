@@ -104,16 +104,19 @@ type Contact = {
   FirstName: string;
   LastName: string;
   Location: string;
-  Department: string;
+  BuildingID?: number | null;
+  RoomNumber?: string | null;
+  Departments: string;
+  DepartmentID: number[];
 };
 
 type ContactOverview = {
   PersonID: number;
   WNumber: string;
   Name: string;
-  Department: string;
+  Departments: string;
   Location: string;
-  DepartmentID: number;
+  DepartmentID: number[];
 };
 
 type User = {
@@ -122,9 +125,11 @@ type User = {
   FirstName: string;
   LastName: string;
   Location: string;
+  BuildingID?: number | null;
+  RoomNumber?: string | null;
   LocationID: number;
   Departments: string;
-  DepartmentIDs: number[];
+  DepartmentID: number[];
   Permissions: number[];
 };
 
@@ -132,8 +137,8 @@ type UserOverview = {
   PersonID: number;
   WNumber: string;
   Name: string;
-  Department: string;
+  Departments: string;
   Location: string;
-  DepartmentIDs: number[];
+  DepartmentID: number[];
   Permissions: number[];
 };

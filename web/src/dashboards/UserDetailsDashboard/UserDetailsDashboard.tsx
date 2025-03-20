@@ -279,10 +279,16 @@ const formStructure: Column[] = [
         fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "CS" }]), 500))
       },
       {
-        name: "Location",
-        label: "Location",
+        name: "Building",
+        label: "Building",
         inputType: "single select",
-        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "NB 324A" }]), 500))
+        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "remote" }]), 500))
+      },
+      {
+        name: "RoomNumber",
+        label: "RoomNumber",
+        inputType: "single select",
+        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "remote" }]), 500))
       },
     ]
   },

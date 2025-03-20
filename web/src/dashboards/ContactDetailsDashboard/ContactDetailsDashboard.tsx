@@ -39,7 +39,7 @@ function ContactDetailsView({ personID }: { personID: string}) {
   >({});
 
   useEffect(
-    function syncUserDetails() {
+    function syncContactDetails() {
       if (contactDetails === undefined) return;
       if (Object.keys(formData).length > 0) return;
       setFormData(contactDetails);
@@ -78,7 +78,7 @@ function ContactDetailsView({ personID }: { personID: string}) {
   }
 
   if (isLoading) return <>Loading</>;
-  if (isError) return <>Unknown User</>;
+  if (isError) return <>Unknown Contact</>;
 
   return (
     <main className={styles.layout}>
@@ -130,6 +130,7 @@ function EmptyContactDetailsView() {
   function handleSubmit() {
     console.log("SUBMIT");
   }
+  
   return (
     <main className={styles.layout}>
       <div className={styles.row}>
@@ -165,7 +166,7 @@ function FormField({
   onChange,
   disabled
 }: {
-  input: UserInputField;
+  input: ContactInputField;
   value: string | string[] | (string | number)[] | number[] | boolean | number;
   onChange: (val: string | string[] | (string | number)[] | number[] | boolean | number) => void;
   disabled: boolean;
@@ -242,7 +243,7 @@ function getChangedFields(
 
 type InputType = "input" | "textarea" | "checkbox" | "single select" | "multi select";
 
-type UserInputField = {
+type ContactInputField = {
   name: string; // Unique identifier for form handling
   label: string;
   inputType: InputType;
@@ -251,7 +252,7 @@ type UserInputField = {
 
 type Column = {
   title: string;
-  inputs: UserInputField[];
+  inputs: ContactInputField[];
 };
 
 const formStructure: Column[] = [
@@ -264,12 +265,18 @@ const formStructure: Column[] = [
       {
         name: "Department",
         label: "Department",
-        inputType: "single select",
+        inputType: "multi select",
         fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "WEB" }]), 500))
       },
       {
-        name: "Location",
-        label: "Location",
+        name: "Building",
+        label: "Building",
+        inputType: "single select",
+        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "remote" }]), 500))
+      },
+      {
+        name: "RoomNumber",
+        label: "RoomNumber",
         inputType: "single select",
         fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "remote" }]), 500))
       },

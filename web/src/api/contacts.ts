@@ -10,7 +10,7 @@ export async function fetchContactList(): Promise<ContactOverview[] | undefined>
 }
 
 export async function fetchContactDetails(personID: number): Promise<Contact | undefined> {
-  const response = await get(`/contact/${personID}`, ajv.compile(contactSchema));
+  const response = await get(`/contacts/${personID}`, ajv.compile(contactSchema));
   if (response.status === "success") return response.data;
   return undefined;
 }

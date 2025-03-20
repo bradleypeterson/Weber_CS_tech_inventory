@@ -20,7 +20,7 @@ export function ContactSearchDashboard() {
 
   const filteredData = useMemo(() => {
     const filteredData = data?.filter(
-    (row) => filters.Department?.includes(row.DepartmentID ?? 0)
+      (row) => row.DepartmentID?.some(department => filters.Department?.includes(department))
   );
   const searchedData =
   searchText === ""
@@ -70,7 +70,7 @@ export function ContactSearchDashboard() {
       },
       { label: "W Number", dataIndex: "WNumber" },
       { label: "Name", dataIndex: "Name" },
-      { label: "Department", dataIndex: "Department" },
+      { label: "Department", dataIndex: "Departments" },
       { label: "Location", dataIndex: "Location" },
     ];
 

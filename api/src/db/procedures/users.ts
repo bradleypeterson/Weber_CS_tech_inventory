@@ -9,9 +9,9 @@ export async function getAllUsers() {
                     p.PersonID,
                     WNumber, 
                     CONCAT(FirstName, " ", LastName) as Name, 
-                    GROUP_CONCAT(d.Abbreviation SEPARATOR ', ') as Department, 
+                    GROUP_CONCAT(d.Abbreviation SEPARATOR ', ') as Departments, 
                     l.Barcode as Location,
-                    JSON_ARRAYAGG(d.DepartmentID) as DepartmentIDs,
+                    JSON_ARRAYAGG(d.DepartmentID) as DepartmentID,
                     JSON_ARRAYAGG(up.PermissionID) as Permissions
                   FROM person p 
                   JOIN user u on u.PersonID = p.PersonID
@@ -39,8 +39,10 @@ export async function getUserDetails(personID: number): Promise<User | undefined
         LastName, 
         l.Barcode as Location,
         l.LocationID,
+        l.BuildingID,
+        l.RoomNumber,
         GROUP_CONCAT(d.Abbreviation SEPARATOR ', ') as Departments,
-        JSON_ARRAYAGG(d.DepartmentID) as DepartmentIDs,
+        JSON_ARRAYAGG(d.DepartmentID) as DepartmentID,
         JSON_ARRAYAGG(up.PermissionID) as Permissions
       FROM person p 
       JOIN user u on u.PersonID = p.PersonID

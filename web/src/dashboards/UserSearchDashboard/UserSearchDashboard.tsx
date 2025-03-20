@@ -20,8 +20,8 @@ export function UserSearchDashboard() {
 
   const filteredData = useMemo(() => {
     const filteredData = data?.filter(
-      (row) => row.DepartmentIDs?.some(department => filters.Department?.includes(department))
-      // && row.Permissions?.filter(permission => filters.Permission?.includes(permission))
+      (row) => row.DepartmentID?.some(department => filters.Department?.includes(department))
+       && row.Permissions?.some(permission => filters.Permission?.includes(permission))
   );
   const searchedData =
   searchText === ""
@@ -71,7 +71,7 @@ export function UserSearchDashboard() {
         },
         { label: "W Number", dataIndex: "WNumber" },
         { label: "Name", dataIndex: "Name" },
-        { label: "Departments", dataIndex: "Department" },
+        { label: "Department", dataIndex: "Departments" },
         { label: "Location", dataIndex: "Location" },
       ];
   

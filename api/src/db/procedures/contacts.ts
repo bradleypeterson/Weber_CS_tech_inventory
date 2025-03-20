@@ -9,9 +9,9 @@ export async function getAllContacts() {
                     p.PersonID,
                     WNumber, 
                     CONCAT(FirstName, " ", LastName) as Name, 
-                    GROUP_CONCAT(d.Abbreviation SEPARATOR ', ') as Department, 
+                    GROUP_CONCAT(d.Abbreviation SEPARATOR ', ') as Departments, 
                     l.Barcode as Location,
-                    MIN(d.DepartmentID) as DepartmentID
+                    JSON_ARRAYAGG(d.DepartmentID) as DepartmentID
                   FROM person p 
                   JOIN persondepartment pd on pd.PersonID = p.PersonID 
                   JOIN department d on d.DepartmentID = pd.DepartmentID
@@ -33,9 +33,12 @@ export async function getContactDetails(personID: number): Promise<ContactDetail
         WNumber, 
         CONCAT(FirstName, " ", LastName) as Name, 
         FirstName,
-        LastName, 
+        LastName,
         l.Barcode as Location,
-        GROUP_CONCAT(d.Abbreviation SEPARATOR ', ') as Department
+        l.BuildingID,
+        l.RoomNumber, 
+        GROUP_CONCAT(d.Abbreviation SEPARATOR ', ') as Departments,
+        JSON_ARRAYAGG(d.DepartmentID) as DepartmentID
       FROM person p 
       JOIN user u on u.PersonID = p.PersonID
       JOIN userpermission up on up.UserID = u.UserID
@@ -47,6 +50,7 @@ export async function getContactDetails(personID: number): Promise<ContactDetail
                   `;
     const [rows] = await pool.query<ContactDetailsRow[]>(query, [personID]);
     const contact: ContactDetailsRow | undefined = rows[0];
+    console.log(rows);
     return contact;
   } catch (error) {
     console.error(`Error in getContactDetails`, error);
