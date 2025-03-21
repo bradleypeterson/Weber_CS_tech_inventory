@@ -113,7 +113,6 @@ async function seedDatabase() {
 
     await pool.query(
       `INSERT INTO Permission (Name, Description) VALUES
-        ('SuperAdmin', 'All permissions for admin account including changing user passwords and permissions'),
         ('Add/Edit Assets', 'Add/Edit Assets'),
         ('Archive Assets', 'Archive Assets'),
         ('Import/Export CSV Data', 'Import/Export CSV Data'),
@@ -126,11 +125,12 @@ async function seedDatabase() {
 
     await pool.query(
       `INSERT INTO UserPermission(UserID, PermissionID) VALUES
-        (1, 1),
-        (2, 1),
-        (3, 1),
-        (4, 1);
-        `
+      select UserID, PermissionID 
+      from \`User\` u
+      cross join Permission p 
+      where UserID = 1
+      order by UserId;
+      `
     );
 
     await pool.query(
