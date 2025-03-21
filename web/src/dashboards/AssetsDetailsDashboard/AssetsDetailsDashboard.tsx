@@ -2,7 +2,7 @@ import { ArrowRight, Barcode, Check, Pencil } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useSearchParams } from "react-router";
-import { Building, Condition, ContactOverview, Department, DeviceType } from "../../../../@types/data";
+import { Building, Condition, ContactOverview, Department, DeviceType, FiscalYear } from "../../../../@types/data";
 import { fetchAssetDetails, updateAssetDetails } from "../../api/assets";
 import { Notes } from "../../components/Notes/Notes";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
@@ -17,7 +17,8 @@ import {
   useConditions,
   useContactPersons,
   useDepartments,
-  useDeviceTypes
+  useDeviceTypes,
+  useFiscalYears
 } from "../../hooks/optionHooks";
 import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
@@ -33,6 +34,7 @@ export function AssetsDetailsDashboard() {
   const { data: contactPersons, isLoading: contactPersonsLoading } = useContactPersons();
   const { data: conditions, isLoading: conditionsLoading } = useConditions();
   const { data: deviceTypes, isLoading: deviceTypesLoading } = useDeviceTypes();
+  const { data: fiscalYears, isLoading: fiscalYearsLoading } = useFiscalYears();
 
   if (assetId === null)
     return (
@@ -60,14 +62,23 @@ export function AssetsDetailsDashboard() {
       </main>
     );
 
-  if (buildingsLoading || departmentsLoading || contactPersonsLoading || conditionsLoading || deviceTypesLoading)
+  if (
+    buildingsLoading ||
+    departmentsLoading ||
+    contactPersonsLoading ||
+    conditionsLoading ||
+    deviceTypesLoading ||
+    fiscalYearsLoading
+  )
     return <>Loading...</>;
+
   if (
     buildings === undefined ||
     departments === undefined ||
     contactPersons === undefined ||
     conditions === undefined ||
-    deviceTypes === undefined
+    deviceTypes === undefined ||
+    fiscalYears === undefined
   )
     return <>Error</>;
 
@@ -77,7 +88,8 @@ export function AssetsDetailsDashboard() {
     departments,
     contactPersons,
     conditions,
-    deviceTypes
+    deviceTypes,
+    fiscalYears
   };
   return <AssetDetailsView {...props} />;
 }
@@ -89,6 +101,7 @@ type DetailsViewProps = {
   contactPersons: ContactOverview[];
   conditions: Condition[];
   deviceTypes: DeviceType[];
+  fiscalYears: FiscalYear[];
 };
 
 function AssetDetailsView({ assetId, ...props }: DetailsViewProps) {
@@ -349,7 +362,12 @@ function buildFormStructure(details: DetailsViewProps) {
         { name: "AccountingDate", label: "Accounting Date", inputType: "input" },
         { name: "AccountCost", label: "Account Cost", inputType: "input" },
         { name: "PONumber", label: "PO Number", inputType: "input" },
-        { name: "FiscalYear", label: "Replacement Fiscal Year", inputType: "input" }
+        {
+          name: "FiscalYearID",
+          label: "Replacement Fiscal Year",
+          inputType: "single select",
+          fetchOptions: () => details.fiscalYears.map((year) => ({ label: year.Year, value: year.ReplacementID }))
+        }
       ]
     }
   ];

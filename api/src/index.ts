@@ -11,6 +11,7 @@ import { validateToken } from "./auth/validateToken";
 import { buildingRouter } from "./building";
 import { contactRouter } from "./contacts";
 import { departmentRouter } from "./department";
+import { fiscalYearsRouter } from "./fiscalYears";
 import { permissionsRouter } from "./permissions";
 import { roomRouter } from "./room";
 import { userRouter } from "./users";
@@ -48,5 +49,6 @@ app.use("/users", userRouter);
 app.use("/audits", auditRouter);
 app.use("/buildings", buildingRouter);
 app.use("/rooms", roomRouter);
+app.use("/fiscal-years", fiscalYearsRouter);
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

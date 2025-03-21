@@ -3,6 +3,7 @@ import { fetchConditions, fetchDeviceTypes } from "../api/assets";
 import { fetchBuildings } from "../api/buildings";
 import { fetchContactList } from "../api/contacts";
 import { fetchDepartments } from "../api/departments";
+import { fetchFiscalYears } from "../api/fiscalYears";
 
 export function useBuildings() {
   const { data, isLoading } = useQuery("Buildings", () => fetchBuildings());
@@ -26,5 +27,10 @@ export function useConditions() {
 
 export function useDeviceTypes() {
   const { data, isLoading } = useQuery("Device Types", () => fetchDeviceTypes());
+  return { data, isLoading };
+}
+
+export function useFiscalYears() {
+  const { data, isLoading } = useQuery("Fiscal Years", () => fetchFiscalYears());
   return { data, isLoading };
 }

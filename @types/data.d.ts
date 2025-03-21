@@ -154,3 +154,8 @@ type DeviceType = {
   Name: string;
   Abbreviation: string;
 };
+
+type FiscalYear = {
+  ReplacementID: number;
+  Year: string;
+};

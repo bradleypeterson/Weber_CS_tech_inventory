@@ -7,6 +7,7 @@ import type {
   Contact,
   ContactOverview,
   DeviceType,
+  FiscalYear,
   User,
   UserOverview,
 } from "./data";
@@ -270,4 +271,18 @@ export const deviceTypeSchema: JSONSchemaType<DeviceType> = {
 export const deviceTypeArraySchema: JSONSchemaType<DeviceType[]> = {
   type: "array",
   items: deviceTypeSchema,
+};
+
+export const fiscalYearSchema: JSONSchemaType<FiscalYear> = {
+  type: "object",
+  properties: {
+    ReplacementID: { type: "number" },
+    Year: { type: "string" },
+  },
+  required: ["Year", "ReplacementID"],
+};
+
+export const fiscalYearArraySchema: JSONSchemaType<FiscalYear[]> = {
+  type: "array",
+  items: fiscalYearSchema,
 };
