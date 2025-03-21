@@ -229,7 +229,7 @@ function FormField({
       {input.inputType === "input" && (
         <LabelInput
           value={typeof value === "string" || typeof value === "number" ? value : ""}
-          onChange={(val) => onChange(val)}
+          onChange={(val) => onChange(typeof value === "string" ? val : Number(val))}
           disabled={disabled}
         />
       )}
@@ -243,7 +243,7 @@ function FormField({
       )}
 
       {input.inputType === "checkbox" && (
-        <Checkbox checked={Boolean(value)} onChange={(val) => onChange(val)} disabled={disabled} />
+        <Checkbox checked={Boolean(value)} onChange={(val) => onChange(val ? 1 : 0)} disabled={disabled} />
       )}
 
       {input.inputType === "single select" && (
