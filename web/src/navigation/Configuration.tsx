@@ -36,7 +36,12 @@ export const configuration: RouteConfiguration = [
         filters: ["Department", "Asset Class"]
       },
       { type: "dashboard", availability: () => true, label: "Asset Details", element: <AssetsDetailsDashboard /> },
-      { type: "dashboard", availability: () => true, label: "Add", element: <AssetsAddDashboard /> }
+      {
+        type: "dashboard",
+        availability: ({ permissions }) => permissions.includes(2),
+        label: "Add",
+        element: <AssetsAddDashboard />
+      }
     ],
     availability: () => true
   },

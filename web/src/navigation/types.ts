@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { AuthContextType } from "../context/authContext";
 import { FilterValues } from "../filters/FilterConfiguration";
 
 export type RouteConfiguration = FeatureItem[];
@@ -8,7 +9,7 @@ export type FeatureItem = Menu | Dashboard | Page;
 type FilterName = keyof FilterValues;
 export interface FeatureConfigurationBase {
   type: "menu" | "page";
-  availability: () => boolean;
+  availability: (auth: AuthContextType) => boolean;
   label: string;
 }
 
@@ -20,7 +21,7 @@ export interface Menu extends FeatureConfigurationBase {
 
 export interface Dashboard {
   type: "dashboard";
-  availability: () => boolean;
+  availability: (auth: AuthContextType) => boolean;
   label: string;
   element: ReactNode;
   tabs?: Tab[];

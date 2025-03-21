@@ -3,6 +3,7 @@ import { BrowserRouter, useLocation } from "react-router";
 import "./App.css";
 import { FilterPanel } from "./components/FilterPanel/FilterPanel";
 import { Sidebar } from "./components/Sidebar/Sidebar";
+import { AuthProvider } from "./context/AuthProvider";
 import { FilterProvider } from "./filters/FilterProvider";
 import { Router } from "./navigation/Router";
 import { BuiltDashboard, BuiltTab } from "./navigation/types";
@@ -50,9 +51,11 @@ function Layout() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Layout />
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Layout />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
