@@ -12,11 +12,8 @@ export async function login(req: Request, res: Response) {
   }
 
   const user = await getUserDetails(params.userId);
-  console.log(params.password, params.password);
-  console.log(user);
   if (user !== null && user.HashedPassword !== undefined && params.password === user.HashedPassword) {
     // Correct password
-    console.log("CORRECT");
     delete user.HashedPassword;
     const token = createToken(user);
     res.json({ status: "success", data: { token, permissions: user.Permissions } });
