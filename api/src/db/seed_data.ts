@@ -124,7 +124,7 @@ async function seedDatabase() {
     );
 
     await pool.query(
-      `INSERT INTO UserPermission(UserID, PermissionID) VALUES
+      `INSERT INTO UserPermission(UserID, PermissionID)
       select UserID, PermissionID 
       from \`User\` u
       cross join Permission p 

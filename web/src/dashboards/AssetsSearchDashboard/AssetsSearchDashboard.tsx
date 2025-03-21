@@ -1,4 +1,4 @@
-import { MagnifyingGlass, Pencil, Trash } from "@phosphor-icons/react";
+import { MagnifyingGlass, Trash } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { AssetOverview } from "../../../../@types/data";
@@ -31,7 +31,7 @@ export function AssetsSearchDashboard() {
     return searchedData;
   }, [searchText, data, filters]);
 
-  const editDisabled = useMemo(() => selectedAssets.length !== 1, [selectedAssets]);
+  const inspectDisabled = useMemo(() => selectedAssets.length !== 1, [selectedAssets]);
   const deleteDisabled = useMemo(() => selectedAssets.length === 0, [selectedAssets]);
 
   function handleCheckbox(checked: boolean, equipmentID: number) {
@@ -47,7 +47,7 @@ export function AssetsSearchDashboard() {
     });
   }
 
-  function handleOnEdit() {
+  function handleOnInspect() {
     if (selectedAssets.length !== 1) return;
     linkTo("Asset Details", ["Assets"], `assetId=${selectedAssets[0]}`);
   }
@@ -88,7 +88,12 @@ export function AssetsSearchDashboard() {
       <div className={styles.tableHeader}>
         <div className={styles.row}>
           <IconButton icon={<Trash />} variant="secondary" disabled={deleteDisabled} />
-          <IconButton icon={<Pencil />} variant="secondary" disabled={editDisabled} onClick={handleOnEdit} />
+          <IconButton
+            icon={<MagnifyingGlass />}
+            variant="secondary"
+            disabled={inspectDisabled}
+            onClick={handleOnInspect}
+          />
         </div>
         <IconInput
           icon={<MagnifyingGlass />}
