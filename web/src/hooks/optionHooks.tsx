@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { fetchConditions } from "../api/assets";
+import { fetchConditions, fetchDeviceTypes } from "../api/assets";
 import { fetchBuildings } from "../api/buildings";
 import { fetchContactList } from "../api/contacts";
 import { fetchDepartments } from "../api/departments";
@@ -20,6 +20,11 @@ export function useContactPersons() {
 }
 
 export function useConditions() {
-  const { data, isLoading } = useQuery("Condition", () => fetchConditions());
+  const { data, isLoading } = useQuery("Conditions", () => fetchConditions());
+  return { data, isLoading };
+}
+
+export function useDeviceTypes() {
+  const { data, isLoading } = useQuery("Device Types", () => fetchDeviceTypes());
   return { data, isLoading };
 }

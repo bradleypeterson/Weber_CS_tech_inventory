@@ -2,7 +2,7 @@ import { ArrowRight, Barcode, Check, Pencil } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useSearchParams } from "react-router";
-import { Building, Condition, ContactOverview, Department } from "../../../../@types/data";
+import { Building, Condition, ContactOverview, Department, DeviceType } from "../../../../@types/data";
 import { fetchAssetDetails, updateAssetDetails } from "../../api/assets";
 import { Notes } from "../../components/Notes/Notes";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
@@ -12,7 +12,13 @@ import { LabelInput } from "../../elements/LabelInput/LabelInput";
 import { MultiSelect } from "../../elements/MultiSelect/MultiSelect";
 import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
 import { TextArea } from "../../elements/TextArea/TextArea";
-import { useBuildings, useConditions, useContactPersons, useDepartments } from "../../hooks/optionHooks";
+import {
+  useBuildings,
+  useConditions,
+  useContactPersons,
+  useDepartments,
+  useDeviceTypes
+} from "../../hooks/optionHooks";
 import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./AssetsDetailsDashboard.module.css";
@@ -26,6 +32,7 @@ export function AssetsDetailsDashboard() {
   const { data: departments, isLoading: departmentsLoading } = useDepartments();
   const { data: contactPersons, isLoading: contactPersonsLoading } = useContactPersons();
   const { data: conditions, isLoading: conditionsLoading } = useConditions();
+  const { data: deviceTypes, isLoading: deviceTypesLoading } = useDeviceTypes();
 
   if (assetId === null)
     return (
@@ -53,8 +60,15 @@ export function AssetsDetailsDashboard() {
       </main>
     );
 
-  if (buildingsLoading || departmentsLoading || contactPersonsLoading || conditionsLoading) return <>Loading...</>;
-  if (buildings === undefined || departments === undefined || contactPersons === undefined || conditions === undefined)
+  if (buildingsLoading || departmentsLoading || contactPersonsLoading || conditionsLoading || deviceTypesLoading)
+    return <>Loading...</>;
+  if (
+    buildings === undefined ||
+    departments === undefined ||
+    contactPersons === undefined ||
+    conditions === undefined ||
+    deviceTypes === undefined
+  )
     return <>Error</>;
 
   const props = {
@@ -62,7 +76,8 @@ export function AssetsDetailsDashboard() {
     buildings,
     departments,
     contactPersons,
-    conditions
+    conditions,
+    deviceTypes
   };
   return <AssetDetailsView {...props} />;
 }
@@ -73,6 +88,7 @@ type DetailsViewProps = {
   departments: Department[];
   contactPersons: ContactOverview[];
   conditions: Condition[];
+  deviceTypes: DeviceType[];
 };
 
 function AssetDetailsView({ assetId, ...props }: DetailsViewProps) {
@@ -311,7 +327,7 @@ function buildFormStructure(details: DetailsViewProps) {
           name: "DeviceTypeID",
           label: "Device Type",
           inputType: "single select",
-          fetchOptions: () => []
+          fetchOptions: () => details.deviceTypes.map((type) => ({ label: type.Name, value: type.DeviceTypeID }))
         },
         { name: "SerialNumber", label: "Serial Number", inputType: "input" },
         {

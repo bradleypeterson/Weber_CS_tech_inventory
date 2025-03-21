@@ -3,7 +3,8 @@ import {
   assetArraySchema,
   assetDetailsSchema,
   assetOverviewArraySchema,
-  conditionArraySchema
+  conditionArraySchema,
+  deviceTypeArraySchema
 } from "../../../@types/schemas";
 import { ajv } from "../ajv";
 import { get, post, validateEmptyResponse } from "./helpers";
@@ -36,6 +37,12 @@ export async function updateAssetDetails(
 
 export async function fetchConditions() {
   const response = await get(`/assets/conditions`, ajv.compile(conditionArraySchema));
+  if (response.status === "success") return response.data;
+  return undefined;
+}
+
+export async function fetchDeviceTypes() {
+  const response = await get(`/assets/types`, ajv.compile(deviceTypeArraySchema));
   if (response.status === "success") return response.data;
   return undefined;
 }

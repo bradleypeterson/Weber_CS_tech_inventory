@@ -1,11 +1,12 @@
 import { type Request, type Response, Router } from "express";
 import { getAssetDetails } from "../db/procedures/assets";
-import { getConditions } from "./conditions";
 import { listAssetOverviews, listAssets } from "./list";
+import { getConditions, getDeviceTypes } from "./options";
 import { updateAsset } from "./update";
 export const assetRouter = Router();
 
 assetRouter.get("/conditions", getConditions);
+assetRouter.get("/types", getDeviceTypes);
 assetRouter.get("/list", listAssets);
 assetRouter.get("/list/overview", listAssetOverviews);
 assetRouter.post("/:id/update", updateAsset);

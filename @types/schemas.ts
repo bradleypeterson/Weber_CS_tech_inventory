@@ -6,6 +6,7 @@ import type {
   Condition,
   Contact,
   ContactOverview,
+  DeviceType,
   User,
   UserOverview,
 } from "./data";
@@ -254,4 +255,19 @@ export const conditionSchema: JSONSchemaType<Condition> = {
 export const conditionArraySchema: JSONSchemaType<Condition[]> = {
   type: "array",
   items: conditionSchema,
+};
+
+export const deviceTypeSchema: JSONSchemaType<DeviceType> = {
+  type: "object",
+  properties: {
+    DeviceTypeID: { type: "number" },
+    Name: { type: "string" },
+    Abbreviation: { type: "string" },
+  },
+  required: ["DeviceTypeID", "Name", "Abbreviation"],
+};
+
+export const deviceTypeArraySchema: JSONSchemaType<DeviceType[]> = {
+  type: "array",
+  items: deviceTypeSchema,
 };

@@ -1,6 +1,6 @@
 import type { RowDataPacket } from "mysql2";
 import { pool } from "..";
-import type { Asset, AssetDetails, AssetOverview, Condition } from "../../../../@types/data";
+import type { Asset, AssetDetails, AssetOverview, Condition, DeviceType } from "../../../../@types/data";
 
 interface AssetRow extends RowDataPacket, Asset {}
 
@@ -168,5 +168,22 @@ export async function getAllConditions() {
   } catch (error) {
     console.error(`Error in getAllConditions`, error);
     throw new Error("An error occurred while getting conditions.");
+  }
+}
+
+interface DeviceTypeRow extends RowDataPacket, DeviceType {}
+export async function getAllDeviceTypes() {
+  try {
+    const query = `
+      select DeviceTypeID, Name, Abbreviation
+      from \`DeviceType\`
+    `;
+
+    const [rows] = await pool.query<DeviceTypeRow[]>(query);
+
+    return rows;
+  } catch (error) {
+    console.error(`Error in getAllDeviceTypes`, error);
+    throw new Error("An error occurred while getting device types.");
   }
 }

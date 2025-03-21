@@ -148,3 +148,9 @@ type Condition = {
   ConditionName: string;
   ConditionAbbreviation: string;
 };
+
+type DeviceType = {
+  DeviceTypeID: number;
+  Name: string;
+  Abbreviation: string;
+};
