@@ -28,9 +28,17 @@ interface UserDetailsRow extends RowDataPacket {
 export async function getUserDetails(userId: string) {
   try {
     const query = `
-      select u.UserID as UserID, PersonID, HashedPassword, Salt, JSON_ARRAYAGG(PermissionId) as Permissions
+      select 
+        u.UserID as UserID,
+        PersonID, HashedPassword,
+        Salt,
+        if(
+          count(up.PermissionId) > 0, 
+          JSON_ARRAYAGG(up.PermissionId), 
+          JSON_ARRAY()
+        ) AS Permissions
       from User u
-      join UserPermission up on u.UserID = up.UserID 
+      left join UserPermission up on u.UserID = up.UserID 
       where u.UserID = ?
       group by userID, PersonID, HashedPassword, Salt
       limit 1

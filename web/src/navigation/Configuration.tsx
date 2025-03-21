@@ -38,7 +38,7 @@ export const configuration: RouteConfiguration = [
       { type: "dashboard", availability: () => true, label: "Asset Details", element: <AssetsDetailsDashboard /> },
       {
         type: "dashboard",
-        availability: ({ permissions }) => permissions.includes(2),
+        availability: ({ permissions }) => permissions.includes(1),
         label: "Add",
         element: <AssetsAddDashboard />
       }

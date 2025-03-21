@@ -11,6 +11,7 @@ import { LabelInput } from "../../elements/LabelInput/LabelInput";
 import { MultiSelect } from "../../elements/MultiSelect/MultiSelect";
 import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
 import { TextArea } from "../../elements/TextArea/TextArea";
+import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./AssetsDetailsDashboard.module.css";
 
@@ -61,6 +62,7 @@ function AssetDetailsView({ assetId }: { assetId: string }) {
     queryKey: ["Asset Details", assetId],
     queryFn: () => fetchAssetDetails(Number(assetId))
   });
+  const { permissions } = useAuth();
 
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
@@ -117,8 +119,12 @@ function AssetDetailsView({ assetId }: { assetId: string }) {
         </div>
         {isSaving && <>Saving...</>}
         {error && <span style={{ color: "red" }}>{error}</span>}
-        {!isEditing && <IconButton icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />}
-        {isEditing && <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} />}
+        {permissions.includes(2) && !isEditing && (
+          <IconButton icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />
+        )}
+        {permissions.includes(2) && isEditing && (
+          <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} />
+        )}
       </div>
       <form className={styles.inputFieldContainer}>
         {formStructure.map((column) => (
