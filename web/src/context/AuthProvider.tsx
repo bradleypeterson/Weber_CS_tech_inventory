@@ -7,7 +7,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const permissions = JSON.parse(localStorage.getItem("permissions") ?? "[]");
     setToken(token ?? "");
+    setPermissions(permissions ?? []);
   }, []);
 
   return (

@@ -13,6 +13,7 @@ export async function login(userId: string, password: string) {
   if (loginResponse.status === "error") return loginResponse;
 
   localStorage.setItem("token", loginResponse.data.token);
+  localStorage.setItem("permissions", JSON.stringify(loginResponse.data.permissions));
 
   return loginResponse;
 }
@@ -27,10 +28,11 @@ const saltResponseSchema: JSONSchemaType<{ salt: string }> = {
 
 const validateSaltResponse = ajv.compile(saltResponseSchema);
 
-const loginResponseSchema: JSONSchemaType<{ token: string }> = {
+const loginResponseSchema: JSONSchemaType<{ token: string; permissions: number[] }> = {
   type: "object",
   properties: {
-    token: { type: "string" }
+    token: { type: "string" },
+    permissions: { type: "array", items: { type: "number" } }
   },
   required: ["token"]
 };

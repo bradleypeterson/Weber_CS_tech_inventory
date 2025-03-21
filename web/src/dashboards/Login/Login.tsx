@@ -18,6 +18,7 @@ export function Login() {
     if (result.status === "success") {
       await new Promise((res) => {
         auth.setToken(result.data.token);
+        auth.setPermissions(result.data.permissions);
         setTimeout(res, 100);
       });
       linkTo("Search", ["Assets"]);
