@@ -5,16 +5,16 @@ import { get, post } from "./helpers";
 
 export async function login(userId: string, password: string) {
   const saltResponse = await get(`/auth/salt?userId=${userId}`, validateSaltResponse);
-  if (saltResponse.status === "error") return saltResponse.error;
+  if (saltResponse.status === "error") return saltResponse;
 
   const hashDigest = sha256(password + saltResponse.data.salt);
   const hashedPassword = hashDigest.toString();
   const loginResponse = await post(`/auth/login`, { userId, password: hashedPassword }, validateLoginResponse);
-  if (loginResponse.status === "error") return loginResponse.error;
+  if (loginResponse.status === "error") return loginResponse;
 
   localStorage.setItem("token", loginResponse.data.token);
 
-  return true;
+  return loginResponse;
 }
 
 const saltResponseSchema: JSONSchemaType<{ salt: string }> = {

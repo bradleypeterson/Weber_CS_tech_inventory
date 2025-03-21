@@ -7,8 +7,19 @@ import { BuiltDashboard, BuiltFeatures, BuiltPage, BuiltTab, Menu, Page, RouteCo
 export function useAccessibleRoutes() {
   const auth = useAuth();
   const routes = useMemo(() => buildAccessibleRoutes(configuration, auth), [auth]);
+  if (auth.token === "")
+    return {
+      routes: buildPageFeature(
+        configuration.find((config): config is Page => config.type === "page" && config.label === "Login"),
+        auth
+      )
+    };
 
   return { routes };
+}
+
+export function getRoutes(auth: AuthContextType) {
+  return buildAccessibleRoutes(configuration, auth);
 }
 
 function buildAccessibleRoutes(configuration: RouteConfiguration, auth: AuthContextType): BuiltFeatures {
@@ -67,8 +78,8 @@ function buildMenuFeature(menu: Menu, auth: AuthContextType) {
   return items;
 }
 
-function buildPageFeature(page: Page, auth: AuthContextType): BuiltPage[] {
-  if (!page.availability(auth)) return [];
+function buildPageFeature(page: Page | undefined, auth: AuthContextType): BuiltPage[] {
+  if (!page || !page.availability(auth)) return [];
 
   return [
     {

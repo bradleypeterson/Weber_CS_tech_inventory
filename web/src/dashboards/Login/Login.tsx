@@ -2,6 +2,7 @@ import { useState } from "react";
 import { login } from "../../api/auth";
 import { Button } from "../../elements/Button/Button";
 import { LabelInput } from "../../elements/LabelInput/LabelInput";
+import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./Login.module.css";
 
@@ -10,11 +11,17 @@ export function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const linkTo = useLinkTo();
+  const auth = useAuth();
 
   async function handleSubmit() {
     const result = await login(userId, password);
-    if (result === true) linkTo("Search", ["Assets"]);
-    else setError(result.message);
+    if (result.status === "success") {
+      await new Promise((res) => {
+        auth.setToken(result.data.token);
+        setTimeout(res, 100);
+      });
+      linkTo("Search", ["Assets"]);
+    } else setError(result.error.message);
   }
 
   return (

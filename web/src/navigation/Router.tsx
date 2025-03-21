@@ -3,6 +3,7 @@ import { useAccessibleRoutes } from "./useAccessibleRoutes";
 
 export function Router() {
   const { routes } = useAccessibleRoutes();
+
   return (
     <Routes>
       {routes.map(
