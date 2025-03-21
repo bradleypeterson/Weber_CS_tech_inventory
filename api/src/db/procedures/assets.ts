@@ -1,6 +1,6 @@
 import type { RowDataPacket } from "mysql2";
 import { pool } from "..";
-import type { Asset, AssetDetails, AssetOverview } from "../../../../@types/data";
+import type { Asset, AssetDetails, AssetOverview, Condition } from "../../../../@types/data";
 
 interface AssetRow extends RowDataPacket, Asset {}
 
@@ -151,5 +151,22 @@ export async function dbUpdateAsset(
   } catch (error) {
     console.error(`Error in updateAsset`, error);
     throw new Error("An error occurred while updating asset.");
+  }
+}
+
+interface ConditionRow extends RowDataPacket, Condition {}
+export async function getAllConditions() {
+  try {
+    const query = `
+      select ConditionID, ConditionName, ConditionAbbreviation
+      from \`Condition\`
+    `;
+
+    const [rows] = await pool.query<ConditionRow[]>(query);
+
+    return rows;
+  } catch (error) {
+    console.error(`Error in getAllConditions`, error);
+    throw new Error("An error occurred while getting conditions.");
   }
 }

@@ -8,14 +8,14 @@ export type Building = {
   BuildingID: number;
   Name: string;
   Abbreviation: string;
-}
+};
 
 export type Room = {
   LocationID: number;
   RoomNumber: string;
   BuildingID: number;
   Barcode: string;
-} 
+};
 
 export type Department = {
   DepartmentID: number;
@@ -141,4 +141,10 @@ type UserOverview = {
   Location: string;
   DepartmentID: number[];
   Permissions: number[];
+};
+
+type Condition = {
+  ConditionID: number;
+  ConditionName: string;
+  ConditionAbbreviation: string;
 };

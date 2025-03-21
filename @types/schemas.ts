@@ -1,5 +1,14 @@
 import type { JSONSchemaType } from "ajv";
-import type { Asset, AssetDetails, AssetOverview, Contact, ContactOverview, User, UserOverview } from "./data";
+import type {
+  Asset,
+  AssetDetails,
+  AssetOverview,
+  Condition,
+  Contact,
+  ContactOverview,
+  User,
+  UserOverview,
+} from "./data";
 
 export const assetSchema: JSONSchemaType<Asset> = {
   type: "object",
@@ -123,12 +132,12 @@ export const contactSchema: JSONSchemaType<Contact> = {
   properties: {
     WNumber: { type: "string" },
     Name: { type: "string" },
-    FirstName: { type: "string"},
+    FirstName: { type: "string" },
     LastName: { type: "string" },
     Location: { type: "string" },
-    BuildingID: {type: "number" , nullable: true},
-    RoomNumber: {type: "string" , nullable: true},
-    Departments: { type: "string"},
+    BuildingID: { type: "number", nullable: true },
+    RoomNumber: { type: "string", nullable: true },
+    Departments: { type: "string" },
     DepartmentID: { type: "array", items: { type: "number" } },
   },
   required: [
@@ -152,8 +161,8 @@ export const contactOverviewSchema: JSONSchemaType<ContactOverview> = {
   properties: {
     PersonID: { type: "number" },
     WNumber: { type: "string" },
-    Name: { type: "string"},
-    Departments: { type: "string"},
+    Name: { type: "string" },
+    Departments: { type: "string" },
     Location: { type: "string" },
     DepartmentID: { type: "array", items: { type: "number" } },
   },
@@ -207,8 +216,8 @@ export const userSchema: JSONSchemaType<User> = {
     FirstName: { type: "string" },
     LastName: { type: "string" },
     Location: { type: "string" },
-    BuildingID: {type: "number", nullable: true},
-    RoomNumber: {type: "string", nullable: true},
+    BuildingID: { type: "number", nullable: true },
+    RoomNumber: { type: "string", nullable: true },
     LocationID: { type: "number" },
     Departments: { type: "string" },
     DepartmentID: { type: "array", items: { type: "number" } },
@@ -230,4 +239,19 @@ export const userSchema: JSONSchemaType<User> = {
 export const userArraySchema: JSONSchemaType<User[]> = {
   type: "array",
   items: userSchema,
+};
+
+export const conditionSchema: JSONSchemaType<Condition> = {
+  type: "object",
+  properties: {
+    ConditionID: { type: "number" },
+    ConditionName: { type: "string" },
+    ConditionAbbreviation: { type: "string" },
+  },
+  required: ["ConditionAbbreviation", "ConditionID", "ConditionName"],
+};
+
+export const conditionArraySchema: JSONSchemaType<Condition[]> = {
+  type: "array",
+  items: conditionSchema,
 };

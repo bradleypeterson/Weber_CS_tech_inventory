@@ -1,5 +1,10 @@
 import { Asset, AssetOverview } from "../../../@types/data";
-import { assetArraySchema, assetDetailsSchema, assetOverviewArraySchema } from "../../../@types/schemas";
+import {
+  assetArraySchema,
+  assetDetailsSchema,
+  assetOverviewArraySchema,
+  conditionArraySchema
+} from "../../../@types/schemas";
 import { ajv } from "../ajv";
 import { get, post, validateEmptyResponse } from "./helpers";
 
@@ -27,4 +32,10 @@ export async function updateAssetDetails(
 ) {
   const response = await post(`/assets/${assetId}/update`, updates, validateEmptyResponse);
   return response.status === "success";
+}
+
+export async function fetchConditions() {
+  const response = await get(`/assets/conditions`, ajv.compile(conditionArraySchema));
+  if (response.status === "success") return response.data;
+  return undefined;
 }

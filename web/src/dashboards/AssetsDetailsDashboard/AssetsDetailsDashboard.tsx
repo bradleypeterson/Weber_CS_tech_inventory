@@ -2,6 +2,7 @@ import { ArrowRight, Barcode, Check, Pencil } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useSearchParams } from "react-router";
+import { Building, Condition, ContactOverview, Department } from "../../../../@types/data";
 import { fetchAssetDetails, updateAssetDetails } from "../../api/assets";
 import { Notes } from "../../components/Notes/Notes";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
@@ -11,6 +12,7 @@ import { LabelInput } from "../../elements/LabelInput/LabelInput";
 import { MultiSelect } from "../../elements/MultiSelect/MultiSelect";
 import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
 import { TextArea } from "../../elements/TextArea/TextArea";
+import { useBuildings, useConditions, useContactPersons, useDepartments } from "../../hooks/optionHooks";
 import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./AssetsDetailsDashboard.module.css";
@@ -20,6 +22,10 @@ export function AssetsDetailsDashboard() {
   const linkTo = useLinkTo();
   const [searchParams] = useSearchParams();
   const assetId = useMemo(() => searchParams.get("assetId"), [searchParams]);
+  const { data: buildings, isLoading: buildingsLoading } = useBuildings();
+  const { data: departments, isLoading: departmentsLoading } = useDepartments();
+  const { data: contactPersons, isLoading: contactPersonsLoading } = useContactPersons();
+  const { data: conditions, isLoading: conditionsLoading } = useConditions();
 
   if (assetId === null)
     return (
@@ -47,10 +53,29 @@ export function AssetsDetailsDashboard() {
       </main>
     );
 
-  return <AssetDetailsView assetId={assetId} />;
+  if (buildingsLoading || departmentsLoading || contactPersonsLoading || conditionsLoading) return <>Loading...</>;
+  if (buildings === undefined || departments === undefined || contactPersons === undefined || conditions === undefined)
+    return <>Error</>;
+
+  const props = {
+    assetId,
+    buildings,
+    departments,
+    contactPersons,
+    conditions
+  };
+  return <AssetDetailsView {...props} />;
 }
 
-function AssetDetailsView({ assetId }: { assetId: string }) {
+type DetailsViewProps = {
+  assetId: string;
+  buildings: Building[];
+  departments: Department[];
+  contactPersons: ContactOverview[];
+  conditions: Condition[];
+};
+
+function AssetDetailsView({ assetId, ...props }: DetailsViewProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
@@ -107,6 +132,8 @@ function AssetDetailsView({ assetId }: { assetId: string }) {
     setIsSaving(false);
   }
 
+  const formStructure = useMemo(() => buildFormStructure({ assetId, ...props }), [props, assetId]);
+
   if (isLoading) return <>Loading</>;
   if (isError) return <>Unknown Asset</>;
 
@@ -162,7 +189,7 @@ function FormField({
 
   useEffect(() => {
     if (input.fetchOptions) {
-      input.fetchOptions().then(setOptions);
+      setOptions(input.fetchOptions());
     }
   }, [input]);
 
@@ -233,7 +260,7 @@ type AssetInputField = {
   name: string; // Unique identifier for form handling
   label: string;
   inputType: InputType;
-  fetchOptions?: () => Promise<{ value: string | number; label: string }[]>; // Only used for select inputs
+  fetchOptions?: () => { value: string | number; label: string }[];
 };
 
 type Column = {
@@ -241,68 +268,75 @@ type Column = {
   inputs: AssetInputField[];
 };
 
-const formStructure: Column[] = [
-  {
-    title: "Basic Info",
-    inputs: [
-      { name: "TagNumber", label: "Tag Number", inputType: "input" },
-      { name: "SecondaryNumber", label: "Secondary Number", inputType: "input" },
-      { name: "Description", label: "Description", inputType: "textarea" },
-      {
-        name: "Department",
-        label: "Department",
-        inputType: "single select",
-        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "Web" }]), 500))
-      },
-      {
-        name: "Building",
-        label: "Building",
-        inputType: "single select",
-        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "NB" }]), 500))
-      },
-      {
-        name: "Room",
-        label: "Room",
-        inputType: "single select",
-        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "102NB" }]), 500))
-      },
-      {
-        name: "ContactPerson",
-        label: "Contact Person",
-        inputType: "single select",
-        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "Brad Petersen" }]), 500))
-      }
-    ]
-  },
-  {
-    title: "Device Details",
-    inputs: [
-      {
-        name: "DeviceTypeID",
-        label: "Device Type",
-        inputType: "single select",
-        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 7, label: "Printer" }]), 500))
-      },
-      { name: "SerialNumber", label: "Serial Number", inputType: "input" },
-      {
-        name: "ConditionID",
-        label: "Condition",
-        inputType: "single select",
-        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "Good" }]), 500))
-      },
-      { name: "Manufacturer", label: "Manufacturer", inputType: "input" },
-      { name: "PartNumber", label: "Part Number", inputType: "input" },
-      { name: "Rapid7", label: "Rapid 7", inputType: "checkbox" },
-      { name: "CrowdStrike", label: "CrowdStrike", inputType: "checkbox" }
-    ]
-  },
-  {
-    title: "Accounting Info",
-    inputs: [
-      { name: "AccountingDate", label: "Accounting Date", inputType: "input" },
-      { name: "AccountCost", label: "Account Cost", inputType: "input" },
-      { name: "PONumber", label: "PO Number", inputType: "input" },
-      { name: "FiscalYear", label: "Replacement Fiscal Year", inputType: "input" }
-    ]
-  }
-];
+function buildFormStructure(details: DetailsViewProps) {
+  const formStructure: Column[] = [
+    {
+      title: "Basic Info",
+      inputs: [
+        { name: "TagNumber", label: "Tag Number", inputType: "input" },
+        { name: "SecondaryNumber", label: "Secondary Number", inputType: "input" },
+        { name: "Description", label: "Description", inputType: "textarea" },
+        {
+          name: "DepartmentID",
+          label: "Department",
+          inputType: "single select",
+          fetchOptions: () =>
+            details.departments.map((department) => ({ label: department.Name, value: department.DepartmentID }))
+        },
+        {
+          name: "BuildingID",
+          label: "Building",
+          inputType: "single select",
+          fetchOptions: () =>
+            details.buildings.map((building) => ({ label: building.Name, value: building.BuildingID }))
+        },
+        {
+          name: "RoomID",
+          label: "Room",
+          inputType: "single select",
+          fetchOptions: () => []
+        },
+        {
+          name: "ContactPersonID",
+          label: "Contact Person",
+          inputType: "single select",
+          fetchOptions: () => details.contactPersons.map((person) => ({ label: person.Name, value: person.PersonID }))
+        }
+      ]
+    },
+    {
+      title: "Device Details",
+      inputs: [
+        {
+          name: "DeviceTypeID",
+          label: "Device Type",
+          inputType: "single select",
+          fetchOptions: () => []
+        },
+        { name: "SerialNumber", label: "Serial Number", inputType: "input" },
+        {
+          name: "ConditionID",
+          label: "Condition",
+          inputType: "single select",
+          fetchOptions: () =>
+            details.conditions.map((condition) => ({ label: condition.ConditionName, value: condition.ConditionID }))
+        },
+        { name: "Manufacturer", label: "Manufacturer", inputType: "input" },
+        { name: "PartNumber", label: "Part Number", inputType: "input" },
+        { name: "Rapid7", label: "Rapid 7", inputType: "checkbox" },
+        { name: "CrowdStrike", label: "CrowdStrike", inputType: "checkbox" }
+      ]
+    },
+    {
+      title: "Accounting Info",
+      inputs: [
+        { name: "AccountingDate", label: "Accounting Date", inputType: "input" },
+        { name: "AccountCost", label: "Account Cost", inputType: "input" },
+        { name: "PONumber", label: "PO Number", inputType: "input" },
+        { name: "FiscalYear", label: "Replacement Fiscal Year", inputType: "input" }
+      ]
+    }
+  ];
+
+  return formStructure;
+}

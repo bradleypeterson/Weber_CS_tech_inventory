@@ -12,10 +12,10 @@ export async function getAllContacts() {
                     GROUP_CONCAT(d.Abbreviation SEPARATOR ', ') as Departments, 
                     l.Barcode as Location,
                     JSON_ARRAYAGG(d.DepartmentID) as DepartmentID
-                  FROM person p 
-                  JOIN persondepartment pd on pd.PersonID = p.PersonID 
-                  JOIN department d on d.DepartmentID = pd.DepartmentID
-                  JOIN location l on l.LocationID = p.LocationID 
+                  FROM Person p 
+                  JOIN PersonDepartment pd on pd.PersonID = p.PersonID 
+                  JOIN Department d on d.DepartmentID = pd.DepartmentID
+                  JOIN Location l on l.LocationID = p.LocationID 
                   GROUP BY p.PersonID`;
     const [rows] = await pool.query<ContactRow[]>(query);
     return rows;
@@ -78,11 +78,9 @@ export async function dbUpdateContact(
       where PersonID = ?
     `;
 
-    
     //   update Person
     //   set ${setClauses.join(", ")}
     //   where PersonID = ?
-    
 
     values.push(personID);
 
