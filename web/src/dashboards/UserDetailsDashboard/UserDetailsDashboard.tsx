@@ -2,6 +2,7 @@ import { Check, Pencil } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useSearchParams } from "react-router";
+import { Building, Department, Room } from "../../../../@types/data";
 import { fetchUserDetails, updateUserDetails } from "../../api/users";
 import { Button } from "../../elements/Button/Button";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
@@ -10,24 +11,62 @@ import { LabelInput } from "../../elements/LabelInput/LabelInput";
 import { MultiSelect } from "../../elements/MultiSelect/MultiSelect";
 import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
 import { TextArea } from "../../elements/TextArea/TextArea";
+import {
+  useBuildings,
+  useDepartments,
+  useRooms,
+} from "../../hooks/optionHooks";
+import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./UserDetailsDashboard.module.css";
 
 export function UserDetailsDashboard() {
   const [searchParams] = useSearchParams();
   const personID = useMemo(() => searchParams.get("personID"), [searchParams]);
-  
+  const { data: buildings, isLoading: buildingsLoading } = useBuildings();
+  const { data: departments, isLoading: departmentsLoading } = useDepartments();
+  const { data: rooms, isLoading: roomsLoading } = useRooms();
+
+  if (
+    buildingsLoading ||
+    departmentsLoading ||
+    roomsLoading
+  )
+    return <>Loading...</>;
+
+  if (
+    buildings === undefined ||
+    departments === undefined ||
+    rooms === undefined 
+  )
+    return <>Error</>;
+
+  const props = {
+    personID,
+    buildings,
+    departments,
+    rooms
+  };
+
   if (personID !== null)
-    return <UserDetailsView personID={personID} />;
+    return <UserDetailsView {...props} />;
   
-  return <EmptyUserDetailsView />;
+  return <EmptyUserDetailsView {...props}/>;
 }
 
-function UserDetailsView({ personID }: { personID: string }) {
+type DetailsViewProps = {
+  personID: string | null;
+  buildings: Building[];
+  departments: Department[];
+  rooms: Room[];
+};
+
+function UserDetailsView({ personID, ...props }: DetailsViewProps) {
   const linkTo = useLinkTo();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+
   const {
     data: userDetails,
     isLoading,
@@ -36,6 +75,7 @@ function UserDetailsView({ personID }: { personID: string }) {
     queryKey: ["User Details", personID],
     queryFn: () => fetchUserDetails(Number(personID))
   });
+  const { permissions } = useAuth();
 
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
@@ -79,11 +119,12 @@ function UserDetailsView({ personID }: { personID: string }) {
  
      setIsSaving(false);
    }
- 
+
+   const formStructure = useMemo(() => buildFormStructure({ personID, ...props }, permissions), [props, personID, permissions]);
+  
+
    if (isLoading) return <>Loading</>;
    if (isError) return <>Unknown User</>;
-
-  const formStructureFiltered = formStructure.filter(column => column.title !== "Password");
   
   return (
     <main className={styles.layout}>
@@ -94,11 +135,11 @@ function UserDetailsView({ personID }: { personID: string }) {
         </div>
         {isSaving && <>Saving...</>}
         {error && <span style={{ color: "red" }}>{error}</span>}
-        {!isEditing && <IconButton icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />}
-        {isEditing && <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} />} 
+        {permissions.includes(6) && !isEditing && <IconButton icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />}
+        {permissions.includes(6) && isEditing && <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} />} 
       </div>
       <form className={styles.inputFieldContainer}>
-        {formStructureFiltered.map((column) => (
+        {formStructure.map((column) => (
           <div key={column.title} className={styles.formColumn}>
             <h3>{column.title}</h3>
             {column.inputs.map((input) => (
@@ -114,17 +155,24 @@ function UserDetailsView({ personID }: { personID: string }) {
         ))}
       </form>
       <div className={styles.Button}>
-          <Button style={{ width: "200px" }} variant={"secondary"} onClick={() => linkTo("Change Password", ["Admin", "Users"], "personID=personID")}>Change User Password</Button>
+          {permissions.includes(6) && isEditing && 
+            <Button 
+              style={{ width: "200px" }} 
+              variant={"secondary"} 
+              onClick={() => linkTo("Change Password", ["Admin", "Users"], "personID=personID")}>
+                Change User Password
+            </Button>}
       </div>
     </main>
   );
 }
 
 //TODO: Finish for adding new user
-function EmptyUserDetailsView() {
+function EmptyUserDetailsView({ personID, ...props }: DetailsViewProps) {
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number>
   >({});
+  const { permissions } = useAuth();
 
   function handleInputChange(
     name: string,
@@ -140,7 +188,7 @@ function EmptyUserDetailsView() {
     console.log("SUBMIT");
   }
 
-  const formStructureWithPassword = formStructure;
+  const formStructure = useMemo(() => buildFormStructure({ personID, ...props }, permissions), [props, personID, permissions]);
 
   return (
     <main className={styles.layout}>
@@ -151,7 +199,7 @@ function EmptyUserDetailsView() {
         <IconButton icon={<Check />} variant="secondary" onClick={handleSubmit} />
       </div>
       <form className={styles.inputFieldContainer}>
-        {formStructureWithPassword.map((column) => (
+        {formStructure.map((column) => (
           <div key={column.title} className={styles.formColumn}>
             <h3>{column.title}</h3>
             {column.inputs.map((input) => (
@@ -185,7 +233,7 @@ function FormField({
 
   useEffect(() => {
     if (input.fetchOptions) {
-      input.fetchOptions().then(setOptions);
+      setOptions(input.fetchOptions());
     }
   }, [input]);
 
@@ -257,7 +305,7 @@ type UserInputField = {
   name: string; // Unique identifier for form handling
   label: string;
   inputType: InputType;
-  fetchOptions?: () => Promise<{ value: string | number; label: string }[]>; // Only used for select inputs
+  fetchOptions?: () => { value: string | number; label: string }[]; // Only used for select inputs
 };
 
 type Column = {
@@ -265,55 +313,67 @@ type Column = {
   inputs: UserInputField[];
 };
 
-const formStructure: Column[] = [
-  {
-    title: "User Info",
-    inputs: [
-      { name: "FirstName", label: "First Name", inputType: "input" },
-      { name: "LastName", label: "Last Name", inputType: "input" },
-      { name: "WNumber", label: "W Number", inputType: "input" },
+function buildFormStructure(details: DetailsViewProps, permissions: number[]): Column[] {
+  const formStructure: Column[] = [
+    {
+      title: "User Info",
+      inputs: [
+        { name: "FirstName", label: "First Name", inputType: "input" },
+        { name: "LastName", label: "Last Name", inputType: "input" },
+        { name: "WNumber", label: "W Number", inputType: "input" },
+        {
+          name: "Departments",
+          label: "Departments",
+          inputType: "multi select",
+          fetchOptions: () => details.departments.map((department) => ({ label: department.Name, value: department.DepartmentID }))
+        },
+        {
+          name: "Building",
+          label: "Building",
+          inputType: "single select",
+          fetchOptions: () =>
+            details.buildings.map((building) => ({ label: building.Name, value: building.BuildingID }))
+        },
+        {
+          name: "RoomNumber",
+          label: "RoomNumber",
+          inputType: "single select",
+          fetchOptions: () => details.rooms.map((room) => ({ label: room.Barcode, value: room.Barcode }))
+        },
+      ]
+    },
+  ];
+
+  if (permissions.includes(7)) {
+    formStructure.push({
+      title: "Permissions",
+      inputs: [
+        { name: "Permissions[1]", label: "Add/Edit Assets", inputType: "checkbox" },
+        { name: "Permissions[2]", label: "Archive Assets", inputType: "checkbox" },
+        { name: "Permissions[3]", label: "Import/Export CSV Data", inputType: "checkbox" },
+        { name: "Permissions[4]", label: "Add/Edit Contact Persons", inputType: "checkbox" },
+        { name: "Permissions[5]", label: "Add/Edit List Options", inputType: "checkbox" },
+        { name: "Permissions[6]", label: "Add/Edit/View Users", inputType: "checkbox" },
+        { name: "Permissions[7]", label: "Set User Permissions", inputType: "checkbox" },
+      ]
+    });
+  }
+
+  if (details.personID === null || details.personID === "") {
+    formStructure.push(
       {
-        name: "Departments",
-        label: "Departments",
-        inputType: "multi select",
-        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "CS" }]), 500))
-      },
-      {
-        name: "Building",
-        label: "Building",
-        inputType: "single select",
-        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "remote" }]), 500))
-      },
-      {
-        name: "RoomNumber",
-        label: "RoomNumber",
-        inputType: "single select",
-        fetchOptions: () => new Promise((res) => setTimeout(() => res([{ value: 1, label: "remote" }]), 500))
-      },
-    ]
-  },
-  {
-    title: "Permissions",
-    inputs: [
-      { name: "Add/Edit Assets", label: "Add/Edit Assets", inputType: "checkbox" },
-      { name: "Archive Assets", label: "Archive Assets", inputType: "checkbox" },
-      { name: "Import/Export CSV Data", label: "Import/Export CSV Data", inputType: "checkbox" },
-      { name: "Add/Edit Contact Persons", label: "Add/Edit Contact Persons", inputType: "checkbox" },
-      { name: "Add/Edit List Options", label: "Add/Edit List Options", inputType: "checkbox" },
-      { name: "Add/Edit/View Users", label: "Add/Edit/View Users", inputType: "checkbox" },
-      { name: "Set User Permissions", label: "Set User Permissions", inputType: "checkbox" },
-    ]
-  },
-  {
-    title: "Password",
-    inputs: [
-      { name: "newPassword", label: "New Password", inputType: "input" },
-      { name: "confirmNewPassword", label: "Confirm New Password", inputType: "input" },
-      { name: "passwordsMatch", label: "Passwords Match", inputType: "checkbox" },
-      { name: "sixteenChars", label: "At Least 16 Characters", inputType: "checkbox" },
-      { name: "number", label: "At Least One Number", inputType: "checkbox" },
-      { name: "uppercase", label: "At Least One Uppercase Letter", inputType: "checkbox" },
-      { name: "lowercase", label: "At Least One Lowercase Letter", inputType: "checkbox" },
-    ]
-  },
-];
+      title: "Password",
+      inputs: [
+        { name: "newPassword", label: "New Password", inputType: "input" },
+        { name: "confirmNewPassword", label: "Confirm New Password", inputType: "input" },
+        { name: "passwordsMatch", label: "Passwords Match", inputType: "checkbox" },
+        { name: "sixteenChars", label: "At Least 16 Characters", inputType: "checkbox" },
+        { name: "number", label: "At Least One Number", inputType: "checkbox" },
+        { name: "uppercase", label: "At Least One Uppercase Letter", inputType: "checkbox" },
+        { name: "lowercase", label: "At Least One Lowercase Letter", inputType: "checkbox" },
+      ]
+    });
+  }
+
+  return formStructure; 
+}

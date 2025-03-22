@@ -9,7 +9,7 @@ export async function getAllUsers() {
                     p.PersonID,
                     WNumber, 
                     CONCAT(FirstName, " ", LastName) as Name, 
-                    GROUP_CONCAT(d.Abbreviation SEPARATOR ', ') as Departments, 
+                    GROUP_CONCAT(DISTINCT d.Abbreviation SEPARATOR ', ') as Departments, 
                     l.Barcode as Location,
                     JSON_ARRAYAGG(d.DepartmentID) as DepartmentID,
                     JSON_ARRAYAGG(up.PermissionID) as Permissions
