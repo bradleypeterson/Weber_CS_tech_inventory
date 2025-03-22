@@ -9,7 +9,6 @@
 .checkboxLabel {
   display: flex;
   align-items: center;
-  flex-direction: row-reverse;
   cursor: pointer;
   user-select: none;
 }
@@ -42,7 +41,7 @@
 }
 
 .label {
-  margin-right: 12px;
+  margin-left: 12px;
   color: var(--checkbox-color);
   font-size: 15px;
 }
