@@ -322,13 +322,13 @@ function buildFormStructure(details: DetailsViewProps, permissions: number[]): C
         { name: "LastName", label: "Last Name", inputType: "input" },
         { name: "WNumber", label: "W Number", inputType: "input" },
         {
-          name: "Departments",
+          name: "DepartmentID",
           label: "Departments",
           inputType: "multi select",
           fetchOptions: () => details.departments.map((department) => ({ label: department.Name, value: department.DepartmentID }))
         },
         {
-          name: "Building",
+          name: "BuildingID",
           label: "Building",
           inputType: "single select",
           fetchOptions: () =>
@@ -336,9 +336,9 @@ function buildFormStructure(details: DetailsViewProps, permissions: number[]): C
         },
         {
           name: "RoomNumber",
-          label: "RoomNumber",
+          label: "Room Number",
           inputType: "single select",
-          fetchOptions: () => details.rooms.map((room) => ({ label: room.Barcode, value: room.Barcode }))
+          fetchOptions: () => details.rooms.map((room) => ({ label: room.Barcode, value: room.RoomNumber }))
         },
       ]
     },
@@ -348,13 +348,13 @@ function buildFormStructure(details: DetailsViewProps, permissions: number[]): C
     formStructure.push({
       title: "Permissions",
       inputs: [
-        { name: "Permissions[1]", label: "Add/Edit Assets", inputType: "checkbox" },
-        { name: "Permissions[2]", label: "Archive Assets", inputType: "checkbox" },
-        { name: "Permissions[3]", label: "Import/Export CSV Data", inputType: "checkbox" },
-        { name: "Permissions[4]", label: "Add/Edit Contact Persons", inputType: "checkbox" },
-        { name: "Permissions[5]", label: "Add/Edit List Options", inputType: "checkbox" },
-        { name: "Permissions[6]", label: "Add/Edit/View Users", inputType: "checkbox" },
-        { name: "Permissions[7]", label: "Set User Permissions", inputType: "checkbox" },
+        { name: "Permission1", label: "Add/Edit Assets", inputType: "checkbox" },
+        { name: "Permission2", label: "Archive Assets", inputType: "checkbox" },
+        { name: "Permission3", label: "Import/Export CSV Data", inputType: "checkbox" },
+        { name: "Permission4", label: "Add/Edit Contact Persons", inputType: "checkbox" },
+        { name: "Permission5", label: "Add/Edit List Options", inputType: "checkbox" },
+        { name: "Permission6", label: "Add/Edit/View Users", inputType: "checkbox" },
+        { name: "Permission7", label: "Set User Permissions", inputType: "checkbox" },
       ]
     });
   }

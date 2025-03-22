@@ -14,7 +14,7 @@ async function seedDatabase() {
 
     await pool.query(
       `INSERT INTO Building(Name, Abbreviation) VALUES
-        ('Science and Technology', 'NB'),
+        ('Noorda Engineering, Applied Science & Technology', 'NB'),
         ('Elizabeth Hall', 'EH'),
         ('Engineering Technology', 'ET'),
         ('Davis Building 2', 'D2'),

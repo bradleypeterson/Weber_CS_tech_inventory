@@ -126,11 +126,20 @@ type User = {
   LastName: string;
   Location: string;
   BuildingID?: number | null;
+  BuildingAbbreviation?: string | null;
+  BuildingName?: string | null;
   RoomNumber?: string | null;
   LocationID: number;
   Departments: string;
   DepartmentID: number[];
   Permissions: number[];
+  Permission1: number;
+  Permission2: number;
+  Permission3: number;
+  Permission4: number;
+  Permission5: number;
+  Permission6: number;
+  Permission7: number;
 };
 
 type UserOverview = {

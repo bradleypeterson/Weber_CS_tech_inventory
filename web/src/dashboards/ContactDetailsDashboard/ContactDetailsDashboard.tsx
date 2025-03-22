@@ -306,13 +306,13 @@ function buildFormStructure(details: DetailsViewProps): Column[] {
         { name: "LastName", label: "Last Name", inputType: "input" },
         { name: "WNumber", label: "W Number", inputType: "input" },
         {
-          name: "Department",
+          name: "DepartmentID",
           label: "Department",
           inputType: "multi select",
           fetchOptions: () => details.departments.map((department) => ({ label: department.Name, value: department.DepartmentID }))
         },
         {
-          name: "Building",
+          name: "BuildingID",
           label: "Building",
           inputType: "single select",
           fetchOptions: () => details.buildings.map((building) => ({ label: building.Name, value: building.BuildingID }))
@@ -321,7 +321,7 @@ function buildFormStructure(details: DetailsViewProps): Column[] {
           name: "RoomNumber",
           label: "RoomNumber",
           inputType: "single select",
-          fetchOptions: () => details.rooms.map((room) => ({ label: room.Barcode, value: room.Barcode }))
+          fetchOptions: () => details.rooms.map((room) => ({ label: room.Barcode, value: room.RoomNumber }))
         },
       ]
     },
