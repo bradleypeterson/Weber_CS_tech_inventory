@@ -367,10 +367,10 @@ function buildFormStructure(details: DetailsViewProps, permissions: number[]): C
         { name: "newPassword", label: "New Password", inputType: "input" },
         { name: "confirmNewPassword", label: "Confirm New Password", inputType: "input" },
         { name: "passwordsMatch", label: "Passwords Match", inputType: "checkbox" },
-        { name: "sixteenChars", label: "At Least 16 Characters", inputType: "checkbox" },
-        { name: "number", label: "At Least One Number", inputType: "checkbox" },
-        { name: "uppercase", label: "At Least One Uppercase Letter", inputType: "checkbox" },
-        { name: "lowercase", label: "At Least One Lowercase Letter", inputType: "checkbox" },
+        { name: "sixteenChars", label: "16 Characters", inputType: "checkbox" },
+        { name: "number", label: "One Number", inputType: "checkbox" },
+        { name: "uppercase", label: "One Uppercase Letter", inputType: "checkbox" },
+        { name: "lowercase", label: "One Lowercase Letter", inputType: "checkbox" },
       ]
     });
   }

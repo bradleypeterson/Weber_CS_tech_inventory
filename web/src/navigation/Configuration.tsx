@@ -82,7 +82,7 @@ export const configuration: RouteConfiguration = [
     menu: [
       {
         type: "dashboard",
-        availability: () => true,
+        availability: ({ permissions }) => permissions.includes(6),
         label: "Users",
         element: <UserSearchDashboard />,
         filters: ["Permission", "Department"],
@@ -93,7 +93,7 @@ export const configuration: RouteConfiguration = [
       },
       {
         type: "dashboard",
-        availability: () => true,
+        availability: ({ permissions }) => permissions.includes(4),
         label: "Contacts",
         element: <ContactSearchDashboard />,
         filters: ["Department"],
