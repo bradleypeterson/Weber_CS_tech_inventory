@@ -247,7 +247,7 @@ async function createTables() {
       AuditNote TEXT,      
       AuditStatusID INT,
       FOREIGN KEY(AuditID) REFERENCES Audit(AuditID),
-      FOREIGN KEY(EquipmentID) REFERENCES Equipment(EquipmentID)
+      FOREIGN KEY(EquipmentID) REFERENCES Equipment(EquipmentID),
       FOREIGN KEY(AuditStatusID) REFERENCES AuditStatus(AuditStatusID)
     );
 
@@ -275,7 +275,7 @@ async function createTables() {
     const addConstraints = `
     alter table Building
     add constraint building_name_list
-    check (Name in ('Science and Technology', 'Elizabeth Hall', 'Engineering Technology', 'Davis Building 2', 'Davis Building 3', 'Davis Automotive', 'Marriot Building', 'Hurst Building', 'Hurst Center', 'Other'));
+    check (Name in ('Noorda Engineering, Applied Science & Technology', 'Elizabeth Hall', 'Engineering Technology', 'Davis Building 2', 'Davis Building 3', 'Davis Automotive', 'Marriot Building', 'Hurst Building', 'Hurst Center', 'Other'));
 
     alter table Building
     add constraint building_abbreviation_list
