@@ -165,8 +165,16 @@ async function seedDatabase() {
     );
 
     await pool.query(
-      `INSERT INTO Audit (CreatedBy, EquipmentID, AuditTime, AuditNote, AuditStatusID) VALUES
-        (1, 3, '2025-01-01 11:00:00', 'This needs to be archived', 2);
+      `INSERT INTO Audit (CreatedBy, LocationID, AuditTime) VALUES
+        (1, 1, '2025-01-01 11:00:00');
+        `
+    );
+
+    await pool.query(
+      `INSERT INTO AuditDetails (AuditID, EquipmentID, AuditNote, AuditStatusID) VALUES
+        (1, 1, 'Found in room', 1),
+        (1, 2, 'Found in room', 1),
+        (1, 3, 'This needs to be archived', 2);
         `
     );
 
