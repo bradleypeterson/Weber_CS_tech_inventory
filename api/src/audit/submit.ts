@@ -1,35 +1,51 @@
 import type { Request, Response } from "express";
 import { createNewAudit } from "../db/procedures/audits";
 
-interface RequestUser {
-  userId: number;
-}
-
 interface AuditSubmission {
   roomId: number;
   itemStatuses: Record<number, number>;
-  notes: Record<number, string>;
+  notes: string[];
 }
 
-export async function submitAudit(req: Request<{}, {}, AuditSubmission>, res: Response) {
+export async function submitAudit(req: Request, res: Response) {
   try {
-    const user = (req as any).user as RequestUser;
-    const { itemStatuses, notes } = req.body;
+    const { roomId, itemStatuses, notes } = req.body as AuditSubmission;
+    const user = res.locals.user;
+
+    if (!user?.UserID) {
+      return res.status(401).json({ 
+        status: "error",
+        error: { message: "Unauthorized" }
+      });
+    }
 
     // Create a single timestamp for the entire audit session
     const auditTime = new Date();
 
-    // Process each item in the audit with the same timestamp
-    const promises = Object.entries(itemStatuses).map(([equipmentId, statusId]) => {
-      const note = notes[Number(equipmentId)] || "";
-      return createNewAudit(user.userId, parseInt(equipmentId), statusId, note, auditTime);
+    // Prepare all equipment items for the audit
+    const equipmentItems = Object.entries(itemStatuses).map(([equipmentId, statusId]) => ({
+      equipmentId: parseInt(equipmentId),
+      statusId: Number(statusId),
+      note: notes[Number(equipmentId)] || ""
+    }));
+
+    // Create a single audit session with all items
+    await createNewAudit(
+      user.UserID,
+      roomId,
+      equipmentItems,
+      auditTime
+    );
+
+    res.status(200).json({ 
+      status: "success",
+      message: "Audit submitted successfully"
     });
-
-    await Promise.all(promises);
-
-    res.status(200).json({ message: "Audit submitted successfully" });
   } catch (error) {
     console.error("Error submitting audit:", error);
-    res.status(500).json({ error: "Failed to submit audit" });
+    res.status(500).json({ 
+      status: "error",
+      error: { message: "Failed to submit audit" }
+    });
   }
 } 

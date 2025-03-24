@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "react-query";
+import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./AuditSummary.module.css";
 
@@ -17,6 +18,7 @@ interface AuditSubmission {
 }
 
 export function AuditSummary() {
+  const { permissions, token } = useAuth();
   const linkTo = useLinkTo();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,8 +31,10 @@ export function AuditSummary() {
 
   const submitAudit = useMutation({
     mutationFn: async (data: AuditSubmission) => {
-      const token = localStorage.getItem('token');
       if (!token) throw new Error('Not authenticated');
+
+      console.log('Submitting audit with token:', token);
+      console.log('Request data:', data);
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/audits/submit`, {
         method: 'POST',
@@ -43,6 +47,11 @@ export function AuditSummary() {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Submit response error:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        });
         throw new Error(errorData.error?.message || 'Failed to submit audit');
       }
 
@@ -60,6 +69,7 @@ export function AuditSummary() {
       setError(null);
     },
     onError: (error: Error) => {
+      console.error('Submit mutation error:', error);
       setError(error.message);
     }
   });
@@ -100,8 +110,19 @@ export function AuditSummary() {
       setStatusCounts(counts);
     } catch (error) {
       console.error('Error parsing item statuses:', error);
+      setError('Failed to parse audit data');
     }
   }, []);
+
+  if (!permissions.includes(1)) {
+    return (
+      <main className={styles.layout}>
+        <div className={styles.content}>
+          <div style={{ color: "red" }}>You do not have permission to submit audits.</div>
+        </div>
+      </main>
+    );
+  }
 
   const handleSubmit = () => {
     const roomId = localStorage.getItem('current_room_id');
@@ -128,7 +149,7 @@ export function AuditSummary() {
         notes
       });
     } catch (error) {
-      setError('Failed to prepare audit data');
+      setError(error instanceof Error ? error.message : 'Failed to prepare audit data');
     }
   };
 

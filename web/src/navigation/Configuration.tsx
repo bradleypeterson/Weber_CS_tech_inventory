@@ -52,7 +52,7 @@ export const configuration: RouteConfiguration = [
     menu: [
       {
         type: "dashboard",
-        availability: () => true,
+        availability: ({ permissions }) => permissions.includes(1),
         label: "Initiate Audit",
         element: <AuditInitiateDashboard />,
         tabs: [
@@ -67,7 +67,7 @@ export const configuration: RouteConfiguration = [
       },
       {
         type: "dashboard",
-        availability: () => true,
+        availability: ({ permissions }) => permissions.includes(1),
         label: "History",
         element: <AuditHistoryDashboard />,
         tabs: [{ type: "tab", label: "Details", element: <AuditDetailsDashboard /> }]

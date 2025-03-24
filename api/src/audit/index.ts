@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { RequestHandler, Router } from "express";
 import { getEquipmentForRoom } from "./equipment";
 import { getAuditHistory } from "./history";
 import { initiateAudit } from "./initiate";
@@ -7,8 +7,9 @@ import { submitAudit } from "./submit";
 
 export const auditRouter = Router();
 
-auditRouter.post("/initiate", initiateAudit);
-auditRouter.get("/equipment/:roomId", getEquipmentForRoom);
-auditRouter.post("/scan-item", scanItem);
-auditRouter.post("/submit", submitAudit);
-auditRouter.get("/history", getAuditHistory); 
+// Define routes with proper typing
+auditRouter.post("/initiate", initiateAudit as RequestHandler);
+auditRouter.get("/equipment/:roomId", getEquipmentForRoom as RequestHandler);
+auditRouter.post("/scan-item", scanItem as RequestHandler);
+auditRouter.post("/submit", submitAudit as RequestHandler);
+auditRouter.get("/history", getAuditHistory as RequestHandler);

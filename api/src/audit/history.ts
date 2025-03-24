@@ -3,62 +3,59 @@ import type { RowDataPacket } from "mysql2";
 import { pool } from "../db";
 
 interface AuditHistoryRow extends RowDataPacket {
-  AuditTime: Date;
-  BuildingName: string;
-  RoomNumber: string;
-  AuditorName: string;
-  ItemsMissing: boolean;
+  date: string;
+  building: string;
+  room: string;
+  auditor: string;
+  itemsMissing: boolean;
 }
 
 export async function getAuditHistory(req: Request, res: Response) {
   try {
     const query = `
       SELECT DISTINCT
-        a.AuditTime as AuditDate,
-        b.Name as BuildingName,
-        l.RoomNumber,
-        CONCAT(p.FirstName, ' ', p.LastName) as AuditorName,
+        a.AuditID,
+        DATE_FORMAT(a.AuditTime, '%c/%e/%Y') as date,
+        b.Name as building,
+        l.RoomNumber as room,
+        CONCAT(p.FirstName, ' ', p.LastName) as auditor,
         EXISTS (
           SELECT 1 
-          FROM Audit a2 
-          WHERE a2.AuditTime = a.AuditTime
-          AND a2.CreatedBy = a.CreatedBy
-          AND a2.AuditStatusID = 3
-        ) as ItemsMissing
+          FROM AuditDetails ad2 
+          WHERE ad2.AuditID = a.AuditID 
+          AND ad2.AuditStatusID = 3
+        ) as itemsMissing
       FROM Audit a
-      JOIN Equipment e ON a.EquipmentID = e.EquipmentID
-      JOIN Location l ON e.LocationID = l.LocationID
+      JOIN Location l ON a.LocationID = l.LocationID
       JOIN Building b ON l.BuildingID = b.BuildingID
       JOIN User u ON a.CreatedBy = u.UserID
       JOIN Person p ON u.PersonID = p.PersonID
-      GROUP BY a.AuditTime, a.CreatedBy, l.LocationID
+      LEFT JOIN AuditDetails ad ON a.AuditID = ad.AuditID
+      GROUP BY a.AuditID, date, building, room, auditor
       ORDER BY a.AuditTime DESC
       LIMIT 100
     `;
 
     const [rows] = await pool.query<AuditHistoryRow[]>(query);
 
-    res.json({
-      status: "success",
-      data: rows.map(row => {
-        const date = new Date(row.AuditDate);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return {
-          date: `${year}-${month}-${day}`,
-          building: row.BuildingName,
-          room: row.RoomNumber,
-          auditor: row.AuditorName,
-          itemsMissing: Boolean(row.ItemsMissing)
-        };
-      })
+    // Ensure the response matches the expected format
+    const formattedData = rows.map(row => ({
+      date: row.date,
+      building: row.building,
+      room: row.room,
+      auditor: row.auditor,
+      itemsMissing: Boolean(row.itemsMissing)
+    }));
+
+    res.json({ 
+      status: "success", 
+      data: formattedData 
     });
   } catch (error) {
     console.error("Error in getAuditHistory:", error);
-    res.status(500).json({
-      status: "error",
-      error: { message: "Failed to fetch audit history" }
+    res.status(500).json({ 
+      status: "error", 
+      error: { message: "Failed to get audit history" } 
     });
   }
 } 

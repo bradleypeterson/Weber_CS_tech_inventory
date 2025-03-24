@@ -1,5 +1,5 @@
 import { ArrowRight, Barcode } from "@phosphor-icons/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useSearchParams } from "react-router-dom";
 import type { APIResponse } from "../../../../@types/api";
@@ -9,6 +9,7 @@ import { IconInput } from "../../elements/IconInput/IconInput";
 import { Modal } from "../../elements/Modal/Modal";
 import { Column, Table } from "../../elements/Table/Tables";
 import { useFilters } from "../../filters/useFilters";
+import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./NewAudit.module.css";
 
@@ -29,6 +30,7 @@ interface EquipmentDetailsRow {
 }
 
 export function NewAudit() {
+  const { permissions } = useAuth();
   const linkTo = useLinkTo();
   const { filters } = useFilters();
   const [searchParams] = useSearchParams();
@@ -43,89 +45,10 @@ export function NewAudit() {
   const [addedItems, setAddedItems] = useState<EquipmentDetailsRow[]>([]);
   const [notes, setNotes] = useState<string[]>([]);
   const queryClient = useQueryClient();
-  const hasLoadedFromStorage = useRef(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Handle navigation attempts
-  const handleNavigationAttempt = (destination: string) => {
-    if (addedItems.length > 0 || Object.keys(itemStatuses).length > 0) {
-      setIsNavigationModalOpen(true);
-      setPendingNavigation(destination);
-    } else {
-      handleNavigate(destination);
-    }
-  };
-
-  const handleNavigate = (destination: string) => {
-    // Only clear state when explicitly starting a new audit or canceling
-    if (destination === "Initiate Audit") {
-      clearAllState();
-    }
-    
-    linkTo(destination, destination === "Initiate Audit" ? ["Audits"] : undefined);
-  };
-
-  // Check if we're returning from summary page or refreshing
-  useEffect(() => {
-    const storedRoomId = localStorage.getItem('current_room_id');
-    
-    // If we have a roomId and it matches the stored room, restore state
-    if (roomId && storedRoomId === roomId) {
-      const savedItems = localStorage.getItem(`audit_added_items_${roomId}`);
-      const savedNotes = localStorage.getItem(`audit_notes_${roomId}`);
-      const savedStatuses = localStorage.getItem(`audit_item_statuses_${roomId}`);
-
-      if (savedItems) {
-        try {
-          const items = JSON.parse(savedItems) as EquipmentDetailsRow[];
-          setAddedItems(items);
-          // Update the React Query cache with the added items
-          queryClient.setQueryData<APIResponse<EquipmentDetailsRow[]>>(
-            ["equipmentInRoom", roomId],
-            (oldData: APIResponse<EquipmentDetailsRow[]> | undefined) => {
-              if (!oldData || oldData.status !== "success") {
-                return {
-                  status: "success",
-                  data: items
-                };
-              }
-              // Combine existing data with added items, avoiding duplicates
-              const existingTagNumbers = new Set(oldData.data.map((item: EquipmentDetailsRow) => item.TagNumber));
-              const newItems = items.filter((item: EquipmentDetailsRow) => !existingTagNumbers.has(item.TagNumber));
-              return {
-                ...oldData,
-                data: [...oldData.data, ...newItems]
-              };
-            }
-          );
-        } catch (error) {
-          console.error('Error loading saved items:', error);
-        }
-      }
-
-      if (savedNotes) {
-        try {
-          setNotes(JSON.parse(savedNotes));
-        } catch (error) {
-          console.error('Error loading saved notes:', error);
-        }
-      }
-
-      if (savedStatuses) {
-        try {
-          setItemStatuses(JSON.parse(savedStatuses));
-        } catch (error) {
-          console.error('Error loading saved statuses:', error);
-        }
-      }
-    } else if (!storedRoomId) {
-      // Only clear state if there's no stored room ID (new audit)
-      clearAllState();
-    }
-  }, [roomId, queryClient]);
-
   // Function to clear all state and storage
-  const clearAllState = () => {
+  const clearAllState = useCallback(() => {
     // Clear localStorage
     const keys = Object.keys(localStorage);
     keys.forEach(key => {
@@ -145,32 +68,7 @@ export function NewAudit() {
 
     // Clear React Query cache for all equipment data
     queryClient.removeQueries(["equipmentInRoom"]);
-  };
-
-  // Save state to localStorage when it changes
-  useEffect(() => {
-    if (roomId) {
-      if (addedItems.length > 0) {
-        localStorage.setItem(`audit_added_items_${roomId}`, JSON.stringify(addedItems));
-      } else {
-        localStorage.removeItem(`audit_added_items_${roomId}`);
-      }
-
-      if (notes.length > 0) {
-        localStorage.setItem(`audit_notes_${roomId}`, JSON.stringify(notes));
-      } else {
-        localStorage.removeItem(`audit_notes_${roomId}`);
-      }
-
-      if (Object.keys(itemStatuses).length > 0) {
-        localStorage.setItem(`audit_item_statuses_${roomId}`, JSON.stringify(itemStatuses));
-        localStorage.setItem('current_room_id', roomId);
-      } else {
-        localStorage.removeItem(`audit_item_statuses_${roomId}`);
-        localStorage.removeItem('current_room_id');
-      }
-    }
-  }, [addedItems, notes, itemStatuses, roomId]);
+  }, [queryClient]);
 
   const { data: equipmentData, isLoading } = useQuery<APIResponse<EquipmentDetailsRow[]>>(
     ["equipmentInRoom", roomId],
@@ -378,6 +276,90 @@ export function NewAudit() {
     linkTo("Audit Summary", ["Audits", "Initiate Audit"]);
   };
 
+  // Check if we're returning from summary page or refreshing
+  useEffect(() => {
+    const storedRoomId = localStorage.getItem('current_room_id');
+    
+    // If we have a roomId and it matches the stored room, restore state
+    if (roomId && storedRoomId === roomId) {
+      const savedItems = localStorage.getItem(`audit_added_items_${roomId}`);
+      const savedNotes = localStorage.getItem(`audit_notes_${roomId}`);
+      const savedStatuses = localStorage.getItem(`audit_item_statuses_${roomId}`);
+
+      if (savedItems) {
+        try {
+          const items = JSON.parse(savedItems) as EquipmentDetailsRow[];
+          setAddedItems(items);
+          // Update the React Query cache with the added items
+          queryClient.setQueryData<APIResponse<EquipmentDetailsRow[]>>(
+            ["equipmentInRoom", roomId],
+            (oldData: APIResponse<EquipmentDetailsRow[]> | undefined) => {
+              if (!oldData || oldData.status !== "success") {
+                return {
+                  status: "success",
+                  data: items
+                };
+              }
+              // Combine existing data with added items, avoiding duplicates
+              const existingTagNumbers = new Set(oldData.data.map((item: EquipmentDetailsRow) => item.TagNumber));
+              const newItems = items.filter((item: EquipmentDetailsRow) => !existingTagNumbers.has(item.TagNumber));
+              return {
+                ...oldData,
+                data: [...oldData.data, ...newItems]
+              };
+            }
+          );
+        } catch (error) {
+          console.error('Error loading saved items:', error);
+        }
+      }
+
+      if (savedNotes) {
+        try {
+          setNotes(JSON.parse(savedNotes));
+        } catch (error) {
+          console.error('Error loading saved notes:', error);
+        }
+      }
+
+      if (savedStatuses) {
+        try {
+          setItemStatuses(JSON.parse(savedStatuses));
+        } catch (error) {
+          console.error('Error loading saved statuses:', error);
+        }
+      }
+    } else if (!storedRoomId) {
+      // Only clear state if there's no stored room ID (new audit)
+      clearAllState();
+    }
+  }, [roomId, queryClient, clearAllState]);
+
+  // Save state to localStorage when it changes
+  useEffect(() => {
+    if (roomId) {
+      if (addedItems.length > 0) {
+        localStorage.setItem(`audit_added_items_${roomId}`, JSON.stringify(addedItems));
+      } else {
+        localStorage.removeItem(`audit_added_items_${roomId}`);
+      }
+
+      if (notes.length > 0) {
+        localStorage.setItem(`audit_notes_${roomId}`, JSON.stringify(notes));
+      } else {
+        localStorage.removeItem(`audit_notes_${roomId}`);
+      }
+
+      if (Object.keys(itemStatuses).length > 0) {
+        localStorage.setItem(`audit_item_statuses_${roomId}`, JSON.stringify(itemStatuses));
+        localStorage.setItem('current_room_id', roomId);
+      } else {
+        localStorage.removeItem(`audit_item_statuses_${roomId}`);
+        localStorage.removeItem('current_room_id');
+      }
+    }
+  }, [addedItems, notes, itemStatuses, roomId]);
+
   // Also check and update error message whenever filtered data or statuses change
   useEffect(() => {
     const itemsWithoutStatus = filteredData.filter((item: EquipmentDetailsRow) => item.status === undefined || item.status === null);
@@ -385,6 +367,35 @@ export function NewAudit() {
       setSubmitError(null);
     }
   }, [filteredData]);
+
+  if (!permissions.includes(1)) {
+    return (
+      <main className={styles.layout}>
+        <div className={styles.row}>
+          <div style={{ color: "red" }}>You do not have permission to perform audits.</div>
+        </div>
+      </main>
+    );
+  }
+
+  // Handle navigation attempts
+  const handleNavigationAttempt = (destination: string) => {
+    if (addedItems.length > 0 || Object.keys(itemStatuses).length > 0) {
+      setIsNavigationModalOpen(true);
+      setPendingNavigation(destination);
+    } else {
+      handleNavigate(destination);
+    }
+  };
+
+  const handleNavigate = (destination: string) => {
+    // Only clear state when explicitly starting a new audit or canceling
+    if (destination === "Initiate Audit") {
+      clearAllState();
+    }
+    
+    linkTo(destination, destination === "Initiate Audit" ? ["Audits"] : undefined);
+  };
 
   if (isLoading) return <div>Loading...</div>;
 

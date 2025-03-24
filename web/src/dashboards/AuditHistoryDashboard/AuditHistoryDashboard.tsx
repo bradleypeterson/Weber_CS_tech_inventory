@@ -7,6 +7,7 @@ import { get } from "../../api/helpers";
 import { Column, DynamicTable } from "../../elements/DynamicTable/DynamicTable";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
+import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./AuditHistoryDashboard.module.css";
 
@@ -81,6 +82,7 @@ function BuildColumns(linkTo: ReturnType<typeof useLinkTo>) {
 
 export function AuditHistoryDashboard() {
   const linkTo = useLinkTo();
+  const { permissions } = useAuth();
   const { data: auditHistory, isLoading, error } = useQuery<ApiResponse>(
     "auditHistory",
     async () => {
@@ -105,6 +107,16 @@ export function AuditHistoryDashboard() {
     },
     [searchText, auditHistory]
   );
+
+  if (!permissions.includes(1)) {
+    return (
+      <main className={styles.layout}>
+        <div className={styles.row}>
+          <div style={{ color: "red" }}>You do not have permission to view audit history.</div>
+        </div>
+      </main>
+    );
+  }
 
   if (isLoading) {
     return <div>Loading...</div>;

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useMutation } from "react-query";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
+import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./AuditInitiateDashboard.module.css";
 
@@ -18,6 +19,7 @@ interface AuditResponse {
 }
 
 export function AuditInitiateDashboard() {
+  const { permissions } = useAuth();
   const [barcode, setBarcode] = useState("");
   const [error, setError] = useState("");
   const linkTo = useLinkTo();  
@@ -71,6 +73,16 @@ export function AuditInitiateDashboard() {
       setError("Room not found");
     }
   });
+
+  if (!permissions.includes(1)) {
+    return (
+      <main className={styles.layout}>
+        <div className={styles.row}>
+          <div style={{ color: "red" }}>You do not have permission to initiate audits.</div>
+        </div>
+      </main>
+    );
+  }
 
   const handleSubmit = () => {
     if (!barcode) return;

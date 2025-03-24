@@ -4,19 +4,33 @@ import { Notes } from "../../components/Notes/Notes";
 import { Button } from "../../elements/Button/Button";
 import { Column, DynamicTable } from "../../elements/DynamicTable/DynamicTable";
 import { IconInput } from "../../elements/IconInput/IconInput";
+import { useAuth } from "../../hooks/useAuth";
 import styles from "./AuditDetailsDashboard.module.css";
 
 export function AuditDetailsDashboard() {
+  const { permissions } = useAuth();
   const [searchText, setSearchText] = useState("");
   const filteredData = useMemo(
     () => data.filter((row) => Object.values(row).some((value) => value.toString().toLowerCase().includes(searchText))),
     [searchText]
   );
 
+  if (!permissions.includes(1)) {
+    return (
+      <main className={styles.layout}>
+        <div className={styles.row}>
+          <div style={{ color: "red" }}>You do not have permission to view audit details.</div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className={styles.layout}>
       <div className={styles.row}>
-        <h2>Audit History</h2>
+        <div>
+          <h2>Audit Details</h2>
+        </div>
         <Button icon={<Export />} variant="secondary" style={{ width: "fit-content" }}>
           Export
         </Button>
