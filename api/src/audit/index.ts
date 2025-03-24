@@ -1,6 +1,6 @@
 import { RequestHandler, Router } from "express";
 import { getEquipmentForRoom } from "./equipment";
-import { getAuditHistory } from "./history";
+import { getAuditDetails, getAuditHistory } from "./history";
 import { initiateAudit } from "./initiate";
 import { scanItem } from "./scan-item";
 import { submitAudit } from "./submit";
@@ -13,3 +13,4 @@ auditRouter.get("/equipment/:roomId", getEquipmentForRoom as RequestHandler);
 auditRouter.post("/scan-item", scanItem as RequestHandler);
 auditRouter.post("/submit", submitAudit as RequestHandler);
 auditRouter.get("/history", getAuditHistory as RequestHandler);
+auditRouter.get("/history/:id", getAuditDetails as RequestHandler);

@@ -3,6 +3,7 @@ import type { RowDataPacket } from "mysql2";
 import { pool } from "../db";
 
 interface AuditHistoryRow extends RowDataPacket {
+  auditId: number;
   date: string;
   building: string;
   room: string;
@@ -10,11 +11,20 @@ interface AuditHistoryRow extends RowDataPacket {
   itemsMissing: boolean;
 }
 
+interface AuditDetailRow extends RowDataPacket {
+  tag_number: string;
+  department: string;
+  asset_class: string;
+  device_type: string;
+  contact_person: string;
+  status: string;
+}
+
 export async function getAuditHistory(req: Request, res: Response) {
   try {
     const query = `
       SELECT DISTINCT
-        a.AuditID,
+        a.AuditID as auditId,
         DATE_FORMAT(a.AuditTime, '%c/%e/%Y') as date,
         b.Name as building,
         l.RoomNumber as room,
@@ -38,8 +48,8 @@ export async function getAuditHistory(req: Request, res: Response) {
 
     const [rows] = await pool.query<AuditHistoryRow[]>(query);
 
-    // Ensure the response matches the expected format
     const formattedData = rows.map(row => ({
+      auditId: row.auditId,
       date: row.date,
       building: row.building,
       room: row.room,
@@ -56,6 +66,58 @@ export async function getAuditHistory(req: Request, res: Response) {
     res.status(500).json({ 
       status: "error", 
       error: { message: "Failed to get audit history" } 
+    });
+  }
+}
+
+export async function getAuditDetails(req: Request, res: Response) {
+  try {
+    const auditId = Number(req.params.id);
+    
+    if (isNaN(auditId)) {
+      return res.status(400).json({
+        status: "error",
+        error: { message: "Invalid audit ID" }
+      });
+    }
+
+    const query = `
+      SELECT 
+        e.TagNumber as tag_number,
+        d.Name as department,
+        ac.Name as asset_class,
+        dt.Name as device_type,
+        CONCAT(p.FirstName, ' ', p.LastName) as contact_person,
+        ast.StatusName as status,
+        a.AuditTime as audit_time,
+        b.Abbreviation as building,
+        l.RoomNumber as room,
+        CONCAT(u.FirstName, ' ', u.LastName) as created_by
+      FROM AuditDetails ad
+      JOIN Equipment e ON ad.EquipmentID = e.EquipmentID
+      JOIN Audit a ON ad.AuditID = a.AuditID
+      JOIN Location l ON a.LocationID = l.LocationID
+      JOIN Building b ON l.BuildingID = b.BuildingID
+      JOIN Person u ON a.CreatedBy = u.PersonID
+      LEFT JOIN Department d ON e.DepartmentID = d.DepartmentID
+      LEFT JOIN AssetClass ac ON e.AssetClassID = ac.AssetClassID
+      LEFT JOIN DeviceType dt ON e.DeviceTypeID = dt.DeviceTypeID
+      LEFT JOIN Person p ON e.ContactPersonID = p.PersonID
+      LEFT JOIN AuditStatus ast ON ad.AuditStatusID = ast.AuditStatusID
+      WHERE ad.AuditID = ?
+    `;
+
+    const [rows] = await pool.query<AuditDetailRow[]>(query, [auditId]);
+
+    res.json({ 
+      status: "success", 
+      data: rows 
+    });
+  } catch (error) {
+    console.error("Error in getAuditDetails:", error);
+    res.status(500).json({ 
+      status: "error", 
+      error: { message: "Failed to get audit details" } 
     });
   }
 } 

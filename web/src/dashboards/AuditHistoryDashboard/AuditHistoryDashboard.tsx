@@ -12,6 +12,7 @@ import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./AuditHistoryDashboard.module.css";
 
 type Data = {
+  auditId: number;
   date: string;
   building: string;
   room: string;
@@ -29,13 +30,14 @@ const auditHistorySchema: JSONSchemaType<Data[]> = {
   items: {
     type: "object",
     properties: {
+      auditId: { type: "number" },
       date: { type: "string" },
       building: { type: "string" },
       room: { type: "string" },
       auditor: { type: "string" },
       itemsMissing: { type: "boolean" }
     },
-    required: ["date", "building", "room", "auditor", "itemsMissing"]
+    required: ["auditId", "date", "building", "room", "auditor", "itemsMissing"]
   }
 };
 
@@ -45,9 +47,9 @@ function BuildColumns(linkTo: ReturnType<typeof useLinkTo>) {
   const columns: Column<Data>[] = [
     {
       label: "",
-      render: () => (
+      render: (record: Data) => (
         <IconButton
-          onClick={() => linkTo("Details", ["Audits", "History"], "audit_id=3")}
+          onClick={() => linkTo("Details", ["Audits", "History"], `audit_id=${record.auditId}`)}
           icon={<Briefcase />}
           variant="secondary"
           style={{ color: "var(--secondary-background)" }}
@@ -128,8 +130,10 @@ export function AuditHistoryDashboard() {
 
   return (
     <main className={styles.layout}>
-      <div className={styles.row}>
+      <div className={styles.header}>
         <h2>Audit History</h2>
+      </div>
+      <div className={styles.searchContainer}>
         <IconInput
           icon={<MagnifyingGlass />}
           width="200px"
