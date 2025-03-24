@@ -70,6 +70,7 @@ export const configuration: RouteConfiguration = [
         availability: ({ permissions }) => permissions.includes(1),
         label: "History",
         element: <AuditHistoryDashboard />,
+        filters: ["Date", "Building", "Room", "Auditor", "Status"],
         tabs: [{ type: "tab", label: "Details", element: <AuditDetailsDashboard /> }]
       }
     ],
