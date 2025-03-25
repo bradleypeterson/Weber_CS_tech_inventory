@@ -46,6 +46,7 @@ export async function getUserDetails(userId: string) {
 
     const [rows] = await pool.query<UserDetailsRow[]>(query, [userId]);
     if (rows.length === 0) return null;
+    console.log(rows[0]);
     return rows[0];
   } catch (error) {
     console.error(`Database error in getUserDetails: `, error);

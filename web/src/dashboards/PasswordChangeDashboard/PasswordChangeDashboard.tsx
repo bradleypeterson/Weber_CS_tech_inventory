@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
+import { useSearchParams } from "react-router";
 import { fetchUserDetails } from "../../api/users";
 import { Button } from "../../elements/Button/Button";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
@@ -7,20 +8,28 @@ import { LabelInput } from "../../elements/LabelInput/LabelInput";
 import { MultiSelect } from "../../elements/MultiSelect/MultiSelect";
 import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
 import { TextArea } from "../../elements/TextArea/TextArea";
+import { useAuth } from "../../hooks/useAuth";
 import styles from "./PasswordChangeDashboard.module.css";
 
 type UserProps = {
-  personID: string | null;
+  personID: number | null;
   WNumber: string | null;
   Name: string | null;
+  selfChange: boolean;
 };
 
 export function PasswordChangeDashboard() {
-  //const [searchParams] = useSearchParams();
-  const personID = "1";//useMemo(() => searchParams.get("personID") ?? "", [searchParams]); 
+  const [searchParams] = useSearchParams();
+  const passedID = useMemo(() => searchParams.get("personID"), [searchParams]); 
+  const userID = Number(useAuth().personID);
+  const personID = Number(passedID ?? userID);
+  let selfChange = false;
+  if (!passedID) {
+     selfChange = true;
+  }
   const {data: userDetails, isLoading, isError} = useQuery({
     queryKey: ["User Details", personID],
-    queryFn: () => fetchUserDetails(Number(personID))
+    queryFn: () => fetchUserDetails(personID)
   });
   const WNumber = userDetails?.WNumber ?? null;
   const Name = userDetails?.Name ?? null;
@@ -29,6 +38,7 @@ export function PasswordChangeDashboard() {
     personID,
     WNumber,
     Name,
+    selfChange,
   };
 
   if (isLoading) return <>Loading</>;
@@ -38,8 +48,6 @@ export function PasswordChangeDashboard() {
     return <PasswordChangeView {...props}/>;
   return null;
 }
-
-
 
 function PasswordChangeView({ ...props }: UserProps) {
   const [formData, setFormData] = useState<
@@ -74,7 +82,7 @@ function PasswordChangeView({ ...props }: UserProps) {
   async function handleSubmit() {
     setIsSaving(true);
     const newErrors: Record<string, string> = {};
-    if (!formData.oldPassword) {
+    if (!formData.oldPassword && !props.selfChange) {
       newErrors.oldPassword = "Old password is required";
     }
     if (!formData.newPassword1) {
@@ -93,16 +101,26 @@ function PasswordChangeView({ ...props }: UserProps) {
     try {
       // Create new salt
       const newSalt = CryptoJS.lib.WordArray.random(10).toString(CryptoJS.enc.Hex);
-
-      const userData = {
-        personID: Number(props.personID),
-        WNumber: props.WNumber,
-        Name: props.Name,
-        oldPassword: formData.oldPassword,
-        newPassword: formData.newPassword2,
-        newSalt,
-        updateType: "personal",
-      };
+      let userData = {};
+      if (props.selfChange) {
+        userData = {
+          personID: Number(props.personID),
+          WNumber: props.WNumber,
+          oldPassword: formData.oldPassword,
+          newPassword: formData.newPassword2,
+          newSalt,
+          updateType: "personal",
+        };
+      }
+      else {
+        userData = {
+          personID: props.personID,
+          WNumber: props.WNumber,
+          newPassword: formData.newPassword2,
+          newSalt,
+          updateType: "admin",
+        };
+      }
 
       // Call function to update password
       setIsSaving(true);
@@ -126,6 +144,8 @@ function PasswordChangeView({ ...props }: UserProps) {
       console.error("Password change failed:", error);
     }
   }
+
+  const formStructure = useMemo(() => buildFormStructure({ ...props }), [props]);
 
   return (
     <main className={styles.layout}>
@@ -236,11 +256,15 @@ type Column = {
   inputs: UserInputField[];
 };
 
-const formStructure: Column[] = [
+function buildFormStructure( props: UserProps ): Column[] {
+  const formStructure: Column[] = [
   {
     title: "",
     inputs: [
-      { name: "oldPassword", label: "Old Password", inputType: "input", },
+      // ...(props.selfChange
+      //   ? [{ name: "oldPassword", label: "Old Password", inputType: "input" }]
+      //   : []),
+      { name: "oldPassword", label: "Old Password", inputType: "input" },
       { name: "newPassword1", label: "New Password", inputType: "input" },
       { name: "newPassword2", label: "Confirm New Password", inputType: "input" },
       { name: "passwordsMatch", label: "Passwords Match", inputType: "checkbox" },
@@ -251,3 +275,5 @@ const formStructure: Column[] = [
     ]
   },
 ];
+return formStructure;
+}

@@ -16,7 +16,7 @@ export async function login(req: Request, res: Response) {
     // Correct password
     delete user.HashedPassword;
     const token = createToken(user);
-    res.json({ status: "success", data: { token, permissions: user.Permissions } });
+    res.json({ status: "success", data: { token, permissions: user.Permissions, personID: user.PersonID } });
     return;
   }
 

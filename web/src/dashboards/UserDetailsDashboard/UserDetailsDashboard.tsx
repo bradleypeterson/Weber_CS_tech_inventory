@@ -159,7 +159,7 @@ function UserDetailsView({ personID, ...props }: DetailsViewProps) {
             <Button 
               style={{ width: "200px" }} 
               variant={"secondary"} 
-              onClick={() => linkTo("Change Password", ["Admin", "Users"], "personID=personID")}>
+              onClick={() => linkTo("Change Password", ["Admin", "Users"], `personID=${personID}`)}>
                 Change User Password
             </Button>}
       </div>
@@ -178,10 +178,23 @@ function EmptyUserDetailsView({ personID, ...props }: DetailsViewProps) {
     name: string,
     value: string | string[] | (string | number)[] | number[] | boolean | number
   ) {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData((prev) => {
+      const newFormData = {
+        ...prev,
+        [name]: value,
+      };
+      // Check password criteria
+      const newPassword1 = newFormData.password1 as string;
+      const newPassword2 = newFormData.password2 as string;
+  
+      newFormData.passwordsMatch = newPassword1 === newPassword2;
+      newFormData.sixteenChars= newPassword1.length >= 16;
+      newFormData.number = /\d/.test(newPassword1);
+      newFormData.uppercase = /[A-Z]/.test(newPassword1);
+      newFormData.lowercase = /[a-z]/.test(newPassword1);
+  
+      return newFormData;
+    });
   }
 
   function handleSubmit() {
@@ -364,8 +377,8 @@ function buildFormStructure(details: DetailsViewProps, permissions: number[]): C
       {
       title: "Password",
       inputs: [
-        { name: "newPassword", label: "New Password", inputType: "input" },
-        { name: "confirmNewPassword", label: "Confirm New Password", inputType: "input" },
+        { name: "password1", label: "New Password", inputType: "input" },
+        { name: "password2", label: "Confirm New Password", inputType: "input" },
         { name: "passwordsMatch", label: "Passwords Match", inputType: "checkbox" },
         { name: "sixteenChars", label: "16 Characters", inputType: "checkbox" },
         { name: "number", label: "One Number", inputType: "checkbox" },
