@@ -14,7 +14,7 @@ export async function login(userId: string, password: string) {
 
   localStorage.setItem("token", loginResponse.data.token);
   localStorage.setItem("permissions", JSON.stringify(loginResponse.data.permissions));
-
+  localStorage.setItem("personID", loginResponse.data.personID.toString());
   return loginResponse;
 }
 
@@ -28,11 +28,12 @@ const saltResponseSchema: JSONSchemaType<{ salt: string }> = {
 
 const validateSaltResponse = ajv.compile(saltResponseSchema);
 
-const loginResponseSchema: JSONSchemaType<{ token: string; permissions: number[] }> = {
+const loginResponseSchema: JSONSchemaType<{ token: string; permissions: number[]; personID: number }> = {
   type: "object",
   properties: {
     token: { type: "string" },
-    permissions: { type: "array", items: { type: "number" } }
+    permissions: { type: "array", items: { type: "number" } },
+    personID: { type: "number" }
   },
   required: ["token"]
 };

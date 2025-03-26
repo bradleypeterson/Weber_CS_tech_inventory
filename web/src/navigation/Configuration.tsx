@@ -52,7 +52,7 @@ export const configuration: RouteConfiguration = [
     menu: [
       {
         type: "dashboard",
-        availability: () => true,
+        availability: ({ permissions }) => permissions.includes(1),
         label: "Initiate Audit",
         element: <AuditInitiateDashboard />,
         tabs: [
@@ -67,9 +67,10 @@ export const configuration: RouteConfiguration = [
       },
       {
         type: "dashboard",
-        availability: () => true,
+        availability: ({ permissions }) => permissions.includes(1),
         label: "History",
         element: <AuditHistoryDashboard />,
+        filters: ["Date", "Building", "Room", "Auditor", "Status"],
         tabs: [{ type: "tab", label: "Details", element: <AuditDetailsDashboard /> }]
       }
     ],
@@ -82,7 +83,7 @@ export const configuration: RouteConfiguration = [
     menu: [
       {
         type: "dashboard",
-        availability: () => true,
+        availability: ({ permissions }) => permissions.includes(6),
         label: "Users",
         element: <UserSearchDashboard />,
         filters: ["Permission", "Department"],
@@ -93,7 +94,7 @@ export const configuration: RouteConfiguration = [
       },
       {
         type: "dashboard",
-        availability: () => true,
+        availability: ({ permissions }) => permissions.includes(4),
         label: "Contacts",
         element: <ContactSearchDashboard />,
         filters: ["Department"],

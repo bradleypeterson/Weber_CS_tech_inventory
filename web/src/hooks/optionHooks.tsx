@@ -4,6 +4,7 @@ import { fetchBuildings } from "../api/buildings";
 import { fetchContactList } from "../api/contacts";
 import { fetchDepartments } from "../api/departments";
 import { fetchFiscalYears } from "../api/fiscalYears";
+import { fetchRooms } from "../api/rooms";
 
 export function useBuildings() {
   const { data, isLoading } = useQuery("Buildings", () => fetchBuildings());
@@ -12,6 +13,11 @@ export function useBuildings() {
 
 export function useDepartments() {
   const { data, isLoading } = useQuery("Departments", () => fetchDepartments());
+  return { data, isLoading };
+}
+
+export function useRooms() {
+  const { data, isLoading } = useQuery("Rooms", () => fetchRooms());
   return { data, isLoading };
 }
 

@@ -8,6 +8,7 @@ import { Column, DynamicTable } from "../../elements/DynamicTable/DynamicTable";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
 import { useFilters } from "../../filters/useFilters";
+import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./ContactSearchDashboard.module.css";
 
@@ -17,6 +18,7 @@ export function ContactSearchDashboard() {
   const linkTo = useLinkTo();
   const { data } = useQuery('ContactsList', () => fetchContactList());
   const {filters} = useFilters();
+  const { permissions } = useAuth();
 
   const filteredData = useMemo(() => {
     const filteredData = data?.filter(
@@ -47,7 +49,7 @@ export function ContactSearchDashboard() {
 }
 
   function handlePlusClick() {
-    linkTo("Details", ["Admin", "Contacts"]);
+     linkTo("Details", ["Admin", "Contacts"]);
   }
 
   function handleOnEdit() {
@@ -78,8 +80,8 @@ export function ContactSearchDashboard() {
     <main className={styles.layout}>
       <div className={styles.tableHeader}>
         <div className={styles.row}>
-          <IconButton icon={<Plus />} variant="secondary" onClick={handlePlusClick}/>
-          <IconButton icon={<Pencil />} variant="secondary" disabled={editDisabled} onClick={handleOnEdit} />
+          {permissions.includes(4) && <IconButton icon={<Plus />} variant="secondary" onClick={handlePlusClick}/>}
+          {permissions.includes(4) && <IconButton icon={<Pencil />} variant="secondary" disabled={editDisabled} onClick={handleOnEdit} />}
         </div>
         <IconInput
           icon={<MagnifyingGlass />}

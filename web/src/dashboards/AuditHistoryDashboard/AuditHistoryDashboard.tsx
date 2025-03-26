@@ -7,10 +7,13 @@ import { get } from "../../api/helpers";
 import { Column, DynamicTable } from "../../elements/DynamicTable/DynamicTable";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
+import { useFilters } from "../../filters/useFilters";
+import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./AuditHistoryDashboard.module.css";
 
 type Data = {
+  auditId: number;
   date: string;
   building: string;
   room: string;
@@ -28,13 +31,14 @@ const auditHistorySchema: JSONSchemaType<Data[]> = {
   items: {
     type: "object",
     properties: {
+      auditId: { type: "number" },
       date: { type: "string" },
       building: { type: "string" },
       room: { type: "string" },
       auditor: { type: "string" },
       itemsMissing: { type: "boolean" }
     },
-    required: ["date", "building", "room", "auditor", "itemsMissing"]
+    required: ["auditId", "date", "building", "room", "auditor", "itemsMissing"]
   }
 };
 
@@ -44,9 +48,9 @@ function BuildColumns(linkTo: ReturnType<typeof useLinkTo>) {
   const columns: Column<Data>[] = [
     {
       label: "",
-      render: () => (
+      render: (record: Data) => (
         <IconButton
-          onClick={() => linkTo("Details", ["Audits", "History"], "audit_id=3")}
+          onClick={() => linkTo("Details", ["Audits", "History"], `audit_id=${record.auditId}`)}
           icon={<Briefcase />}
           variant="secondary"
           style={{ color: "var(--secondary-background)" }}
@@ -81,6 +85,10 @@ function BuildColumns(linkTo: ReturnType<typeof useLinkTo>) {
 
 export function AuditHistoryDashboard() {
   const linkTo = useLinkTo();
+  const { permissions } = useAuth();
+  const { filters } = useFilters();
+  const [searchText, setSearchText] = useState("");
+
   const { data: auditHistory, isLoading, error } = useQuery<ApiResponse>(
     "auditHistory",
     async () => {
@@ -92,19 +100,43 @@ export function AuditHistoryDashboard() {
     }
   );
 
-  const [searchText, setSearchText] = useState("");
-
   const filteredData = useMemo(
     () => {
       if (!auditHistory?.data) return [];
-      return auditHistory.data.filter((row) => 
-        Object.values(row).some((value) => 
-          value.toString().toLowerCase().includes(searchText)
-        )
-      );
+      
+      return auditHistory.data
+        .filter((row) => {
+          const selectedDate = filters.Date?.[0];
+          const rowDate = new Date(row.date).toISOString().split('T')[0];
+          const dateMatch = !selectedDate || rowDate === selectedDate;
+          
+          const buildingId = parseInt(row.building, 10);
+          const roomId = parseInt(row.room, 10);
+          const buildingMatch = !filters.Building?.length || (buildingId && filters.Building.includes(buildingId));
+          const roomMatch = !filters.Room?.length || (roomId && filters.Room.includes(roomId));
+          const auditorMatch = !filters.Auditor?.length || row.auditor === "Matt Western"; // Temporary fix until we get auditor IDs
+          const statusMatch = !filters.Status?.length || filters.Status[0] === row.itemsMissing.toString();
+          
+          return dateMatch && buildingMatch && roomMatch && auditorMatch && statusMatch;
+        })
+        .filter((row) => 
+          Object.values(row).some((value) => 
+            value.toString().toLowerCase().includes(searchText)
+          )
+        );
     },
-    [searchText, auditHistory]
+    [searchText, auditHistory, filters]
   );
+
+  if (!permissions.includes(1)) {
+    return (
+      <main className={styles.layout}>
+        <div className={styles.row}>
+          <div style={{ color: "red" }}>You do not have permission to view audit history.</div>
+        </div>
+      </main>
+    );
+  }
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -116,8 +148,10 @@ export function AuditHistoryDashboard() {
 
   return (
     <main className={styles.layout}>
-      <div className={styles.row}>
+      <div className={styles.header}>
         <h2>Audit History</h2>
+      </div>
+      <div className={styles.searchContainer}>
         <IconInput
           icon={<MagnifyingGlass />}
           width="200px"

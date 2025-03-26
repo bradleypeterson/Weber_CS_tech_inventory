@@ -8,6 +8,10 @@ interface RoomRow extends RowDataPacket {
   Barcode: string;
 }
 
+interface AuditResult extends ResultSetHeader {
+  insertId: number;
+}
+
 export async function validateRoomBarcode(barcode: string): Promise<RoomRow | null> {
   try {
     console.log('Validating barcode:', barcode);
@@ -97,36 +101,62 @@ export async function createNote(createdBy: number, equipmentId: number, note: s
 
 export async function createNewAudit(
   createdBy: number, 
-  equipmentId: number, 
-  statusId: number, 
-  note: string,
+  locationId: number,
+  equipmentItems: Array<{
+    equipmentId: number;
+    statusId: number;
+    note: string;
+  }>,
   auditTime: Date = new Date()
 ): Promise<ResultSetHeader> {
   try {
-    const query = `
-      INSERT INTO Audit (
-        CreatedBy,
-        EquipmentID,
-        AuditTime,
-        AuditStatusID
-      ) VALUES (
-        ?,
-        ?,
-        ?,
-        ?
-      )
-    `;
-    const [result] = await pool.query<ResultSetHeader>(
-      query, 
-      [createdBy, equipmentId, auditTime, statusId]
-    );
-    
-    // If there's a note, create it in the note table
-    if (note) {
-      await createNote(createdBy, equipmentId, note);
+    // Start a transaction
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      // Create a single audit session for all items
+      const [auditResult] = await connection.execute<AuditResult>(
+        `INSERT INTO Audit (
+          CreatedBy,
+          LocationID,
+          AuditTime
+        ) VALUES (
+          ?,
+          ?,
+          ?
+        )`,
+        [createdBy, locationId, auditTime]
+      );
+      const auditId = auditResult.insertId;
+
+      // Create audit details for all items
+      const detailsPromises = equipmentItems.map(item => 
+        connection.execute(
+          `INSERT INTO AuditDetails (
+            AuditID,
+            EquipmentID,
+            AuditStatusID,
+            AuditNote
+          ) VALUES (
+            ?,
+            ?,
+            ?,
+            ?
+          )`,
+          [auditId, item.equipmentId, item.statusId, item.note]
+        )
+      );
+
+      await Promise.all(detailsPromises);
+      await connection.commit();
+      return auditResult;
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
     }
-    
-    return result;
   } catch (error) {
     console.error(`Error in createNewAudit:`, error);
     throw new Error("Failed to create new audit");
