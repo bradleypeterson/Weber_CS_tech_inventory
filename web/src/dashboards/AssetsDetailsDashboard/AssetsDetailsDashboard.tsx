@@ -175,10 +175,10 @@ function AssetDetailsView({ assetId, ...props }: DetailsViewProps) {
         </div>
         {isSaving && <>Saving...</>}
         {error && <span style={{ color: "red" }}>{error}</span>}
-        {permissions.includes(2) && !isEditing && (
+        {permissions.includes(1) && !isEditing && (
           <IconButton icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />
         )}
-        {permissions.includes(2) && isEditing && (
+        {permissions.includes(1) && isEditing && (
           <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} />
         )}
       </div>
