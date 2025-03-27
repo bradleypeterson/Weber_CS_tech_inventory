@@ -157,7 +157,7 @@ function UserDetailsView({ personID, ...props }: DetailsViewProps) {
       <div className={styles.Button}>
           {permissions.includes(6) && isEditing && 
             <Button 
-              style={{ width: "200px" }} 
+              style={{ width: "200px", marginTop: "20px" }} 
               variant={"secondary"} 
               onClick={() => linkTo("Change Password", ["Admin", "Users"], `personID=${personID}`)}>
                 Change User Password

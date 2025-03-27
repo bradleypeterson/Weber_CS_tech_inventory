@@ -1,4 +1,4 @@
-import type { RowDataPacket } from "mysql2";
+import { type RowDataPacket } from "mysql2";
 import { pool } from "..";
 
 interface SaltRow extends RowDataPacket {
@@ -46,10 +46,23 @@ export async function getUserDetails(userId: string) {
 
     const [rows] = await pool.query<UserDetailsRow[]>(query, [userId]);
     if (rows.length === 0) return null;
-    console.log(rows[0]);
     return rows[0];
   } catch (error) {
     console.error(`Database error in getUserDetails: `, error);
+    throw new Error("Database query failed");
+  }
+}
+
+export async function changePassword(userID: string, hashedNewPassword: string, newSalt: string) {
+  try {
+    const query = `
+      UPDATE user SET HashedPassword = ?, Salt = ? WHERE UserID = ?;
+    `;
+
+    const [result] = await pool.query(query, [hashedNewPassword, newSalt, userID]);
+
+  } catch (error) {
+    console.error(`Database error in changePassword: `, error);
     throw new Error("Database query failed");
   }
 }

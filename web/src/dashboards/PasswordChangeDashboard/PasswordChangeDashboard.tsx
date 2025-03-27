@@ -1,6 +1,8 @@
+import CryptoJS from "crypto-js";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useSearchParams } from "react-router";
+import { updatePassword } from "../../api/auth";
 import { fetchUserDetails } from "../../api/users";
 import { Button } from "../../elements/Button/Button";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
@@ -12,33 +14,41 @@ import { useAuth } from "../../hooks/useAuth";
 import styles from "./PasswordChangeDashboard.module.css";
 
 type UserProps = {
-  personID: number | null;
-  WNumber: string | null;
-  Name: string | null;
+  personID: string;
+  userID: string;
+  WNumber: string;
+  Name: string;
   selfChange: boolean;
 };
 
 export function PasswordChangeDashboard() {
   const [searchParams] = useSearchParams();
   const passedID = useMemo(() => searchParams.get("personID"), [searchParams]); 
-  const userID = Number(useAuth().personID);
-  const personID = Number(passedID ?? userID);
+  const loggedInPersonID = Number(useAuth().personID);
+  let personID = ""; 
   let selfChange = false;
-  if (!passedID) {
-     selfChange = true;
+  if (passedID === null) {
+    selfChange = true;
+    personID = loggedInPersonID.toString();
   }
+  else { personID = passedID.toString(); }
+  
+  
   const {data: userDetails, isLoading, isError} = useQuery({
     queryKey: ["User Details", personID],
-    queryFn: () => fetchUserDetails(personID)
+    queryFn: () => fetchUserDetails(Number(personID))
   });
-  const WNumber = userDetails?.WNumber ?? null;
-  const Name = userDetails?.Name ?? null;
+ 
+  const WNumber = userDetails?.WNumber ?? "";
+  const Name = userDetails?.Name ?? "";
+  const userID = userDetails?.UserID.toString() ?? "";
 
   const props: UserProps = {
-    personID,
-    WNumber,
-    Name,
-    selfChange,
+    personID: personID,
+    userID: userID,
+    WNumber: WNumber,
+    Name: Name,
+    selfChange: selfChange,
   };
 
   if (isLoading) return <>Loading</>;
@@ -69,12 +79,16 @@ function PasswordChangeView({ ...props }: UserProps) {
       const newPassword1 = newFormData.newPassword1 as string;
       const newPassword2 = newFormData.newPassword2 as string;
   
-      newFormData.passwordsMatch = newPassword1 === newPassword2;
-      newFormData.sixteenChars = newPassword1.length >= 16;
-      newFormData.number = /\d/.test(newPassword1);
-      newFormData.uppercase = /[A-Z]/.test(newPassword1);
-      newFormData.lowercase = /[a-z]/.test(newPassword1);
-  
+      if (newPassword1 !== undefined){
+        newFormData.sixteenChars = newPassword1.toString().length >= 16;
+        newFormData.number = /\d/.test(newPassword1);
+        newFormData.uppercase = /[A-Z]/.test(newPassword1);
+        newFormData.lowercase = /[a-z]/.test(newPassword1);
+      }
+      if (newPassword1 !== undefined && newPassword2 !== undefined){
+        newFormData.passwordsMatch = newPassword1 === newPassword2;
+      }
+      
       return newFormData;
     });
   }
@@ -82,7 +96,7 @@ function PasswordChangeView({ ...props }: UserProps) {
   async function handleSubmit() {
     setIsSaving(true);
     const newErrors: Record<string, string> = {};
-    if (!formData.oldPassword && !props.selfChange) {
+    if (!formData.oldPassword && props.selfChange) {
       newErrors.oldPassword = "Old password is required";
     }
     if (!formData.newPassword1) {
@@ -101,38 +115,26 @@ function PasswordChangeView({ ...props }: UserProps) {
     try {
       // Create new salt
       const newSalt = CryptoJS.lib.WordArray.random(10).toString(CryptoJS.enc.Hex);
-      let userData = {};
+      // password change type
+      let updateType = "admin";
+      let oldPassword = "";
       if (props.selfChange) {
-        userData = {
-          personID: Number(props.personID),
-          WNumber: props.WNumber,
-          oldPassword: formData.oldPassword,
-          newPassword: formData.newPassword2,
-          newSalt,
-          updateType: "personal",
-        };
-      }
-      else {
-        userData = {
-          personID: props.personID,
-          WNumber: props.WNumber,
-          newPassword: formData.newPassword2,
-          newSalt,
-          updateType: "admin",
-        };
+          updateType = "personal";
+          oldPassword = formData.oldPassword.toString();
       }
 
       // Call function to update password
       setIsSaving(true);
-      const response = await updatePassword(userData);
+      const response = await updatePassword(props.userID.toString(), oldPassword, formData.newPassword1.toString(), newSalt, updateType);
+      console.log(response);
       setIsSaving(false);
 
-      if (response.message) {
+      if (response?.status !== "error") {
         alert("Password Changed Successfully");
       } else {
         setErrors((prevErrors) => ({
           ...prevErrors,
-          passwordChangeError: "Old password incorrect",
+          passwordChangeError: "Password change failed",
         }));
         return;
       }
@@ -143,6 +145,7 @@ function PasswordChangeView({ ...props }: UserProps) {
       }));
       console.error("Password change failed:", error);
     }
+    setIsSaving(false);
   }
 
   const formStructure = useMemo(() => buildFormStructure({ ...props }), [props]);
@@ -165,7 +168,7 @@ function PasswordChangeView({ ...props }: UserProps) {
           ))}
         </div>
       )}
-      <form className={styles.inputFieldContainer} onSubmit={handleSubmit}>
+      <form className={styles.inputFieldContainer}>
         {formStructure.map((column) => (
           <div key={column.title} className={styles.formColumn}>
             <h3>{column.title}</h3>
@@ -179,12 +182,12 @@ function PasswordChangeView({ ...props }: UserProps) {
             ))}
           </div>
         ))}
-        <div className={styles.Button}>
-          <Button style={{ width: "200px" }} variant={"secondary"} type="submit" disabled={isSaving}>
+      </form>
+      <div className={styles.Button}>
+          <Button style={{ width: "200px", display: "flex", marginTop: "5px" }} onClick={handleSubmit} variant={"secondary"} type="submit" disabled={isSaving}>
             {isSaving ? "Saving..." : "Change Password"}
           </Button>
         </div>
-      </form>
     </main>
   );
 }
@@ -257,23 +260,39 @@ type Column = {
 };
 
 function buildFormStructure( props: UserProps ): Column[] {
-  const formStructure: Column[] = [
-  {
-    title: "",
-    inputs: [
-      // ...(props.selfChange
-      //   ? [{ name: "oldPassword", label: "Old Password", inputType: "input" }]
-      //   : []),
-      { name: "oldPassword", label: "Old Password", inputType: "input" },
-      { name: "newPassword1", label: "New Password", inputType: "input" },
-      { name: "newPassword2", label: "Confirm New Password", inputType: "input" },
-      { name: "passwordsMatch", label: "Passwords Match", inputType: "checkbox" },
-      { name: "sixteenChars", label: "16 Characters", inputType: "checkbox" },
-      { name: "number", label: "One Number", inputType: "checkbox" },
-      { name: "uppercase", label: "One Uppercase Letter", inputType: "checkbox" },
-      { name: "lowercase", label: "One Lowercase Letter", inputType: "checkbox" },
-    ]
-  },
-];
-return formStructure;
+  let formStructure: Column[] = [];
+  if (props.selfChange) {
+    formStructure= [
+    {
+      title: "",
+      inputs: [
+        { name: "oldPassword", label: "Old Password", inputType: "input" },
+        { name: "newPassword1", label: "New Password", inputType: "input" },
+        { name: "newPassword2", label: "Confirm New Password", inputType: "input" },
+        { name: "passwordsMatch", label: "Passwords Match", inputType: "checkbox" },
+        { name: "sixteenChars", label: "16 Characters", inputType: "checkbox" },
+        { name: "number", label: "One Number", inputType: "checkbox" },
+        { name: "uppercase", label: "One Uppercase Letter", inputType: "checkbox" },
+        { name: "lowercase", label: "One Lowercase Letter", inputType: "checkbox" },
+        ]
+      },
+    ];
+  }
+  else {
+    formStructure = [ 
+      {
+      title: "",
+      inputs: [
+        { name: "newPassword1", label: "New Password", inputType: "input" },
+        { name: "newPassword2", label: "Confirm New Password", inputType: "input" },
+        { name: "passwordsMatch", label: "Passwords Match", inputType: "checkbox" },
+        { name: "sixteenChars", label: "16 Characters", inputType: "checkbox" },
+        { name: "number", label: "One Number", inputType: "checkbox" },
+        { name: "uppercase", label: "One Uppercase Letter", inputType: "checkbox" },
+        { name: "lowercase", label: "One Lowercase Letter", inputType: "checkbox" },
+        ]
+      },
+    ];
+  }
+  return formStructure;
 }

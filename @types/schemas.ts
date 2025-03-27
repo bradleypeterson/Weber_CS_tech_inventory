@@ -213,6 +213,7 @@ export const userOverviewArraySchema: JSONSchemaType<UserOverview[]> = {
 export const userSchema: JSONSchemaType<User> = {
   type: "object",
   properties: {
+    UserID: { type: "number" },
     WNumber: { type: "string" },
     Name: { type: "string" },
     FirstName: { type: "string" },
@@ -235,6 +236,7 @@ export const userSchema: JSONSchemaType<User> = {
     Permission7: { type: "number" },
   },
   required: [
+    "UserID",
     "WNumber",
     "Name",
     "FirstName",

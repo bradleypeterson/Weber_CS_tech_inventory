@@ -120,6 +120,7 @@ type ContactOverview = {
 };
 
 type User = {
+  UserID: number;
   WNumber: string;
   Name: string;
   FirstName: string;

@@ -33,7 +33,8 @@ export async function getUserDetails(personID: number): Promise<User | undefined
   try {
     const query = `
       SELECT 
-        WNumber, 
+      u.UserID,   
+      WNumber,
         CONCAT(FirstName, " ", LastName) as Name, 
         FirstName,
         LastName, 

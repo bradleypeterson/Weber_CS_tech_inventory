@@ -39,3 +39,28 @@ const loginResponseSchema: JSONSchemaType<{ token: string; permissions: number[]
 };
 
 const validateLoginResponse = ajv.compile(loginResponseSchema);
+
+export async function updatePassword( userID: string, oldPassword: string, newPassword: string, newSalt: string, updateType: string) {
+  const hashedNewPassword = sha256(newPassword + newSalt).toString();
+  let hashedOldPassword = "";
+
+  if (updateType === "personal") {
+    // personal accounts provide current password
+    const saltResponse = await get(`/auth/salt?userId=${userID}`, validateSaltResponse);
+    if (saltResponse.status === "error") return saltResponse;
+    hashedOldPassword = sha256(oldPassword + saltResponse.data.salt).toString();
+  } 
+  const passwordChangeResponse = await post("/auth/updatePassword", { userID, hashedOldPassword, hashedNewPassword, newSalt, updateType }, validatePasswordChangeResponse);
+  console.log("Response: ", passwordChangeResponse);
+  return passwordChangeResponse;
+}
+
+const passwordChangeResponseSchema: JSONSchemaType< {userID: string}>= {
+  type: "object",
+  properties: {
+    userID: { type: "string" },
+  },
+  required: ["userID"],
+};
+
+const validatePasswordChangeResponse = ajv.compile(passwordChangeResponseSchema);
