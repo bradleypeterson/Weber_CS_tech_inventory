@@ -1,9 +1,9 @@
-import { Check, Pencil } from "@phosphor-icons/react";
+import { Check, Pencil, Plus } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useSearchParams } from "react-router";
 import { Building, Department, Room } from "../../../../@types/data";
-import { fetchContactDetails, updateContactDetails } from "../../api/contacts";
+import { addContactDetails, fetchContactDetails, updateContactDetails } from "../../api/contacts";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { LabelInput } from "../../elements/LabelInput/LabelInput";
@@ -15,6 +15,7 @@ import {
   useDepartments,
   useRooms,
 } from "../../hooks/optionHooks";
+import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./ContactDetailsDashboard.module.css";
 
 
@@ -97,6 +98,7 @@ function ContactDetailsView({...props }: DetailsViewProps) {
   }
 
   async function handleSubmit() {
+    setError("");
     let changedFields: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>;
     if (contactDetails === undefined) changedFields = formData;
     else changedFields = getChangedFields(contactDetails, formData);
@@ -104,16 +106,30 @@ function ContactDetailsView({...props }: DetailsViewProps) {
       setIsEditing(false);
       return;
     }
+    
+    // Sanitize fields to ensure no null values
+  const sanitizedFields = Object.fromEntries(
+    Object.entries(formData).map(([key, value]) => [key, value ?? ""])
+  );
   
-    setIsSaving(true);setIsSaving(true);
-    if (!(await updateContactDetails(Number(props.personID), changedFields)))
-      setError("An error occurred while updating this contact");
-    else {
-      setError("");
-      setIsEditing(false);
-    }
+  const WNumber = sanitizedFields.WNumber as string;
+  const FirstName = sanitizedFields.FirstName as string;
+  const LastName = sanitizedFields.LastName as string;
+  const DepartmentID = sanitizedFields.DepartmentID as number[];
+  const BuildingID = sanitizedFields.BuildingID as number;
+  const RoomNumber = sanitizedFields.RoomNumber as string;
+    
+  setIsSaving(true);
+  const response = await updateContactDetails(props.personID ?? "", WNumber, FirstName, LastName, DepartmentID, BuildingID, RoomNumber)
+  
+  if (response.status === "error")
+    setError("An error occurred while updating this contact");
+  else {
+    setError("");
+    setIsEditing(false);
+  }
 
-    setIsSaving(false);
+  setIsSaving(false);
   }
 
   const formStructure = useMemo(() => buildFormStructure({ ...props }), [props]);
@@ -126,7 +142,7 @@ function ContactDetailsView({...props }: DetailsViewProps) {
       <div className={styles.row}>
         <div>
           <h2>Contact Details</h2>
-          <p> {contactDetails?.Name} | {contactDetails?.WNumber}</p>
+          <p> {contactDetails?.FullName} | {contactDetails?.WNumber}</p>
         </div>
         {isSaving && <>Saving...</>}
         {error && <span style={{ color: "red" }}>{error}</span>}
@@ -154,9 +170,14 @@ function ContactDetailsView({...props }: DetailsViewProps) {
 }
 
 function EmptyContactDetailsView({...props }: DetailsViewProps) {
+  const linkTo  = useLinkTo();
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number>
   >({});
+
+  const [isEditing, setIsEditing] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
 
   function handleInputChange(
     name: string,
@@ -168,8 +189,41 @@ function EmptyContactDetailsView({...props }: DetailsViewProps) {
     }));
   }
 
-  function handleSubmit() {
-    console.log("SUBMIT");
+  function handlePlusClick() {
+    linkTo("Details", ["Admin", "Contacts"]);
+  }
+
+  async function handleSubmit() {
+    const changedFields = formData;
+    
+    if (Object.keys(changedFields).length < 6) {
+      setError("Please enter all contact details before saving.")
+      return;
+    }
+    
+    // Sanitize fields to ensure no null values
+    const sanitizedFields = Object.fromEntries(
+      Object.entries(formData).map(([key, value]) => [key, value ?? ""])
+    );
+    
+    const WNumber = sanitizedFields.WNumber as string;
+    const FirstName = sanitizedFields.FirstName as string;
+    const LastName = sanitizedFields.LastName as string;
+    const DepartmentID = sanitizedFields.DepartmentID as number[];
+    const BuildingID = sanitizedFields.BuildingID as number;
+    const RoomNumber = sanitizedFields.RoomNumber as string;
+      
+    setIsSaving(true);
+    const response = await addContactDetails(WNumber, FirstName, LastName, DepartmentID, BuildingID, RoomNumber)
+    if (response.status === "error")
+      setError("An error occurred while adding this contact");
+    else {
+      alert("Contact Added Successfully");
+      setError("");
+      setIsEditing(false);
+    }
+
+    setIsSaving(false);
   }
   
   const formStructure = useMemo(() => buildFormStructure({ ...props }), [props]);
@@ -180,7 +234,10 @@ function EmptyContactDetailsView({...props }: DetailsViewProps) {
         <div>
           <h2>New Contact Details</h2>
         </div>
-        <IconButton icon={<Check />} variant="secondary" onClick={handleSubmit} />
+        {isSaving && <>Saving...</>}
+        {error && <span style={{ color: "red" }}>{error}</span>}
+        {isEditing && <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} />}
+        {!isEditing && <IconButton icon={<Plus />} variant="primary" onClick={handlePlusClick} />} 
       </div>
       <form className={styles.inputFieldContainer}>
         {formStructure.map((column) => (

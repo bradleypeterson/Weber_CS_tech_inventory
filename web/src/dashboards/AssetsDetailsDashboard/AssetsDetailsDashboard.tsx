@@ -329,7 +329,7 @@ function buildFormStructure(details: DetailsViewProps) {
           name: "ContactPersonID",
           label: "Contact Person",
           inputType: "single select",
-          fetchOptions: () => details.contactPersons.map((person) => ({ label: person.Name, value: person.PersonID }))
+          fetchOptions: () => details.contactPersons.map((person) => ({ label: person.FullName, value: person.PersonID }))
         }
       ]
     },

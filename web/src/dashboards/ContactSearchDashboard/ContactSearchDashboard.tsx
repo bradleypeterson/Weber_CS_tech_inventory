@@ -71,7 +71,7 @@ export function ContactSearchDashboard() {
         )
       },
       { label: "W Number", dataIndex: "WNumber" },
-      { label: "Name", dataIndex: "Name" },
+      { label: "Name", dataIndex: "FullName" },
       { label: "Department", dataIndex: "Departments" },
       { label: "Location", dataIndex: "Location" },
     ];

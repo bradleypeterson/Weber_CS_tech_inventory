@@ -1,4 +1,4 @@
-import { type RowDataPacket } from "mysql2";
+import type { RowDataPacket } from "mysql2";
 import { pool } from "..";
 
 interface SaltRow extends RowDataPacket {

@@ -126,7 +126,6 @@ function PasswordChangeView({ ...props }: UserProps) {
       // Call function to update password
       setIsSaving(true);
       const response = await updatePassword(props.userID.toString(), oldPassword, formData.newPassword1.toString(), newSalt, updateType);
-      console.log(response);
       setIsSaving(false);
 
       if (response?.status !== "error") {
@@ -185,7 +184,7 @@ function PasswordChangeView({ ...props }: UserProps) {
       </form>
       <div className={styles.Button}>
           <Button style={{ width: "200px", display: "flex", marginTop: "5px" }} onClick={handleSubmit} variant={"secondary"} type="submit" disabled={isSaving}>
-            {isSaving ? "Saving..." : "Change Password"}
+            Change Password
           </Button>
         </div>
     </main>

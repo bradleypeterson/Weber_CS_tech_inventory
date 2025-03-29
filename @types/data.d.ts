@@ -100,20 +100,20 @@ type AssetDetails = {
 
 type Contact = {
   WNumber: string;
-  Name: string;
+  FullName?: string | null;
   FirstName: string;
   LastName: string;
-  Location: string;
+  Location?: string | null;
   BuildingID?: number | null;
   RoomNumber?: string | null;
-  Departments: string;
+  Departments?: string | null;
   DepartmentID: number[];
 };
 
 type ContactOverview = {
   PersonID: number;
   WNumber: string;
-  Name: string;
+  FullName: string;
   Departments: string;
   Location: string;
   DepartmentID: number[];

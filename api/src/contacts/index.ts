@@ -1,11 +1,13 @@
 import { type Request, type Response, Router } from "express";
 import { getContactDetails } from "../db/procedures/contacts";
+import { addContact } from "./add";
 import { listContacts } from "./list";
 import { updateContact } from "./update";
 export const contactRouter = Router();
 
 contactRouter.get("/list", listContacts);
 contactRouter.post("/:id/update", updateContact);
+contactRouter.post("/add", addContact);
 contactRouter.get("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
   try {

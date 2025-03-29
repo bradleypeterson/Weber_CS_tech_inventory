@@ -5,39 +5,39 @@ import { dbUpdateContact } from "../db/procedures/contacts";
 
 export async function updateContact(req: Request, res: Response) {
   try {
-    const updates: unknown = req.body;
-    const { id } = req.params;
-    if (!validateUpdates(updates) || !id) {
-      res.status(400).json({ status: "error", error: { message: "invalid updates" } });
+    const params: unknown = req.body;
+    if (!validateUpdates(params)) {
+      res.status(400).json({ status: "error", error: { message: "Invalid updates" } });
       return;
     }
 
-    await dbUpdateContact(Number(id), updates);
-    res.json({ status: "success", data: {} });
+    await dbUpdateContact(params.personID, params.WNumber, params.FirstName, params.LastName,
+      params.DepartmentID, params.BuildingID, params.RoomNumber
+    );
+    res.status(200).json({ status: "success", data: { personID: params.personID } });
+    return;
+
   } catch (error) {
     console.error("Error in updateContact endpoint", error);
     res.status(500).json({ status: "error", error: { message: "An error occurred while updating contact" } });
   }
 }
 
-//TODO - update schema
-const updateContactSchema: JSONSchemaType<
-  Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
-> = {
+
+const updateContactParamsSchema: JSONSchemaType<{
+  personID: string; WNumber: string; FirstName: string; LastName: string; 
+  DepartmentID: number[]; BuildingID: number; RoomNumber: string
+}> = {
   type: "object",
   properties: {
-    PersonID: { type: "number" },
+    personID: { type: "string" },
+    WNumber: { type: "string" },
     FirstName: { type: "string" },
     LastName: { type: "string" },
-    DepartmentIDs: { type: "number" },
-    LocationID: { type: "number" },
-    RoomNumber: { type: "string" },
-    Barcode: { type: "string" },
-    BuildingName: { type: "string" },
-    BuildingAbbr: { type: "string" },
-  },
-  required: [],
-  additionalProperties: true
+    DepartmentID: { type: "array", items: { type: "number" } },
+    BuildingID: { type: "number"},
+    RoomNumber: { type: "string"},
+    },
+    required: ["personID", "WNumber", "FirstName", "LastName", "DepartmentID", "BuildingID", "RoomNumber"],
 };
-
-const validateUpdates = ajv.compile(updateContactSchema);
+const validateUpdates = ajv.compile(updateContactParamsSchema);

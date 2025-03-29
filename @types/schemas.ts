@@ -133,22 +133,19 @@ export const contactSchema: JSONSchemaType<Contact> = {
   type: "object",
   properties: {
     WNumber: { type: "string" },
-    Name: { type: "string" },
+    FullName: { type: "string", nullable: true },
     FirstName: { type: "string" },
     LastName: { type: "string" },
-    Location: { type: "string" },
+    Location: { type: "string", nullable: true },
     BuildingID: { type: "number", nullable: true },
     RoomNumber: { type: "string", nullable: true },
-    Departments: { type: "string" },
+    Departments: { type: "string", nullable: true },
     DepartmentID: { type: "array", items: { type: "number" } },
   },
   required: [
     "WNumber",
-    "Name",
     "FirstName",
     "LastName",
-    "Location",
-    "Departments",
     "DepartmentID",
   ],
 };
@@ -163,7 +160,7 @@ export const contactOverviewSchema: JSONSchemaType<ContactOverview> = {
   properties: {
     PersonID: { type: "number" },
     WNumber: { type: "string" },
-    Name: { type: "string" },
+    FullName: { type: "string" },
     Departments: { type: "string" },
     Location: { type: "string" },
     DepartmentID: { type: "array", items: { type: "number" } },
@@ -171,7 +168,7 @@ export const contactOverviewSchema: JSONSchemaType<ContactOverview> = {
   required: [
     "PersonID",
     "WNumber",
-    "Name",
+    "FullName",
     "Departments",
     "Location",
     "DepartmentID",

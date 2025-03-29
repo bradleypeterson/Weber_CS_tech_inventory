@@ -8,7 +8,7 @@ export async function getAllContacts() {
     const query = `SELECT 
                     p.PersonID,
                     WNumber, 
-                    CONCAT(FirstName, " ", LastName) as Name, 
+                    CONCAT(FirstName, " ", LastName) as FullName, 
                     GROUP_CONCAT(DISTINCT d.Abbreviation SEPARATOR ', ') as Departments, 
                     l.Barcode as Location,
                     JSON_ARRAYAGG(d.DepartmentID) as DepartmentID
@@ -31,7 +31,7 @@ export async function getContactDetails(personID: number): Promise<ContactDetail
     const query = `
       SELECT 
         WNumber, 
-        CONCAT(FirstName, " ", LastName) as Name, 
+        CONCAT(FirstName, " ", LastName) as FullName, 
         FirstName,
         LastName,
         l.Barcode as Location,
@@ -40,15 +40,13 @@ export async function getContactDetails(personID: number): Promise<ContactDetail
         GROUP_CONCAT(d.Abbreviation SEPARATOR ', ') as Departments,
         JSON_ARRAYAGG(d.DepartmentID) as DepartmentID
       FROM person p 
-      JOIN user u on u.PersonID = p.PersonID
-      JOIN userpermission up on up.UserID = u.UserID
       JOIN persondepartment pd on pd.PersonID = p.PersonID 
       JOIN department d on d.DepartmentID = pd.DepartmentID
       JOIN location l on l.LocationID = p.LocationID 
       WHERE p.PersonID = ?
-      GROUP BY p.PersonID
+      GROUP BY p.PersonID, WNumber, FullName, FirstName, LastName, Location, BuildingID, RoomNumber
                   `;
-    const [rows] = await pool.query<ContactDetailsRow[]>(query, [personID]);
+    const [rows] = await pool.query<ContactDetailsRow[]>(query, [personID.toString()]);
     const contact: ContactDetailsRow | undefined = rows[0];
     console.log(rows);
     return contact;
@@ -59,34 +57,76 @@ export async function getContactDetails(personID: number): Promise<ContactDetail
 }
 
 export async function dbUpdateContact(
-  personID: number,
-  updates: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
-) {
+  personID: string, WNumber: string, FirstName: string, LastName:string,
+  DepartmentID: number[], BuildingID: number, RoomNumber: string
+  ) {
+
   try {
-    const setClauses: string[] = [];
-    const values: any[] = [];
-
-    for (const [key, value] of Object.entries(updates)) {
-      setClauses.push(`\`${key}\` = ?`);
-      values.push(value);
-    }
-
-    //TODO: Update for Contact info
     const query = `
-      update Person
-      set FirstName = John
-      where PersonID = ?
+      UPDATE person
+        SET FirstName = ?, 
+          LastName = ?,
+          WNumber = ?,
+          LocationID = (SELECT LocationID FROM location WHERE BuildingID = ? AND RoomNumber = ?)
+        WHERE PersonID = ?;
     `;
 
-    //   update Person
-    //   set ${setClauses.join(", ")}
-    //   where PersonID = ?
+    const deptQuery = `
+      INSERT IGNORE INTO persondepartment(PersonID, DepartmentID)
+        VALUES(?, ?);
+    `;
 
-    values.push(personID);
+    await pool.query(query, [FirstName, LastName, WNumber, BuildingID, RoomNumber, personID]);
 
-    await pool.query(query, values);
+    for (const element of DepartmentID) {
+      await pool.query(deptQuery, [personID, element]);
+    }
+      
   } catch (error) {
+    console.log("Error in procedure");
     console.error(`Error in updateContact`, error);
-    throw new Error("An error occurred while updating contact");
+    throw new Error("Database query failed while updating contact");
+  }
+}
+
+interface PersonRow extends RowDataPacket {
+  PersonID: number;
+}
+
+export async function dbAddContact(
+  WNumber: string, FirstName: string, LastName:string,
+  DepartmentID: number[], BuildingID: number, RoomNumber: string
+  ) {
+
+  try {
+    const query = `
+      INSERT INTO person(FirstName, LastName, WNumber, LocationID)
+        VALUES (?,?,?,(SELECT LocationID FROM location WHERE BuildingID = ? AND RoomNumber = ?));
+    `;
+
+    const idQuery = `SELECT PersonID from person WHERE WNumber = ?;`;
+
+    const deptQuery = `
+      INSERT IGNORE INTO persondepartment(PersonID, DepartmentID)
+        VALUES(?, ?);
+    `;
+
+    await pool.query(query, [FirstName, LastName, WNumber, BuildingID, RoomNumber]);
+
+    //get personID
+    const [rows] = await pool.query<PersonRow[]>(idQuery, [WNumber]);
+    if (rows.length === 0) {
+      throw new Error("PersonID not found after insertion");
+    }
+    const personID = rows[0].PersonID;
+
+    for (const element of DepartmentID) {
+      await pool.query(deptQuery, [personID, element]);
+    }
+      
+  } catch (error) {
+    console.log("Error in procedure");
+    console.error(`Error in addContact`, error);
+    throw new Error("Database query failed while adding contact");
   }
 }
