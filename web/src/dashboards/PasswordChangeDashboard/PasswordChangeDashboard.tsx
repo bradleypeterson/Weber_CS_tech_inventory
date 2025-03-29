@@ -130,6 +130,8 @@ function PasswordChangeView({ ...props }: UserProps) {
 
       if (response?.status !== "error") {
         alert("Password Changed Successfully");
+        setErrors({}); // Clear errors after success
+        setFormData({}); // Clear form data
       } else {
         setErrors((prevErrors) => ({
           ...prevErrors,

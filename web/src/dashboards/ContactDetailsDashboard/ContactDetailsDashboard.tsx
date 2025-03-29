@@ -15,7 +15,6 @@ import {
   useDepartments,
   useRooms,
 } from "../../hooks/optionHooks";
-import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./ContactDetailsDashboard.module.css";
 
 
@@ -170,7 +169,6 @@ function ContactDetailsView({...props }: DetailsViewProps) {
 }
 
 function EmptyContactDetailsView({...props }: DetailsViewProps) {
-  const linkTo  = useLinkTo();
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number>
   >({});
