@@ -23,7 +23,6 @@ export async function updateContact(req: Request, res: Response) {
   }
 }
 
-
 const updateContactParamsSchema: JSONSchemaType<{
   personID: string; WNumber: string; FirstName: string; LastName: string; 
   DepartmentID: number[]; BuildingID: number; RoomNumber: string

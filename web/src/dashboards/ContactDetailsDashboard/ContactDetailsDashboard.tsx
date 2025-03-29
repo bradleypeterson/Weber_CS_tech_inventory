@@ -1,4 +1,4 @@
-import { Check, Pencil, Plus } from "@phosphor-icons/react";
+import { Check, Pencil } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useSearchParams } from "react-router";
@@ -189,10 +189,6 @@ function EmptyContactDetailsView({...props }: DetailsViewProps) {
     }));
   }
 
-  function handlePlusClick() {
-    linkTo("Details", ["Admin", "Contacts"]);
-  }
-
   async function handleSubmit() {
     const changedFields = formData;
     
@@ -221,8 +217,10 @@ function EmptyContactDetailsView({...props }: DetailsViewProps) {
       alert("Contact Added Successfully");
       setError("");
       setIsEditing(false);
+      // Clear the form data
     }
-
+    setFormData({});
+    setIsEditing(true);
     setIsSaving(false);
   }
   
@@ -236,8 +234,7 @@ function EmptyContactDetailsView({...props }: DetailsViewProps) {
         </div>
         {isSaving && <>Saving...</>}
         {error && <span style={{ color: "red" }}>{error}</span>}
-        {isEditing && <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} />}
-        {!isEditing && <IconButton icon={<Plus />} variant="primary" onClick={handlePlusClick} />} 
+        {isEditing && <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} />} 
       </div>
       <form className={styles.inputFieldContainer}>
         {formStructure.map((column) => (

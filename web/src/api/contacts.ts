@@ -37,10 +37,8 @@ export async function addContactDetails(
   return response;
 }
 
-const updateContactResponseSchema: JSONSchemaType<{
-  personID: string; 
-}>= 
-{
+const updateContactResponseSchema: JSONSchemaType<{personID: string; }>
+={
   type: "object",
   properties: {
     personID: { type: "string" },
@@ -50,10 +48,8 @@ const updateContactResponseSchema: JSONSchemaType<{
 
 const validateContactResponse = ajv.compile(updateContactResponseSchema);
 
-const addContactResponseSchema: JSONSchemaType<{
-  WNumber: string; 
-}>= 
-{
+const addContactResponseSchema: JSONSchemaType<{ WNumber: string;}> 
+={
   type: "object",
   properties: {
     WNumber: { type: "string" },
