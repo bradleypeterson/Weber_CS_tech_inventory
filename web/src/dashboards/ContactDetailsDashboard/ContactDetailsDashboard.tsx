@@ -124,6 +124,7 @@ function ContactDetailsView({...props }: DetailsViewProps) {
   if (response.status === "error")
     setError("An error occurred while updating this contact");
   else {
+    alert("Contact Updated Successfully");
     setError("");
     setIsEditing(false);
   }

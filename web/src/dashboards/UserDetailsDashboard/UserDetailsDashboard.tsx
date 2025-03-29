@@ -1,9 +1,10 @@
 import { Check, Pencil } from "@phosphor-icons/react";
+import CryptoJS from "crypto-js";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useSearchParams } from "react-router";
 import { Building, Department, Room } from "../../../../@types/data";
-import { fetchUserDetails, updateUserDetails } from "../../api/users";
+import { addUserDetails, fetchUserDetails, updateUserDetails } from "../../api/users";
 import { Button } from "../../elements/Button/Button";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
 import { IconButton } from "../../elements/IconButton/IconButton";
@@ -108,13 +109,28 @@ function UserDetailsView({ personID, ...props }: DetailsViewProps) {
        setIsEditing(false);
        return;
      }
+
+      // Package Permissions into an array
+      const permissionsArray: number[] = [];
+      for (let i = 1; i <= 7; i++) {
+        if (formData[`Permission${i}`]) {
+          permissionsArray.push(i); // Add permission number to the array if it's selected
+        }
+      }
+
+      // Update the userDetails object with the new Permissions array
+      const userUpdates = {
+        ...formData,
+        Permissions: permissionsArray, // Replace the Permissions array
+      };
  
      setIsSaving(true);
-     if (!(await updateUserDetails(Number(personID), changedFields)))
+     if (!(await updateUserDetails(Number(personID), userUpdates)))
        setError("An error occurred while updating this user");
      else {
        setError("");
        setIsEditing(false);
+       alert("User Updated Successfully");
      }
  
      setIsSaving(false);
@@ -167,12 +183,15 @@ function UserDetailsView({ personID, ...props }: DetailsViewProps) {
   );
 }
 
-//TODO: Finish for adding new user
-function EmptyUserDetailsView({ personID, ...props }: DetailsViewProps) {
+
+function EmptyUserDetailsView({...props }: DetailsViewProps) {
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number>
   >({});
   const { permissions } = useAuth();
+  const [isEditing, setIsEditing] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
 
   function handleInputChange(
     name: string,
@@ -186,22 +205,77 @@ function EmptyUserDetailsView({ personID, ...props }: DetailsViewProps) {
       // Check password criteria
       const newPassword1 = newFormData.password1 as string;
       const newPassword2 = newFormData.password2 as string;
-  
-      newFormData.passwordsMatch = newPassword1 === newPassword2;
-      newFormData.sixteenChars= newPassword1.length >= 16;
-      newFormData.number = /\d/.test(newPassword1);
-      newFormData.uppercase = /[A-Z]/.test(newPassword1);
-      newFormData.lowercase = /[a-z]/.test(newPassword1);
+
+      if (newPassword1 !== undefined){
+        newFormData.sixteenChars = newPassword1.toString().length >= 16;
+        newFormData.number = /\d/.test(newPassword1);
+        newFormData.uppercase = /[A-Z]/.test(newPassword1);
+        newFormData.lowercase = /[a-z]/.test(newPassword1);
+      }
+      if (newPassword1 !== undefined && newPassword2 !== undefined){
+        newFormData.passwordsMatch = newPassword1 === newPassword2;
+      }
   
       return newFormData;
     });
   }
 
-  function handleSubmit() {
-    console.log("SUBMIT");
+  async function handleSubmit() {
+    const changedFields = formData;
+
+    if (Object.keys(changedFields).length < 8) {
+      setError("Please enter all user details before saving.");
+      return;
+    }
+
+    const newPassword1 = formData.password1 as string;
+    const newPassword2 = formData.password2 as string;
+
+    if (!newPassword1) setError("New password is required");
+    if (!newPassword2) setError("Re-entry of new password is required"); 
+    if (newPassword2 != newPassword1) setError("Passwords must match");
+    if (error != "")
+    {
+      return;
+    }
+
+
+    // Create new salt for new password
+    const newSalt = CryptoJS.lib.WordArray.random(10).toString(CryptoJS.enc.Hex);         
+
+    // Package Permissions into an array
+    const permissionsArray: number[] = [];
+    for (let i = 1; i <= 7; i++) {
+      if (formData[`Permission${i}`]) {
+        permissionsArray.push(i); // Add permission number to the array if it's selected
+      }
+    }
+
+    // Update the userDetails object with the new Permissions array and salt
+    const newUserDetails = {
+      ...formData,
+      Permissions: permissionsArray, // Replace the Permissions array
+    };
+
+    setIsSaving(true);
+    const response = await addUserDetails(newSalt, newUserDetails);
+    if (response.status === "error") {
+      setError("An error occurred while adding user");
+      setIsEditing(true);
+      setIsSaving(false);
+      return;
+    }
+    else {
+      setError("");
+      setIsEditing(false);
+      alert("User Added Successfully");
+    }
+    setFormData({});
+    setIsEditing(true);
+    setIsSaving(false);
   }
 
-  const formStructure = useMemo(() => buildFormStructure({ personID, ...props }, permissions), [props, personID, permissions]);
+  const formStructure = useMemo(() => buildFormStructure({ ...props }, permissions), [props, permissions]);
 
   return (
     <main className={styles.layout}>
@@ -209,7 +283,9 @@ function EmptyUserDetailsView({ personID, ...props }: DetailsViewProps) {
         <div>
           <h2>New User Details</h2>
         </div>
-        <IconButton icon={<Check />} variant="secondary" onClick={handleSubmit} />
+        {isSaving && <>Saving...</>}
+        {error && <span style={{ color: "red" }}>{error}</span>}
+        {isEditing && <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} />}
       </div>
       <form className={styles.inputFieldContainer}>
         {formStructure.map((column) => (

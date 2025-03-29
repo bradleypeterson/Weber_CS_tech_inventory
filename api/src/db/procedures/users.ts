@@ -1,6 +1,7 @@
 import type { RowDataPacket } from "mysql2";
 import { pool } from "..";
 import type { User, UserOverview } from "../../../../@types/data";
+import { changePassword } from "./auth";
 
 interface UserRow extends RowDataPacket, UserOverview {}
 export async function getAllUsers() {
@@ -66,6 +67,7 @@ export async function getUserDetails(personID: number): Promise<User | undefined
                   `;
     const [rows] = await pool.query<UserDetailsRow[]>(query, [personID, personID, personID, personID, personID, personID, personID, personID]);
     const user: UserDetailsRow | undefined = rows[0];
+    console.log(user.Permissions);
     return user;
   } catch (error) {
     console.error(`Error in getUserDetails`, error);
@@ -73,29 +75,153 @@ export async function getUserDetails(personID: number): Promise<User | undefined
   }
 }
 
+interface UserIDRow extends RowDataPacket {
+  UserID: number;
+}
+
 export async function dbUpdateUser(
   personID: number,
   updates: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
 ) {
   try {
-    const setClauses: string[] = [];
-    const values: any[] = [];
+    const updateQuery = `
+      UPDATE person
+        SET FirstName = ?, 
+          LastName = ?,
+          WNumber = ?,
+          LocationID = (SELECT LocationID FROM location WHERE BuildingID = ? AND RoomNumber = ?)
+        WHERE PersonID = ?;
+    `;
+    await pool.query(updateQuery, [updates.FirstName, updates.LastName, updates.WNumber, updates.BuildingID, updates.RoomNumber, personID]);
 
-    for (const [key, value] of Object.entries(updates)) {
-      setClauses.push(`\`${key}\` = ?`);
-      values.push(value);
+    const deptQuery = `
+      INSERT IGNORE INTO persondepartment(PersonID, DepartmentID)
+        VALUES(?, ?);
+    `;
+    if (Array.isArray(updates.DepartmentID)) {
+      for (const departmentID of updates.DepartmentID) {
+        await pool.query(deptQuery, [personID, departmentID]);
+        console.log("Department: ", departmentID);
+      }
     }
 
-    //TODO: Update for User info
-    const query = `
-      update Equipment
-      set ${setClauses.join(", ")}
-      where EquipmentID = ?
+    const userIdQuery = `
+      SELECT UserID
+        FROM user
+        WHERE PersonID = ?;
     `;
+    const [rows] = await pool.query<UserIDRow[]>(userIdQuery, [personID]);
+        if (rows.length === 0) {
+          throw new Error("UserID not found after insertion");
+        }
+        const userID = rows[0].UserID;
 
-    values.push(personID);
+    const permissionsInsertQuery =`
+      INSERT IGNORE INTO userpermission(UserID, PermissionID)
+        VALUES (?, ?);
+    `;
+    if (Array.isArray(updates.Permissions)) {
+      for (const permissionID of updates.Permissions) {
+        await pool.query(permissionsInsertQuery, [userID, permissionID]);
+        console.log("Permission; ", permissionID);
+      }
+    }
+     
+    if (Array.isArray(updates.Permissions) && updates.Permissions.length > 0) {
+      const placeholders = updates.Permissions.map(() => '?').join(','); // Create placeholders for the array
+      
+      const permissionsRemoveQuery = `
+        DELETE FROM userpermission
+        WHERE UserID = ? AND PermissionID NOT IN (${placeholders});
+      `;
+      // Execute the query with userID and the permissions array
+      await pool.query(permissionsRemoveQuery, [userID, ...updates.Permissions]);
+      console.log("Revoked permissions removed for UserID:", userID);
+    } else {
+      // If no permissions are provided, delete all permissions for the user
+      const permissionsRemoveQuery = `
+        DELETE FROM userpermission
+        WHERE UserID = ?;
+      `;
+      await pool.query(permissionsRemoveQuery, [userID]);
+      console.log("All permissions removed for UserID:", userID);
+    }
 
-    await pool.query(query, values);
+  } catch (error) {
+    console.error(`Error in updateUser`, error);
+    throw new Error("An error occurred while updating user");
+  }
+}
+
+interface PersonRow extends RowDataPacket {
+  PersonID: number;
+}
+
+export async function dbAddUser(
+  details: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
+) {
+  try {
+    const query = `
+      INSERT INTO person(FirstName, LastName, WNumber, LocationID)
+        VALUES (?,?,?,(SELECT LocationID FROM location WHERE BuildingID = ? AND RoomNumber = ?));
+    `;
+    await pool.query(query, [details.FirstName, details.LastName, details.WNumber, 
+      details.BuildingID, details.RoomNumber]);
+    
+    //get personID
+    const idQuery = `SELECT PersonID from person WHERE WNumber = ?;`;
+    const [personRows] = await pool.query<PersonRow[]>(idQuery, [details.WNumber]);
+    if (personRows.length === 0) {
+      throw new Error("PersonID not found after insertion");
+    }
+    const personID = personRows[0].PersonID;
+
+    const deptQuery = `
+      INSERT IGNORE INTO persondepartment(PersonID, DepartmentID)
+        VALUES(?, ?);
+    `;
+    if (Array.isArray(details.DepartmentID)) {
+      for (const departmentID of details.DepartmentID) {
+        await pool.query(deptQuery, [personID, departmentID]);
+        console.log("Department: ", departmentID);
+      }
+    }
+
+    const queryUser = `
+    INSERT INTO user(PersonID, HashedPassword, Salt)
+      VALUES (?,?,?);
+    `;
+    await pool.query(queryUser, [personID, details.hashedNewPassword, details.Salt]);
+      
+    const userIdQuery = `
+      SELECT UserID
+        FROM user
+        WHERE PersonID = ?;
+    `;
+    const [rows] = await pool.query<UserIDRow[]>(userIdQuery, [personID]);
+      if (rows.length === 0) {
+        throw new Error("UserID not found after insertion");
+      }
+    const userID = rows[0].UserID;
+
+    const permissionsInsertQuery =`
+      INSERT IGNORE INTO userpermission(UserID, PermissionID)
+        VALUES (?, ?);
+    `;
+    if (Array.isArray(details.Permissions)) {
+      for (const permissionID of details.Permissions) {
+        await pool.query(permissionsInsertQuery, [userID, permissionID]);
+        console.log("Permission; ", permissionID);
+      }
+    }
+  
+    if (typeof details.Salt === "string" && typeof details.hashedNewPassword === "string") {
+      await changePassword(userID.toString(), details.hashedNewPassword, details.Salt);
+    } else {
+      console.error("Invalid Salt value: must be a string");
+      throw new Error("Invalid Salt value");
+    }    
+
   } catch (error) {
     console.error(`Error in updateUser`, error);
     throw new Error("An error occurred while updating user");
