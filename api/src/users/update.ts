@@ -20,21 +20,18 @@ export async function updateUser(req: Request, res: Response) {
   }
 }
 
-//TODO
 const updateUserSchema: JSONSchemaType<
   Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
 > = {
   type: "object",
   properties: {
-    PersonID: { type: "number" },
+    WNumber: {type: "string"},
     FirstName: { type: "string" },
     LastName: { type: "string" },
-    DepartmentIDs: { type: "number" },
-    LocationID: { type: "number" },
-    RoomNumber: { type: "string" },
-    Barcode: { type: "string" },
-    BuildingName: { type: "string" },
-    BuildingAbbr: { type: "string" },
+    DepartmentID: { type: "array", items: { type: "number" } },
+    BuildingID: { type: "number" },
+    RoomNumber: { type: "string"},
+    Permissions: { type: "array", items: { type: "number" } },
   },
   required: [],
   additionalProperties: true
