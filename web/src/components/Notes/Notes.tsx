@@ -29,7 +29,9 @@ export function Notes({ notes, onAdd }: Props) {
         <div>
           {notes.length === 0 && <span style={{ color: "var(--white-dim)" }}>Nothing to see here</span>}
           {notes.map((note, index) => (
-            <article key={`note-${index}`}>{note}</article>
+            <article key={`note-${index}`} className={styles.note}>
+              {note}
+            </article>
           ))}
         </div>
       </div>
