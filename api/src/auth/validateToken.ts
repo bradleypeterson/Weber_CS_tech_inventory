@@ -12,7 +12,6 @@ export function validateToken(req: Request, res: Response, next: NextFunction) {
 
   try {
     const user = verify(token, process.env.JWT_SECRET!);
-    console.log(user);
     res.locals.user = user;
     next();
   } catch (error) {
