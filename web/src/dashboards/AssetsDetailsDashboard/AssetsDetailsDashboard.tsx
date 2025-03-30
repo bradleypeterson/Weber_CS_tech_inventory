@@ -11,7 +11,7 @@ import {
   DeviceType,
   FiscalYear
 } from "../../../../@types/data";
-import { fetchAssetDetails, updateAssetDetails } from "../../api/assets";
+import { addNewNote, fetchAssetDetails, fetchAssetNotes, updateAssetDetails } from "../../api/assets";
 import { Notes } from "../../components/Notes/Notes";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
 import { IconButton } from "../../elements/IconButton/IconButton";
@@ -130,6 +130,10 @@ function AssetDetailsView({ assetId, ...props }: DetailsViewProps) {
     queryKey: ["Asset Details", assetId],
     queryFn: () => fetchAssetDetails(Number(assetId))
   });
+  const { data: notes, refetch: refetchNotes } = useQuery({
+    queryKey: ["Notes", assetId],
+    queryFn: () => fetchAssetNotes(Number(assetId))
+  });
   const { permissions } = useAuth();
 
   const [formData, setFormData] = useState<
@@ -175,6 +179,11 @@ function AssetDetailsView({ assetId, ...props }: DetailsViewProps) {
     setIsSaving(false);
   }
 
+  async function handleAddNote(note: string) {
+    await addNewNote(Number(assetId), note);
+    refetchNotes();
+  }
+
   const formStructure = useMemo(() => buildFormStructure({ assetId, ...props }), [props, assetId]);
 
   if (isLoading) return <>Loading</>;
@@ -212,7 +221,7 @@ function AssetDetailsView({ assetId, ...props }: DetailsViewProps) {
           </div>
         ))}
       </form>
-      <Notes notes={[]} />
+      <Notes notes={notes?.map((note) => note.Note) ?? []} onAdd={handleAddNote} />
     </main>
   );
 }

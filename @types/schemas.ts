@@ -8,6 +8,7 @@ import type {
   ContactOverview,
   DeviceType,
   FiscalYear,
+  Note,
   User,
   UserOverview,
 } from "./data";
@@ -142,12 +143,7 @@ export const contactSchema: JSONSchemaType<Contact> = {
     Departments: { type: "string", nullable: true },
     DepartmentID: { type: "array", items: { type: "number" } },
   },
-  required: [
-    "WNumber",
-    "FirstName",
-    "LastName",
-    "DepartmentID",
-  ],
+  required: ["WNumber", "FirstName", "LastName", "DepartmentID"],
 };
 
 export const contactArraySchema: JSONSchemaType<Contact[]> = {
@@ -244,7 +240,7 @@ export const userSchema: JSONSchemaType<User> = {
     "DepartmentID",
     "Permissions",
     "Permission1",
-    "Permission2",  
+    "Permission2",
     "Permission3",
     "Permission4",
     "Permission5",
@@ -300,4 +296,21 @@ export const fiscalYearSchema: JSONSchemaType<FiscalYear> = {
 export const fiscalYearArraySchema: JSONSchemaType<FiscalYear[]> = {
   type: "array",
   items: fiscalYearSchema,
+};
+
+export const noteSchema: JSONSchemaType<Note> = {
+  type: "object",
+  properties: {
+    NoteID: { type: "number" },
+    CreatedBy: { type: "number" },
+    EquipmentID: { type: "number" },
+    Note: { type: "string" },
+    CreatedAt: { type: "string" },
+  },
+  required: ["NoteID", "CreatedAt", "CreatedBy", "EquipmentID", "Note"],
+};
+
+export const notesSchema: JSONSchemaType<Note[]> = {
+  type: "array",
+  items: noteSchema,
 };

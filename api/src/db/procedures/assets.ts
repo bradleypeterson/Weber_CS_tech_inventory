@@ -1,6 +1,6 @@
 import type { RowDataPacket } from "mysql2";
 import { pool } from "..";
-import type { Asset, AssetDetails, AssetOverview, Condition, DeviceType } from "../../../../@types/data";
+import type { Asset, AssetDetails, AssetOverview, Condition, DeviceType, Note } from "../../../../@types/data";
 
 interface AssetRow extends RowDataPacket, Asset {}
 
@@ -264,5 +264,38 @@ export async function addAsset(params: AddAssetParams) {
   } catch (error) {
     console.error(`Error in addAsset`, error);
     throw new Error("An error occurred while adding an asset.");
+  }
+}
+
+interface AssetNotesRow extends RowDataPacket, Note {}
+export async function getAssetNotes(assetId: number) {
+  try {
+    const query = `
+      select NoteID, CreatedBy, EquipmentID, Note, CreatedAt
+      from Note where EquipmentID = ?
+    `;
+
+    const [rows] = await pool.query<AssetNotesRow[]>(query, [assetId]);
+
+    return rows;
+  } catch (error) {
+    console.error(`Error in getAssetNotes`, error);
+    throw new Error("An error occurred while getting notes.");
+  }
+}
+
+export async function addAssetNote(userId: number, assetId: number, note: string) {
+  try {
+    const query = `
+      insert into Note
+      (CreatedBy, EquipmentID, Note, CreatedAt)
+      values
+      (?,?,?, now())
+    `;
+
+    await pool.query(query, [userId, assetId, note]);
+  } catch (error) {
+    console.error(`Error in addAssetNote`, error);
+    throw new Error("An error occurred while adding note.");
   }
 }

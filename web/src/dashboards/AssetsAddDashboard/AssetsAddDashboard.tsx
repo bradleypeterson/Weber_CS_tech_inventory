@@ -10,7 +10,6 @@ import {
   FiscalYear
 } from "../../../../@types/data";
 import { addAsset } from "../../api/assets";
-import { Notes } from "../../components/Notes/Notes";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { LabelInput } from "../../elements/LabelInput/LabelInput";
@@ -157,7 +156,6 @@ function AssetDetailsView(props: DetailsViewProps) {
           </div>
         ))}
       </form>
-      <Notes notes={[]} />
     </main>
   );
 }

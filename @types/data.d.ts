@@ -169,3 +169,11 @@ type FiscalYear = {
   ReplacementID: number;
   Year: string;
 };
+
+type Note = {
+  NoteID: number;
+  CreatedBy: number;
+  EquipmentID: number;
+  Note: string;
+  CreatedAt: string;
+};

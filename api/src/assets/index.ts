@@ -2,6 +2,7 @@ import { type Request, type Response, Router } from "express";
 import { getAssetDetails } from "../db/procedures/assets";
 import { addAssetHandler } from "./add";
 import { listAssetOverviews, listAssets } from "./list";
+import { addNewAssetNoteHandler, assetNotesHanlder } from "./notes";
 import { getConditions, getDeviceTypes } from "./options";
 import { updateAsset } from "./update";
 export const assetRouter = Router();
@@ -12,6 +13,8 @@ assetRouter.get("/types", getDeviceTypes);
 assetRouter.get("/list", listAssets);
 assetRouter.get("/list/overview", listAssetOverviews);
 assetRouter.post("/:id/update", updateAsset);
+assetRouter.get("/:id/notes", assetNotesHanlder);
+assetRouter.post("/:id/notes/", addNewAssetNoteHandler);
 assetRouter.get("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
   try {

@@ -4,7 +4,8 @@ import {
   assetDetailsSchema,
   assetOverviewArraySchema,
   conditionArraySchema,
-  deviceTypeArraySchema
+  deviceTypeArraySchema,
+  notesSchema
 } from "../../../@types/schemas";
 import { ajv } from "../ajv";
 import { get, post, validateEmptyResponse } from "./helpers";
@@ -51,5 +52,16 @@ export async function addAsset(
   params: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
 ) {
   const response = await post(`/assets/add`, params, validateEmptyResponse);
+  return response;
+}
+
+export async function fetchAssetNotes(assetId: number) {
+  const response = await get(`/assets/${assetId}/notes`, ajv.compile(notesSchema));
+  if (response.status === "success") return response.data;
+  return [];
+}
+
+export async function addNewNote(assetId: number, note: string) {
+  const response = await post(`/assets/${assetId}/notes`, { note }, validateEmptyResponse);
   return response;
 }
