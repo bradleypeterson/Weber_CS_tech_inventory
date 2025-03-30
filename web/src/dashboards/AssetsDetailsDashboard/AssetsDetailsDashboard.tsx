@@ -2,7 +2,15 @@ import { ArrowRight, Barcode, Check, Pencil } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useSearchParams } from "react-router";
-import { Building, Condition, ContactOverview, Department, DeviceType, FiscalYear } from "../../../../@types/data";
+import {
+  AssetClass,
+  Building,
+  Condition,
+  ContactOverview,
+  Department,
+  DeviceType,
+  FiscalYear
+} from "../../../../@types/data";
 import { fetchAssetDetails, updateAssetDetails } from "../../api/assets";
 import { Notes } from "../../components/Notes/Notes";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
@@ -13,6 +21,7 @@ import { MultiSelect } from "../../elements/MultiSelect/MultiSelect";
 import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
 import { TextArea } from "../../elements/TextArea/TextArea";
 import {
+  useAssetClasses,
   useBuildings,
   useConditions,
   useContactPersons,
@@ -35,6 +44,7 @@ export function AssetsDetailsDashboard() {
   const { data: conditions, isLoading: conditionsLoading } = useConditions();
   const { data: deviceTypes, isLoading: deviceTypesLoading } = useDeviceTypes();
   const { data: fiscalYears, isLoading: fiscalYearsLoading } = useFiscalYears();
+  const { data: assetClasses, isLoading: assetClassesLoading } = useAssetClasses();
 
   if (assetId === null)
     return (
@@ -68,7 +78,8 @@ export function AssetsDetailsDashboard() {
     contactPersonsLoading ||
     conditionsLoading ||
     deviceTypesLoading ||
-    fiscalYearsLoading
+    fiscalYearsLoading ||
+    assetClassesLoading
   )
     return <>Loading...</>;
 
@@ -78,7 +89,8 @@ export function AssetsDetailsDashboard() {
     contactPersons === undefined ||
     conditions === undefined ||
     deviceTypes === undefined ||
-    fiscalYears === undefined
+    fiscalYears === undefined ||
+    assetClasses === undefined
   )
     return <>Error</>;
 
@@ -89,7 +101,8 @@ export function AssetsDetailsDashboard() {
     contactPersons,
     conditions,
     deviceTypes,
-    fiscalYears
+    fiscalYears,
+    assetClasses
   };
   return <AssetDetailsView {...props} />;
 }
@@ -102,6 +115,7 @@ type DetailsViewProps = {
   conditions: Condition[];
   deviceTypes: DeviceType[];
   fiscalYears: FiscalYear[];
+  assetClasses: AssetClass[];
 };
 
 function AssetDetailsView({ assetId, ...props }: DetailsViewProps) {
@@ -329,7 +343,8 @@ function buildFormStructure(details: DetailsViewProps) {
           name: "ContactPersonID",
           label: "Contact Person",
           inputType: "single select",
-          fetchOptions: () => details.contactPersons.map((person) => ({ label: person.FullName, value: person.PersonID }))
+          fetchOptions: () =>
+            details.contactPersons.map((person) => ({ label: person.FullName, value: person.PersonID }))
         }
       ]
     },
@@ -341,6 +356,12 @@ function buildFormStructure(details: DetailsViewProps) {
           label: "Device Type",
           inputType: "single select",
           fetchOptions: () => details.deviceTypes.map((type) => ({ label: type.Name, value: type.DeviceTypeID }))
+        },
+        {
+          name: "AssetClassID",
+          label: "Asset Class",
+          inputType: "single select",
+          fetchOptions: () => details.assetClasses.map((type) => ({ label: type.Name, value: type.AssetClassID }))
         },
         { name: "SerialNumber", label: "Serial Number", inputType: "input" },
         {

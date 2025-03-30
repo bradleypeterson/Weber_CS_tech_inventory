@@ -1,4 +1,5 @@
 import { useQuery } from "react-query";
+import { fetchAssetClasses } from "../api/assetClasses";
 import { fetchConditions, fetchDeviceTypes } from "../api/assets";
 import { fetchBuildings } from "../api/buildings";
 import { fetchContactList } from "../api/contacts";
@@ -38,5 +39,10 @@ export function useDeviceTypes() {
 
 export function useFiscalYears() {
   const { data, isLoading } = useQuery("Fiscal Years", () => fetchFiscalYears());
+  return { data, isLoading };
+}
+
+export function useAssetClasses() {
+  const { data, isLoading } = useQuery("Asset Classes", () => fetchAssetClasses());
   return { data, isLoading };
 }

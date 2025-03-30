@@ -46,3 +46,10 @@ export async function fetchDeviceTypes() {
   if (response.status === "success") return response.data;
   return undefined;
 }
+
+export async function addAsset(
+  params: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
+) {
+  const response = await post(`/assets/add`, params, validateEmptyResponse);
+  return response;
+}

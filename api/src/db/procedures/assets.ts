@@ -187,3 +187,82 @@ export async function getAllDeviceTypes() {
     throw new Error("An error occurred while getting device types.");
   }
 }
+
+export type AddAssetParams = {
+  TagNumber: string;
+  SerialNumber: string;
+  Description?: string;
+  ContactPersonID?: number;
+  LocationID?: number;
+  DepartmentID?: number;
+  AssetClassID: number;
+  FiscalYearID?: number;
+  ConditionID: number;
+  DeviceTypeID: number;
+  Manufacturer?: string;
+  PartNumber?: string;
+  Rapid7?: boolean;
+  CrowdStrike?: boolean;
+  ArchiveStatus?: boolean;
+  PONumber?: string;
+  SecondaryNumber?: string;
+  AccountingDate?: string;
+  AccountCost?: number;
+};
+
+export async function addAsset(params: AddAssetParams) {
+  try {
+    const query = `
+      INSERT INTO Equipment (
+        TagNumber,
+        SerialNumber,
+        Description,
+        ContactPersonID,
+        LocationID,
+        DepartmentID,
+        AssetClassID,
+        FiscalYearID,
+        ConditionID,
+        DeviceTypeID,
+        Manufacturer,
+        PartNumber,
+        Rapid7,
+        CrowdStrike,
+        ArchiveStatus,
+        PONumber,
+        SecondaryNumber,
+        AccountingDate,
+        AccountCost
+      ) VALUES (
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+      );
+    `;
+
+    const values = [
+      params.TagNumber,
+      params.SerialNumber,
+      params.Description ?? null,
+      params.ContactPersonID ?? null,
+      params.LocationID ?? null,
+      params.DepartmentID ?? null,
+      params.AssetClassID,
+      params.FiscalYearID ?? null,
+      params.ConditionID,
+      params.DeviceTypeID,
+      params.Manufacturer ?? null,
+      params.PartNumber ?? null,
+      params.Rapid7 ?? false,
+      params.CrowdStrike ?? false,
+      params.ArchiveStatus ?? false,
+      params.PONumber ?? null,
+      params.SecondaryNumber ?? null,
+      params.AccountingDate ?? null,
+      params.AccountCost ?? null
+    ];
+
+    await pool.query(query, values);
+  } catch (error) {
+    console.error(`Error in addAsset`, error);
+    throw new Error("An error occurred while adding an asset.");
+  }
+}
