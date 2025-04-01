@@ -20,9 +20,15 @@ export function UserSearchDashboard() {
 
   const filteredData = useMemo(() => {
     const filteredData = data?.filter(
-      (row) => row.DepartmentID?.some(department => filters.Department?.includes(department))
-       && row.Permissions?.some(permission => filters.Permission?.includes(permission))
-  );
+      (row) => {
+      const deptMatch = row.DepartmentID?.some(department => filters.Department?.includes(department));
+      const hasStringPermissions = row.Permissions.includes("null");
+      const userPermission = hasStringPermissions ? [] : row.Permissions;
+      const permissionMatch = userPermission?.some((permission) =>
+        filters.Permission?.includes(Number(permission)))
+      const permissionSelected = filters.Permission ? filters.Permission?.length > 0: false;
+      return deptMatch && (permissionMatch && permissionSelected);
+    });
   const searchedData =
   searchText === ""
     ? (filteredData ?? [])

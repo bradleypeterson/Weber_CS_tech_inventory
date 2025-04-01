@@ -151,7 +151,7 @@ type UserOverview = {
   Departments: string;
   Location: string;
   DepartmentID: number[];
-  Permissions: number[];
+  Permissions: (number | string)[];
 };
 
 type Condition = {
