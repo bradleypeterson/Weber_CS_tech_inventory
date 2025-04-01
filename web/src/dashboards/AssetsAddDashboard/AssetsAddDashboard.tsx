@@ -7,7 +7,8 @@ import {
   ContactOverview,
   Department,
   DeviceType,
-  FiscalYear
+  FiscalYear,
+  Room
 } from "../../../../@types/data";
 import { addAsset } from "../../api/assets";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
@@ -23,12 +24,14 @@ import {
   useContactPersons,
   useDepartments,
   useDeviceTypes,
-  useFiscalYears
+  useFiscalYears,
+  useRooms
 } from "../../hooks/optionHooks";
 import styles from "./AssetsAddDashboard.module.css";
 
 export function AssetsAddDashboard() {
   const { data: buildings, isLoading: buildingsLoading } = useBuildings();
+  const { data: rooms, isLoading: roomsLoading } = useRooms();
   const { data: departments, isLoading: departmentsLoading } = useDepartments();
   const { data: contactPersons, isLoading: contactPersonsLoading } = useContactPersons();
   const { data: conditions, isLoading: conditionsLoading } = useConditions();
@@ -38,6 +41,7 @@ export function AssetsAddDashboard() {
 
   if (
     buildingsLoading ||
+    roomsLoading ||
     departmentsLoading ||
     contactPersonsLoading ||
     conditionsLoading ||
@@ -49,6 +53,7 @@ export function AssetsAddDashboard() {
 
   if (
     buildings === undefined ||
+    rooms === undefined ||
     departments === undefined ||
     contactPersons === undefined ||
     conditions === undefined ||
@@ -60,6 +65,7 @@ export function AssetsAddDashboard() {
 
   const props = {
     buildings,
+    rooms,
     departments,
     contactPersons,
     conditions,
@@ -72,6 +78,7 @@ export function AssetsAddDashboard() {
 
 type DetailsViewProps = {
   buildings: Building[];
+  rooms: Room[];
   departments: Department[];
   contactPersons: ContactOverview[];
   conditions: Condition[];
@@ -126,9 +133,10 @@ function AssetDetailsView(props: DetailsViewProps) {
     [formData]
   );
 
-  console.log(saveDisabled);
-
-  const formStructure = useMemo(() => buildFormStructure({ ...props }), [props]);
+  const formStructure = useMemo(
+    () => buildFormStructure({ ...props, selectedBuildingID: Number(formData["BuildingID"]) }),
+    [props, formData]
+  );
 
   return (
     <main className={styles.layout}>
@@ -238,7 +246,7 @@ type Column = {
   inputs: AssetInputField[];
 };
 
-function buildFormStructure(details: DetailsViewProps) {
+function buildFormStructure(details: DetailsViewProps & { selectedBuildingID?: number }) {
   const formStructure: Column[] = [
     {
       title: "Basic Info",
@@ -261,10 +269,13 @@ function buildFormStructure(details: DetailsViewProps) {
             details.buildings.map((building) => ({ label: building.Name, value: building.BuildingID }))
         },
         {
-          name: "RoomID",
+          name: "LocationID",
           label: "Room",
           inputType: "single select",
-          fetchOptions: () => []
+          fetchOptions: () =>
+            details.rooms
+              .filter((room) => room.BuildingID === details.selectedBuildingID)
+              .map((room) => ({ label: room.RoomNumber, value: room.LocationID }))
         },
         {
           name: "ContactPersonID",

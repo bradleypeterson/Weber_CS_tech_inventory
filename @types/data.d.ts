@@ -71,6 +71,7 @@ type AssetDetails = {
   Description: string;
   DepartmentID?: number | null;
   DepartmentName?: string | null;
+  BuildingID?: number | null;
   LocationID?: number | null;
   RoomNumber?: string | null;
   Barcode?: string | null;

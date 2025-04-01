@@ -49,6 +49,7 @@ export async function getAssetDetails(assetId: number): Promise<AssetDetailsRow 
       a.Description,
       d.DepartmentID,
       d.Name as DepartmentName,
+      b.BuildingID as BuildingID,
       l.LocationID,
       l.RoomNumber,
       l.Barcode,
@@ -241,7 +242,7 @@ export async function addAsset(params: AddAssetParams) {
     const values = [
       params.TagNumber,
       params.SerialNumber,
-      params.Description ?? null,
+      params.Description ?? "",
       params.ContactPersonID ?? null,
       params.LocationID ?? null,
       params.DepartmentID ?? null,

@@ -92,6 +92,7 @@ export const assetDetailsSchema: JSONSchemaType<AssetDetails> = {
     Description: { type: "string" },
     DepartmentID: { type: "number", nullable: true },
     DepartmentName: { type: "string", nullable: true },
+    BuildingID: { type: "number", nullable: true },
     LocationID: { type: "number", nullable: true },
     RoomNumber: { type: "string", nullable: true },
     Barcode: { type: "string", nullable: true },

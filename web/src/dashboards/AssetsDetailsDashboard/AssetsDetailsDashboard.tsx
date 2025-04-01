@@ -9,7 +9,8 @@ import {
   ContactOverview,
   Department,
   DeviceType,
-  FiscalYear
+  FiscalYear,
+  Room
 } from "../../../../@types/data";
 import { addNewNote, fetchAssetDetails, fetchAssetNotes, updateAssetDetails } from "../../api/assets";
 import { Notes } from "../../components/Notes/Notes";
@@ -27,7 +28,8 @@ import {
   useContactPersons,
   useDepartments,
   useDeviceTypes,
-  useFiscalYears
+  useFiscalYears,
+  useRooms
 } from "../../hooks/optionHooks";
 import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
@@ -39,6 +41,7 @@ export function AssetsDetailsDashboard() {
   const [searchParams] = useSearchParams();
   const assetId = useMemo(() => searchParams.get("assetId"), [searchParams]);
   const { data: buildings, isLoading: buildingsLoading } = useBuildings();
+  const { data: rooms, isLoading: roomsLoading } = useRooms();
   const { data: departments, isLoading: departmentsLoading } = useDepartments();
   const { data: contactPersons, isLoading: contactPersonsLoading } = useContactPersons();
   const { data: conditions, isLoading: conditionsLoading } = useConditions();
@@ -74,6 +77,7 @@ export function AssetsDetailsDashboard() {
 
   if (
     buildingsLoading ||
+    roomsLoading ||
     departmentsLoading ||
     contactPersonsLoading ||
     conditionsLoading ||
@@ -85,6 +89,7 @@ export function AssetsDetailsDashboard() {
 
   if (
     buildings === undefined ||
+    rooms === undefined ||
     departments === undefined ||
     contactPersons === undefined ||
     conditions === undefined ||
@@ -97,6 +102,7 @@ export function AssetsDetailsDashboard() {
   const props = {
     assetId,
     buildings,
+    rooms,
     departments,
     contactPersons,
     conditions,
@@ -110,6 +116,7 @@ export function AssetsDetailsDashboard() {
 type DetailsViewProps = {
   assetId: string;
   buildings: Building[];
+  rooms: Room[];
   departments: Department[];
   contactPersons: ContactOverview[];
   conditions: Condition[];
@@ -184,7 +191,10 @@ function AssetDetailsView({ assetId, ...props }: DetailsViewProps) {
     refetchNotes();
   }
 
-  const formStructure = useMemo(() => buildFormStructure({ assetId, ...props }), [props, assetId]);
+  const formStructure = useMemo(
+    () => buildFormStructure({ assetId, ...props, selectedBuildingID: Number(formData["BuildingID"]) }),
+    [props, assetId, formData]
+  );
 
   if (isLoading) return <>Loading</>;
   if (isError) return <>Unknown Asset</>;
@@ -320,7 +330,7 @@ type Column = {
   inputs: AssetInputField[];
 };
 
-function buildFormStructure(details: DetailsViewProps) {
+function buildFormStructure(details: DetailsViewProps & { selectedBuildingID?: number }) {
   const formStructure: Column[] = [
     {
       title: "Basic Info",
@@ -343,10 +353,13 @@ function buildFormStructure(details: DetailsViewProps) {
             details.buildings.map((building) => ({ label: building.Name, value: building.BuildingID }))
         },
         {
-          name: "RoomID",
+          name: "LocationID",
           label: "Room",
           inputType: "single select",
-          fetchOptions: () => []
+          fetchOptions: () =>
+            details.rooms
+              .filter((room) => room.BuildingID === details.selectedBuildingID)
+              .map((room) => ({ label: room.RoomNumber, value: room.LocationID }))
         },
         {
           name: "ContactPersonID",
