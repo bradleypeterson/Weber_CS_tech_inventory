@@ -1,4 +1,4 @@
-import { Export, MagnifyingGlass } from "@phosphor-icons/react";
+import { MagnifyingGlass } from "@phosphor-icons/react";
 import { JSONSchemaType } from "ajv";
 import { useMemo, useState } from "react";
 import { useQuery } from "react-query";
@@ -116,10 +116,7 @@ export function AuditDetailsDashboard() {
     <main className={styles.layout}>
       <div className={styles.header}>
         <div />
-        <h2>Audit Details</h2>
-        <Button icon={<Export />} variant="secondary" style={{ width: "fit-content" }}>
-          Export
-        </Button>
+        <h2>Audit Details</h2>        
       </div>
 
       <div className={styles.auditInfoContainer}>
