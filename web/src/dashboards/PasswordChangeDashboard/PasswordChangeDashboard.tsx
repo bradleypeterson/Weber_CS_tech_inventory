@@ -216,6 +216,7 @@ function FormField({
 
       {input.inputType === "input" && (
         <LabelInput
+          type={input.name.includes("Password") ? "password" : "text"}
           value={typeof value === "string" || typeof value === "number" ? value : ""}
           onChange={(val) => onChange(val)}
         />
