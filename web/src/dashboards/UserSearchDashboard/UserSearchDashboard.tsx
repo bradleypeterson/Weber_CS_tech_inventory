@@ -22,12 +22,13 @@ export function UserSearchDashboard() {
     const filteredData = data?.filter(
       (row) => {
       const deptMatch = row.DepartmentID?.some(department => filters.Department?.includes(department));
-      const hasStringPermissions = row.Permissions.includes("null");
-      const userPermission = hasStringPermissions ? [] : row.Permissions;
-      const permissionMatch = userPermission?.some((permission) =>
-        filters.Permission?.includes(Number(permission)))
-      const permissionSelected = filters.Permission ? filters.Permission?.length > 0: false;
-      return deptMatch && (permissionMatch && permissionSelected);
+      const permissionMatch = row.Permissions?.some((permission) =>
+        filters.Permission?.includes(Number(permission)));
+      const permissionSelected = filters.Permission ? filters.Permission.length > 0 : false;
+      if( permissionSelected ){
+        return deptMatch && permissionMatch;
+      }
+      else return deptMatch && true;
     });
   const searchedData =
   searchText === ""

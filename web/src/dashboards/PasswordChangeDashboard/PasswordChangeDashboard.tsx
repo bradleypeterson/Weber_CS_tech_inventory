@@ -7,6 +7,7 @@ import { fetchUserDetails } from "../../api/users";
 import { Button } from "../../elements/Button/Button";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
 import { LabelInput } from "../../elements/LabelInput/LabelInput";
+import { Modal } from "../../elements/Modal/Modal";
 import { MultiSelect } from "../../elements/MultiSelect/MultiSelect";
 import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
 import { TextArea } from "../../elements/TextArea/TextArea";
@@ -65,6 +66,7 @@ function PasswordChangeView({ ...props }: UserProps) {
   >({});
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   function handleInputChange(
     name: string,
@@ -91,7 +93,11 @@ function PasswordChangeView({ ...props }: UserProps) {
       
       return newFormData;
     });
-  }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
 
   async function handleSubmit() {
     setIsSaving(true);
@@ -129,7 +135,8 @@ function PasswordChangeView({ ...props }: UserProps) {
       setIsSaving(false);
 
       if (response?.status !== "error") {
-        alert("Password Changed Successfully");
+        setIsModalOpen(true);
+        //alert("Password Changed Successfully");
         setErrors({}); // Clear errors after success
         setFormData({}); // Clear form data
       } else {
@@ -189,6 +196,18 @@ function PasswordChangeView({ ...props }: UserProps) {
             Change Password
           </Button>
         </div>
+        <Modal
+        isOpen={isModalOpen}
+        title="Password Changed Successfully"
+        onClose={handleModalClose}
+        >
+        <div className={styles.modalContent}>
+            <Button style={{ width: "100px", marginTop: "20px" }} 
+              variant={"secondary"} onClick={handleModalClose}>
+              OK
+            </Button>
+        </div>
+      </Modal>
     </main>
   );
 }
@@ -268,9 +287,9 @@ function buildFormStructure( props: UserProps ): Column[] {
     {
       title: "",
       inputs: [
-        { name: "oldPassword", label: "Old Password", inputType: "input" },
-        { name: "newPassword1", label: "New Password", inputType: "input" },
-        { name: "newPassword2", label: "Confirm New Password", inputType: "input" },
+        { name: "oldPassword", label: "Old Password*", inputType: "input" },
+        { name: "newPassword1", label: "New Password*", inputType: "input" },
+        { name: "newPassword2", label: "Confirm New Password*", inputType: "input" },
         { name: "passwordsMatch", label: "Passwords Match", inputType: "checkbox" },
         { name: "sixteenChars", label: "16 Characters", inputType: "checkbox" },
         { name: "number", label: "One Number", inputType: "checkbox" },

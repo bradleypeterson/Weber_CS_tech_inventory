@@ -6,21 +6,25 @@ import { changePassword } from "./auth";
 interface UserRow extends RowDataPacket, UserOverview {}
 export async function getAllUsers() {
   try {
-    const query = `SELECT 
+    const query = `
+                  SELECT 
                     p.PersonID,
+                    u.UserID,
                     WNumber, 
                     CONCAT(FirstName, " ", LastName) as Name, 
                     GROUP_CONCAT(DISTINCT d.Abbreviation SEPARATOR ', ') as Departments, 
                     l.Barcode as Location,
                     JSON_ARRAYAGG(d.DepartmentID) as DepartmentID,
-                    JSON_ARRAYAGG(up.PermissionID) as Permissions
+                    (IF(JSON_CONTAINS(JSON_ARRAYAGG(up.PermissionID), "null"), JSON_ARRAY(0), JSON_ARRAYAGG(up.PermissionID)))  as Permissions
                   FROM person p 
                   LEFT JOIN user u on u.PersonID = p.PersonID
                   LEFT JOIN userpermission up on up.UserID = u.UserID
                   LEFT JOIN persondepartment pd on pd.PersonID = p.PersonID 
                   LEFT JOIN department d on d.DepartmentID = pd.DepartmentID
                   LEFT JOIN location l on l.LocationID = p.LocationID 
-                  GROUP BY p.PersonID`;
+                  WHERE u.UserID IS NOT NULL
+                  GROUP BY p.PersonID
+                  `;
     const [rows] = await pool.query<UserRow[]>(query);
     return rows;
   } catch (error) {
@@ -47,25 +51,25 @@ export async function getUserDetails(personID: number): Promise<User | undefined
         l.RoomNumber,
         GROUP_CONCAT(d.Abbreviation SEPARATOR ', ') as Departments,
         JSON_ARRAYAGG(d.DepartmentID) as DepartmentID,
-        JSON_ARRAYAGG(up.PermissionID) as Permissions,
-        (SELECT Count(PermissionID) from userpermission where PermissionID = 1 and UserID = ?) as Permission1,
-        (SELECT Count(PermissionID) from userpermission where PermissionID = 2 and UserID = ?) as Permission2,
-        (SELECT Count(PermissionID) from userpermission where PermissionID = 3 and UserID = ?) as Permission3,
-        (SELECT Count(PermissionID) from userpermission where PermissionID = 4 and UserID = ?) as Permission4,
-        (SELECT Count(PermissionID) from userpermission where PermissionID = 5 and UserID = ?) as Permission5,
-        (SELECT Count(PermissionID) from userpermission where PermissionID = 6 and UserID = ?) as Permission6,
-        (SELECT Count(PermissionID) from userpermission where PermissionID = 7 and UserID = ?) as Permission7
+        (IF(JSON_CONTAINS(JSON_ARRAYAGG(up.PermissionID), "null"), JSON_ARRAY(0), JSON_ARRAYAGG(up.PermissionID)))  as Permissions,
+        (SELECT Count(PermissionID) from userpermission where PermissionID = 1 and UserID = u.UserID) as Permission1,
+        (SELECT Count(PermissionID) from userpermission where PermissionID = 2 and UserID = u.UserID) as Permission2,
+        (SELECT Count(PermissionID) from userpermission where PermissionID = 3 and UserID = u.UserID) as Permission3,
+        (SELECT Count(PermissionID) from userpermission where PermissionID = 4 and UserID = u.UserID) as Permission4,
+        (SELECT Count(PermissionID) from userpermission where PermissionID = 5 and UserID = u.UserID) as Permission5,
+        (SELECT Count(PermissionID) from userpermission where PermissionID = 6 and UserID = u.UserID) as Permission6,
+        (SELECT Count(PermissionID) from userpermission where PermissionID = 7 and UserID = u.UserID) as Permission7
       FROM person p 
-      JOIN user u on u.PersonID = p.PersonID
-      JOIN userpermission up on up.UserID = u.UserID
-      JOIN persondepartment pd on pd.PersonID = p.PersonID 
-      JOIN department d on d.DepartmentID = pd.DepartmentID
-      JOIN location l on l.LocationID = p.LocationID 
-      JOIN building b on l.BuildingID = b.BuildingID
+      LEFT JOIN user u on u.PersonID = p.PersonID
+      LEFT JOIN userpermission up on up.UserID = u.UserID
+      LEFT JOIN persondepartment pd on pd.PersonID = p.PersonID 
+      LEFT JOIN department d on d.DepartmentID = pd.DepartmentID
+      LEFT JOIN location l on l.LocationID = p.LocationID 
+      LEFT JOIN building b on l.BuildingID = b.BuildingID
       WHERE p.PersonID = ?
       GROUP BY p.PersonID
                   `;
-    const [rows] = await pool.query<UserDetailsRow[]>(query, [personID, personID, personID, personID, personID, personID, personID, personID]);
+    const [rows] = await pool.query<UserDetailsRow[]>(query, [personID]);
     const user: UserDetailsRow | undefined = rows[0];
     
     return user;

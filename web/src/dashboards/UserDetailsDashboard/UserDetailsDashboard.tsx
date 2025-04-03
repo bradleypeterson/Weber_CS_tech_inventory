@@ -9,6 +9,7 @@ import { Button } from "../../elements/Button/Button";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { LabelInput } from "../../elements/LabelInput/LabelInput";
+import { Modal } from "../../elements/Modal/Modal";
 import { MultiSelect } from "../../elements/MultiSelect/MultiSelect";
 import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
 import { TextArea } from "../../elements/TextArea/TextArea";
@@ -67,6 +68,7 @@ function UserDetailsView({ personID, ...props }: DetailsViewProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
     data: userDetails,
@@ -90,6 +92,10 @@ function UserDetailsView({ personID, ...props }: DetailsViewProps) {
     },
     [userDetails, formData]
   );
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
 
   function handleInputChange(
     name: string,
@@ -130,9 +136,11 @@ function UserDetailsView({ personID, ...props }: DetailsViewProps) {
      else {
        setError("");
        setIsEditing(false);
-       alert("User Updated Successfully");
+      //  alert("User Updated Successfully");
+       setIsModalOpen(true);
      }
- 
+     setFormData({});
+     setIsEditing(true);
      setIsSaving(false);
    }
 
@@ -179,6 +187,18 @@ function UserDetailsView({ personID, ...props }: DetailsViewProps) {
                 Change User Password
             </Button>}
       </div>
+      <Modal
+        isOpen={isModalOpen}
+        title="User Updated Successfully"
+        onClose={handleModalClose}
+        >
+        <div className={styles.modalContent}>
+            <Button style={{ width: "100px", marginTop: "20px" }} 
+              variant={"secondary"} onClick={handleModalClose}>
+              OK
+            </Button>
+        </div>
+      </Modal>
     </main>
   );
 }
@@ -192,6 +212,11 @@ function EmptyUserDetailsView({...props }: DetailsViewProps) {
   const [isEditing, setIsEditing] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
 
   function handleInputChange(
     name: string,
@@ -239,7 +264,6 @@ function EmptyUserDetailsView({...props }: DetailsViewProps) {
       return;
     }
 
-
     // Create new salt for new password
     const newSalt = CryptoJS.lib.WordArray.random(10).toString(CryptoJS.enc.Hex);         
 
@@ -268,7 +292,8 @@ function EmptyUserDetailsView({...props }: DetailsViewProps) {
     else {
       setError("");
       setIsEditing(false);
-      alert("User Added Successfully");
+      setIsModalOpen(true);
+      // alert("User Added Successfully");
     }
     setFormData({});
     setIsEditing(true);
@@ -303,6 +328,18 @@ function EmptyUserDetailsView({...props }: DetailsViewProps) {
           </div>
         ))}
       </form>
+      <Modal
+        isOpen={isModalOpen}
+        title="User Added Successfully"
+        onClose={handleModalClose}
+        >
+        <div className={styles.modalContent}>
+            <Button style={{ width: "100px", marginTop: "20px" }} 
+              variant={"secondary"} onClick={handleModalClose}>
+              OK
+            </Button>
+        </div>
+      </Modal>
     </main>
   );
 }
@@ -332,6 +369,7 @@ function FormField({
 
       {input.inputType === "input" && (
         <LabelInput
+          type={input.name.includes("password") ? "password" : "text"}
           value={typeof value === "string" || typeof value === "number" ? value : ""}
           onChange={(val) => onChange(val)}
           disabled={disabled}

@@ -180,22 +180,24 @@ export const contactOverviewArraySchema: JSONSchemaType<ContactOverview[]> = {
 export const userOverviewSchema: JSONSchemaType<UserOverview> = {
   type: "object",
   properties: {
+    UserID: {type: "number"},
     PersonID: { type: "number" },
     WNumber: { type: "string" },
     Name: { type: "string" },
     Departments: { type: "string" },
     Location: { type: "string" },
     DepartmentID: { type: "array", items: { type: "number" } },
-    Permissions: { type: "array", items: { type: "number" } },
+    Permissions: {type: "array",  items: { type: "number" }},
   },
   required: [
+    "UserID",
     "PersonID",
     "WNumber",
     "Name",
     "Departments",
     "Location",
     "DepartmentID",
-    "Permissions",
+    "Permissions"
   ],
 };
 

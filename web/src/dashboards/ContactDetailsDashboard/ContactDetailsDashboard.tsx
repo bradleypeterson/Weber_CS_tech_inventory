@@ -4,9 +4,11 @@ import { useQuery } from "react-query";
 import { useSearchParams } from "react-router";
 import { Building, Department, Room } from "../../../../@types/data";
 import { addContactDetails, fetchContactDetails, updateContactDetails } from "../../api/contacts";
+import { Button } from "../../elements/Button/Button";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { LabelInput } from "../../elements/LabelInput/LabelInput";
+import { Modal } from "../../elements/Modal/Modal";
 import { MultiSelect } from "../../elements/MultiSelect/MultiSelect";
 import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
 import { TextArea } from "../../elements/TextArea/TextArea";
@@ -63,6 +65,7 @@ function ContactDetailsView({...props }: DetailsViewProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
  
   const {
     data: contactDetails,
@@ -96,6 +99,10 @@ function ContactDetailsView({...props }: DetailsViewProps) {
     }));
   }
 
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
   async function handleSubmit() {
     setError("");
     let changedFields: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>;
@@ -124,7 +131,8 @@ function ContactDetailsView({...props }: DetailsViewProps) {
   if (response.status === "error")
     setError("An error occurred while updating this contact");
   else {
-    alert("Contact Updated Successfully");
+    setIsModalOpen(true);
+    // alert("Contact Updated Successfully");
     setError("");
     setIsEditing(false);
   }
@@ -165,6 +173,18 @@ function ContactDetailsView({...props }: DetailsViewProps) {
           </div>
         ))}
       </form>
+      <Modal
+        isOpen={isModalOpen}
+        title="Contact Updated Successfully"
+        onClose={handleModalClose}
+        >
+        <div className={styles.modalContent}>
+            <Button style={{ width: "100px", marginTop: "20px" }} 
+              variant={"secondary"} onClick={handleModalClose}>
+              OK
+            </Button>
+        </div>
+      </Modal>
     </main>
   );
 }
@@ -177,6 +197,7 @@ function EmptyContactDetailsView({...props }: DetailsViewProps) {
   const [isEditing, setIsEditing] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   function handleInputChange(
     name: string,
@@ -187,6 +208,10 @@ function EmptyContactDetailsView({...props }: DetailsViewProps) {
       [name]: value
     }));
   }
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
 
   async function handleSubmit() {
     const changedFields = formData;
@@ -213,7 +238,8 @@ function EmptyContactDetailsView({...props }: DetailsViewProps) {
     if (response.status === "error")
       setError("An error occurred while adding this contact");
     else {
-      alert("Contact Added Successfully");
+      // alert("Contact Added Successfully");
+      setIsModalOpen(true);
       setError("");
       setIsEditing(false);
       // Clear the form data
@@ -251,6 +277,18 @@ function EmptyContactDetailsView({...props }: DetailsViewProps) {
           </div>
         ))}
       </form>
+      <Modal
+        isOpen={isModalOpen}
+        title="Contact Added Successfully"
+        onClose={handleModalClose}
+        >
+        <div className={styles.modalContent}>
+            <Button style={{ width: "100px", marginTop: "20px" }} 
+              variant={"secondary"} onClick={handleModalClose}>
+              OK
+            </Button>
+        </div>
+      </Modal>
     </main>
   );
 }

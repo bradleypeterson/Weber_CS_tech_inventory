@@ -146,12 +146,13 @@ type User = {
 
 type UserOverview = {
   PersonID: number;
+  UserID: number;
   WNumber: string;
   Name: string;
   Departments: string;
   Location: string;
   DepartmentID: number[];
-  Permissions: (number | string)[];
+  Permissions: number[];
 };
 
 type Condition = {
