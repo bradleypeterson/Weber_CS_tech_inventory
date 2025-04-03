@@ -407,25 +407,25 @@ function buildFormStructure(details: DetailsViewProps, permissions: number[]): C
     {
       title: "User Info",
       inputs: [
-        { name: "FirstName", label: "First Name", inputType: "input" },
-        { name: "LastName", label: "Last Name", inputType: "input" },
-        { name: "WNumber", label: "W Number", inputType: "input" },
+        { name: "FirstName", label: "First Name*", inputType: "input" },
+        { name: "LastName", label: "Last Name*", inputType: "input" },
+        { name: "WNumber", label: "W Number*", inputType: "input" },
         {
           name: "DepartmentID",
-          label: "Departments",
+          label: "Departments*",
           inputType: "multi select",
           fetchOptions: () => details.departments.map((department) => ({ label: department.Name, value: department.DepartmentID }))
         },
         {
           name: "BuildingID",
-          label: "Building",
+          label: "Building*",
           inputType: "single select",
           fetchOptions: () =>
             details.buildings.map((building) => ({ label: building.Name, value: building.BuildingID }))
         },
         {
           name: "RoomNumber",
-          label: "Room Number",
+          label: "Room Number*",
           inputType: "single select",
           fetchOptions: () => details.rooms.map((room) => ({ label: room.Barcode, value: room.RoomNumber }))
         },
@@ -453,8 +453,8 @@ function buildFormStructure(details: DetailsViewProps, permissions: number[]): C
       {
       title: "Password",
       inputs: [
-        { name: "password1", label: "New Password", inputType: "input" },
-        { name: "password2", label: "Confirm New Password", inputType: "input" },
+        { name: "password1", label: "New Password*", inputType: "input" },
+        { name: "password2", label: "Confirm New Password*", inputType: "input" },
         { name: "passwordsMatch", label: "Passwords Match", inputType: "checkbox" },
         { name: "sixteenChars", label: "16 Characters", inputType: "checkbox" },
         { name: "number", label: "One Number", inputType: "checkbox" },

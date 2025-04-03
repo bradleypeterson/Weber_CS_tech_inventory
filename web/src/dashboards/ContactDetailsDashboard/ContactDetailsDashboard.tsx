@@ -355,24 +355,24 @@ function buildFormStructure(details: DetailsViewProps): Column[] {
     {
       title: "Contact Person Info",
       inputs: [
-        { name: "FirstName", label: "First Name", inputType: "input" },
-        { name: "LastName", label: "Last Name", inputType: "input" },
-        { name: "WNumber", label: "W Number", inputType: "input" },
+        { name: "FirstName", label: "First Name*", inputType: "input" },
+        { name: "LastName", label: "Last Name*", inputType: "input" },
+        { name: "WNumber", label: "W Number*", inputType: "input" },
         {
           name: "DepartmentID",
-          label: "Department",
+          label: "Department*",
           inputType: "multi select",
           fetchOptions: () => details.departments.map((department) => ({ label: department.Name, value: department.DepartmentID }))
         },
         {
           name: "BuildingID",
-          label: "Building",
+          label: "Building*",
           inputType: "single select",
           fetchOptions: () => details.buildings.map((building) => ({ label: building.Name, value: building.BuildingID }))
         },
         {
           name: "RoomNumber",
-          label: "RoomNumber",
+          label: "Room Number*",
           inputType: "single select",
           fetchOptions: () => details.rooms.map((room) => ({ label: room.Barcode, value: room.RoomNumber }))
         },
