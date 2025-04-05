@@ -17,12 +17,65 @@ export async function getUserSalt(userId: string) {
   }
 }
 
+interface IdNumberRow extends RowDataPacket {
+  UserID: string;
+}
+
+export async function getUserIDByWNumber(wNumber: string) {
+  try {
+    const query = `
+    select UserID 
+    from user u
+    left join person p on p.PersonID = u.PersonID
+    where WNumber = ?
+    `;
+    const [rows] = await pool.query<IdNumberRow[]>(query, [wNumber]);
+    if (rows.length === 0) return null;
+    console.log(rows[0].UserID);
+    return rows[0].UserID.toString();
+    
+  } catch (error) {
+    console.error(`Database error in getUserIDByWNumber: `, error);
+    throw new Error("Database query failed");
+  }
+}
+
 interface UserDetailsRow extends RowDataPacket {
   UserID: number;
   PersonID: number;
   HashedPassword?: string;
   Salt: string;
   Permissions: number[];
+}
+
+export async function getUserDetailsByWNumber(userId: string) {
+  try {
+    const query = `
+      select 
+        u.UserID as UserID,
+        p.PersonID, HashedPassword,
+        Salt,
+        if(
+          count(up.PermissionId) > 0, 
+          JSON_ARRAYAGG(up.PermissionId), 
+          JSON_ARRAY()
+        ) AS Permissions
+      from User u
+      left join UserPermission up on u.UserID = up.UserID
+      left join Person p on u.PersonID = p.PersonID
+      where p.WNumber = ? 
+      group by userID, u.PersonID, HashedPassword, Salt
+      limit 1
+    `;
+
+    const [rows] = await pool.query<UserDetailsRow[]>(query, [userId]);
+    if (rows.length === 0) return null;
+    console.log(rows[0]);
+    return rows[0];
+  } catch (error) {
+    console.error(`Database error in getUserDetails: `, error);
+    throw new Error("Database query failed");
+  }
 }
 
 export async function getUserDetails(userId: string) {

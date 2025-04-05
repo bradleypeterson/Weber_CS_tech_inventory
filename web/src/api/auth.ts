@@ -3,13 +3,16 @@ import sha256 from "crypto-js/sha256";
 import { ajv } from "../ajv";
 import { get, post } from "./helpers";
 
-export async function login(userId: string, password: string) {
+export async function login(wNumber: string, password: string) {
+  const userIdResponse = await get (`/auth/wNumber?wNumber=${wNumber}`, validateWNumberResponse);
+  if (userIdResponse.status === "error") return userIdResponse;
+  const userId = userIdResponse.data.userId;
   const saltResponse = await get(`/auth/salt?userId=${userId}`, validateSaltResponse);
   if (saltResponse.status === "error") return saltResponse;
 
   const hashDigest = sha256(password + saltResponse.data.salt);
   const hashedPassword = hashDigest.toString();
-  const loginResponse = await post(`/auth/login`, { userId, password: hashedPassword }, validateLoginResponse);
+  const loginResponse = await post(`/auth/login`, { wNumber, password: hashedPassword }, validateLoginResponse);
   if (loginResponse.status === "error") return loginResponse;
 
   localStorage.setItem("token", loginResponse.data.token);
@@ -27,6 +30,16 @@ const saltResponseSchema: JSONSchemaType<{ salt: string }> = {
 };
 
 const validateSaltResponse = ajv.compile(saltResponseSchema);
+
+const wNumberResponseSchema: JSONSchemaType<{ userId: string}> = {
+  type: "object",
+  properties: {
+    userId: { type: "string" }
+  },
+  required: ["userId"]
+};
+
+const validateWNumberResponse = ajv.compile(wNumberResponseSchema);
 
 const loginResponseSchema: JSONSchemaType<{ token: string; permissions: number[]; personID: number }> = {
   type: "object",

@@ -3,10 +3,12 @@ import { sign } from "jsonwebtoken";
 import { login } from "./login";
 import { salt } from "./salt";
 import { updatePassword } from "./updatePassword";
+import { wNumber } from "./wNumber";
 export const authRouter = Router();
 
 authRouter.post("/login", login);
 authRouter.get("/salt", salt);
+authRouter.get("/wNumber", wNumber);
 authRouter.post("/updatePassword", updatePassword);
 
 export function createToken(detail: string | object) {
