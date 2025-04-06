@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useSearchParams } from "react-router-dom";
 import type { APIResponse } from "../../../../@types/api";
-import { Notes } from "../../components/Notes/Notes";
+import { ItemNotes } from "../../components/ItemNotes/ItemNotes";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
 import { Modal } from "../../elements/Modal/Modal";
@@ -29,6 +29,12 @@ interface EquipmentDetailsRow {
   status?: number;
 }
 
+// Define type for item notes
+interface ItemNote {
+  tagNumber: string;
+  note: string;
+}
+
 export function NewAudit() {
   const { permissions } = useAuth();
   const linkTo = useLinkTo();
@@ -43,7 +49,7 @@ export function NewAudit() {
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
   const [pendingItem, setPendingItem] = useState<EquipmentDetailsRow | null>(null);
   const [addedItems, setAddedItems] = useState<EquipmentDetailsRow[]>([]);
-  const [notes, setNotes] = useState<string[]>([]);
+  const [itemNotes, setItemNotes] = useState<ItemNote[]>([]);
   const queryClient = useQueryClient();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -63,7 +69,7 @@ export function NewAudit() {
     setPendingItem(null);
     setBarcode("");
     setError("");
-    setNotes([]);
+    setItemNotes([]);
     setSubmitError(null);
 
     // Clear React Query cache for all equipment data
@@ -184,6 +190,10 @@ export function NewAudit() {
     }));
   };
 
+  const handleAddItemNote = (tagNumber: string, note: string) => {
+    setItemNotes(prev => [...prev, { tagNumber, note }]);
+  };
+
   const handleAddItemToAudit = () => {
     if (pendingItem && equipmentData?.data?.[0]) {
       // Check if item is already in the list
@@ -197,10 +207,13 @@ export function NewAudit() {
         return;
       }
 
+      // Ensure we're using the tag number as a string
+      const tagNumber = String(pendingItem.TagNumber);
+
       // Add item to the list with "Turned-In" status (4)
       setItemStatuses(prev => ({
         ...prev,
-        [pendingItem.TagNumber]: 4
+        [tagNumber]: 4
       }));
       
       // Add to our local state of added items
@@ -209,8 +222,15 @@ export function NewAudit() {
       // Add automatic note for unassigned item using current room's building abbreviation + room number
       const currentRoom = equipmentData.data[0];
       const locationBarcode = `${currentRoom.BuildingAbbr}${currentRoom.RoomNumber}`;
-      const newNote = `Item: ${pendingItem.TagNumber} ${pendingItem.Description} found at ${locationBarcode}`;
-      setNotes(prev => [...prev, newNote]);
+      
+      // Ensure consistent tag number format for notes
+      console.log(`Adding note for item ${tagNumber} found at ${locationBarcode}`);
+      
+      // Add as an item-specific note with consistent tag number format
+      setItemNotes(prev => [...prev, {
+        tagNumber,
+        note: `Found at ${locationBarcode}`
+      }]);
       
       // Update the cache with the new item
       queryClient.setQueryData<APIResponse<EquipmentDetailsRow[]>>(
@@ -265,10 +285,11 @@ export function NewAudit() {
       return;
     }
     
-    // Store current room ID and item statuses for the summary page
+    // Store current room ID, item statuses, and item notes for the summary page
     if (roomId) {
       localStorage.setItem('current_room_id', roomId);
       localStorage.setItem(`audit_item_statuses_${roomId}`, JSON.stringify(itemStatuses));
+      localStorage.setItem(`audit_item_notes_${roomId}`, JSON.stringify(itemNotes));
     }
     
     // Clear error and proceed with submission
@@ -282,13 +303,21 @@ export function NewAudit() {
     
     // If we have a roomId and it matches the stored room, restore state
     if (roomId && storedRoomId === roomId) {
-      const savedItems = localStorage.getItem(`audit_added_items_${roomId}`);
-      const savedNotes = localStorage.getItem(`audit_notes_${roomId}`);
+      const savedItemNotes = localStorage.getItem(`audit_item_notes_${roomId}`);
+      const savedAddedItems = localStorage.getItem(`audit_added_items_${roomId}`);
       const savedStatuses = localStorage.getItem(`audit_item_statuses_${roomId}`);
 
-      if (savedItems) {
+      if (savedItemNotes) {
         try {
-          const items = JSON.parse(savedItems) as EquipmentDetailsRow[];
+          setItemNotes(JSON.parse(savedItemNotes));
+        } catch (error) {
+          console.error('Error loading saved item notes:', error);
+        }
+      }
+      
+      if (savedAddedItems) {
+        try {
+          const items = JSON.parse(savedAddedItems);
           setAddedItems(items);
           // Update the React Query cache with the added items
           queryClient.setQueryData<APIResponse<EquipmentDetailsRow[]>>(
@@ -310,15 +339,7 @@ export function NewAudit() {
             }
           );
         } catch (error) {
-          console.error('Error loading saved items:', error);
-        }
-      }
-
-      if (savedNotes) {
-        try {
-          setNotes(JSON.parse(savedNotes));
-        } catch (error) {
-          console.error('Error loading saved notes:', error);
+          console.error('Error loading saved added items:', error);
         }
       }
 
@@ -344,10 +365,10 @@ export function NewAudit() {
         localStorage.removeItem(`audit_added_items_${roomId}`);
       }
 
-      if (notes.length > 0) {
-        localStorage.setItem(`audit_notes_${roomId}`, JSON.stringify(notes));
+      if (itemNotes.length > 0) {
+        localStorage.setItem(`audit_item_notes_${roomId}`, JSON.stringify(itemNotes));
       } else {
-        localStorage.removeItem(`audit_notes_${roomId}`);
+        localStorage.removeItem(`audit_item_notes_${roomId}`);
       }
 
       if (Object.keys(itemStatuses).length > 0) {
@@ -358,7 +379,7 @@ export function NewAudit() {
         localStorage.removeItem('current_room_id');
       }
     }
-  }, [addedItems, notes, itemStatuses, roomId]);
+  }, [addedItems, itemNotes, itemStatuses, roomId]);
 
   // Also check and update error message whenever filtered data or statuses change
   useEffect(() => {
@@ -450,7 +471,11 @@ export function NewAudit() {
             }
           }}
         />
-        <Notes notes={notes} />
+        <ItemNotes 
+          itemNotes={itemNotes} 
+          equipmentItems={[...(equipmentData?.data || []), ...addedItems]}
+          onAdd={handleAddItemNote}
+        />
         <div className={styles.buttons}>
           <div className={styles.errorMessage}>
             {submitError}

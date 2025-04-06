@@ -11,14 +11,19 @@ interface StatusCounts {
   turnedIn: number;
 }
 
+interface ItemNote {
+  tagNumber: string;
+  note: string;
+}
+
 interface AuditSubmission {
   roomId: string;
   itemStatuses: Record<string, number>;
-  notes: string[];
+  itemNotes: ItemNote[];
 }
 
 export function AuditSummary() {
-  const { permissions, token } = useAuth();
+  const { permissions } = useAuth();
   const linkTo = useLinkTo();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,10 +36,15 @@ export function AuditSummary() {
 
   const submitAudit = useMutation({
     mutationFn: async (data: AuditSubmission) => {
+      const token = localStorage.getItem('token');
       if (!token) throw new Error('Not authenticated');
-
-      console.log('Submitting audit with token:', token);
-      console.log('Request data:', data);
+      
+      // Ensure clean data structures
+      const cleanData = {
+        roomId: data.roomId,
+        itemStatuses: Object.keys(data.itemStatuses).length > 0 ? data.itemStatuses : {},
+        itemNotes: Array.isArray(data.itemNotes) ? data.itemNotes : []
+      };
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/audits/submit`, {
         method: 'POST',
@@ -42,15 +52,14 @@ export function AuditSummary() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(cleanData)
       });
 
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Submit response error:', {
           status: response.status,
-          statusText: response.statusText,
-          error: errorData
+          statusText: response.statusText
         });
         throw new Error(errorData.error?.message || 'Failed to submit audit');
       }
@@ -132,7 +141,7 @@ export function AuditSummary() {
     }
 
     const itemStatusesStr = localStorage.getItem(`audit_item_statuses_${roomId}`);
-    const notesStr = localStorage.getItem(`audit_notes_${roomId}`);
+    const itemNotesStr = localStorage.getItem(`audit_item_notes_${roomId}`);
 
     if (!itemStatusesStr) {
       setError('No audit data found');
@@ -140,15 +149,43 @@ export function AuditSummary() {
     }
 
     try {
-      const itemStatuses = JSON.parse(itemStatusesStr);
-      const notes = notesStr ? JSON.parse(notesStr) : [];
+      const parsedStatuses = JSON.parse(itemStatusesStr);
+      const parsedNotes = itemNotesStr ? JSON.parse(itemNotesStr) : [];
 
-      submitAudit.mutate({
-        roomId,
-        itemStatuses,
-        notes
+      // Convert to clean objects
+      const cleanStatuses: Record<string, number> = {};
+      Object.entries(parsedStatuses).forEach(([key, value]) => {
+        if (key && value !== undefined && value !== null) {
+          // Always store key as string
+          cleanStatuses[String(key)] = Number(value);
+        }
       });
+
+      const cleanNotes = Array.isArray(parsedNotes) 
+        ? parsedNotes
+            .filter(note => note && note.tagNumber && note.note)
+            .map(note => ({
+              tagNumber: String(note.tagNumber),
+              note: String(note.note).trim()
+            }))
+        : [];
+
+      // Make sure we have at least something to submit
+      if (Object.keys(cleanStatuses).length === 0) {
+        setError('No valid item statuses to submit');
+        return;
+      }
+
+      // Simplified submission data
+      const submissionData = {
+        roomId,
+        itemStatuses: cleanStatuses,
+        itemNotes: cleanNotes
+      };
+
+      submitAudit.mutate(submissionData);
     } catch (error) {
+      console.error('Error preparing audit data:', error);
       setError(error instanceof Error ? error.message : 'Failed to prepare audit data');
     }
   };
