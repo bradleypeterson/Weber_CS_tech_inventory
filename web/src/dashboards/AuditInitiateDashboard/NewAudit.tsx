@@ -191,7 +191,18 @@ export function NewAudit() {
   };
 
   const handleAddItemNote = (tagNumber: string, note: string) => {
-    setItemNotes(prev => [...prev, { tagNumber, note }]);
+    // Check if a note already exists for this tag number
+    const existingNoteIndex = itemNotes.findIndex(item => item.tagNumber === tagNumber);
+    
+    if (existingNoteIndex >= 0) {
+      // Replace the existing note
+      const updatedNotes = [...itemNotes];
+      updatedNotes[existingNoteIndex] = { tagNumber, note };
+      setItemNotes(updatedNotes);
+    } else {
+      // Add a new note
+      setItemNotes(prev => [...prev, { tagNumber, note }]);
+    }
   };
 
   const handleAddItemToAudit = () => {
