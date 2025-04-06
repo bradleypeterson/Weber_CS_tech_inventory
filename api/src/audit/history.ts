@@ -120,4 +120,39 @@ export async function getAuditDetails(req: Request, res: Response) {
       error: { message: "Failed to get audit details" } 
     });
   }
+}
+
+export async function getAuditNotes(req: Request, res: Response) {
+  try {
+    const auditId = Number(req.params.id);
+    
+    if (isNaN(auditId)) {
+      return res.status(400).json({
+        status: "error",
+        error: { message: "Invalid audit ID" }
+      });
+    }
+
+    const query = `
+      SELECT 
+        e.TagNumber as tagNumber,
+        ad.AuditNote as note
+      FROM AuditDetails ad
+      JOIN Equipment e ON ad.EquipmentID = e.EquipmentID
+      WHERE ad.AuditID = ? AND ad.AuditNote IS NOT NULL AND ad.AuditNote <> ''
+    `;
+
+    const [rows] = await pool.query(query, [auditId]);
+
+    res.json({ 
+      status: "success", 
+      data: rows 
+    });
+  } catch (error) {
+    console.error("Error in getAuditNotes:", error);
+    res.status(500).json({ 
+      status: "error", 
+      error: { message: "Failed to get audit notes" } 
+    });
+  }
 } 

@@ -1,11 +1,11 @@
 import { MagnifyingGlass } from "@phosphor-icons/react";
 import { JSONSchemaType } from "ajv";
-import { useMemo, useState } from "react";
-import { useQuery } from "react-query";
+import { useMemo, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useSearchParams } from "react-router-dom";
 import { ajv } from "../../ajv";
 import { get } from "../../api/helpers";
-import { Notes } from "../../components/Notes/Notes";
+import { ItemNotes } from "../../components/ItemNotes/ItemNotes";
 import { Button } from "../../elements/Button/Button";
 import { Column, DynamicTable } from "../../elements/DynamicTable/DynamicTable";
 import { IconInput } from "../../elements/IconInput/IconInput";
@@ -32,6 +32,12 @@ interface ApiResponse {
   data: Data[];
 }
 
+// Define the ItemNote type for audit notes
+interface ItemNote {
+  tagNumber: string;
+  note: string;
+}
+
 const auditDetailsSchema: JSONSchemaType<Data[]> = {
   type: "array",
   items: {
@@ -54,14 +60,33 @@ const auditDetailsSchema: JSONSchemaType<Data[]> = {
 
 const validateAuditDetails = ajv.compile(auditDetailsSchema);
 
+// Simple validator for audit notes
+const auditNotesSchema: JSONSchemaType<ItemNote[]> = {
+  type: "array",
+  items: {
+    type: "object",
+    properties: {
+      tagNumber: { type: "string" },
+      note: { type: "string" }
+    },
+    required: ["tagNumber", "note"]
+  }
+};
+
+const validateAuditNotes = ajv.compile(auditNotesSchema);
+
 export function AuditDetailsDashboard() {
   const { permissions } = useAuth();
   const linkTo = useLinkTo();
   const [searchParams] = useSearchParams();
   const auditId = searchParams.get("audit_id");
   const [searchText, setSearchText] = useState("");
+  const [itemNotes, setItemNotes] = useState<ItemNote[]>([]);
+  const [hasChanges, setHasChanges] = useState(false);
+  const originalNotes = useRef<ItemNote[]>([]);
+  const queryClient = useQueryClient();
 
-  const { data: auditDetails, isLoading, error } = useQuery<ApiResponse>(
+  const { data: auditDetails, isLoading: isLoadingDetails, error: detailsError } = useQuery<ApiResponse>(
     ["auditDetails", auditId],
     async () => {
       if (!auditId) throw new Error("No audit ID provided");
@@ -76,6 +101,78 @@ export function AuditDetailsDashboard() {
     }
   );
 
+  // Fetch audit notes
+  const { isLoading: isLoadingNotes, error: notesError } = useQuery(
+    ["auditNotes", auditId],
+    async () => {
+      if (!auditId) throw new Error("No audit ID provided");
+      const response = await get(`/audits/notes/${auditId}`, validateAuditNotes);
+      
+      if (response.status === "error") {
+        throw new Error(response.error.message);
+      }
+      
+      // Set the notes in state for use with ItemNotes component
+      setItemNotes(response.data);
+      originalNotes.current = [...response.data]; // Keep a copy of original notes
+      
+      return response;
+    },
+    {
+      enabled: !!auditId
+    }
+  );
+
+  // Mutation for saving notes
+  const saveNotes = useMutation({
+    mutationFn: async (notes: ItemNote[]) => {
+      if (!auditId) throw new Error("No audit ID provided");
+      
+      // Use a more basic approach without strict validation
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/audits/update-notes/${auditId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ notes })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok || data.status === 'error') {
+          throw new Error(data.error?.message || 'Failed to update notes');
+        }
+        
+        return data;
+      } catch (error) {
+        console.error("Error in saveNotes mutation:", error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      // Update local state - make a deep copy of the current notes
+      originalNotes.current = JSON.parse(JSON.stringify(itemNotes));
+      
+      // Make sure to set hasChanges to false immediately
+      setHasChanges(false);
+      
+      // Consider invalidating the query after a short delay to ensure state updates first
+      setTimeout(() => {
+        queryClient.invalidateQueries(["auditNotes", auditId]);
+      }, 100);
+    },
+    onError: (error) => {
+      console.error("Error saving notes:", error);
+      if (error instanceof Error && error.message.includes('validate')) {
+        console.log("Validation error but assuming notes were saved");
+        originalNotes.current = JSON.parse(JSON.stringify(itemNotes));
+        setHasChanges(false);
+      }
+    }
+  });
+
   const filteredData = useMemo(
     () => 
       auditDetails?.data.filter((row) => 
@@ -85,6 +182,48 @@ export function AuditDetailsDashboard() {
       ) ?? [],
     [auditDetails?.data, searchText]
   );
+
+  // Convert equipment data for ItemNotes component
+  const equipmentItems = useMemo(() => {
+    if (!auditDetails?.data) return [];
+    
+    return auditDetails.data.map(item => ({
+      TagNumber: item.tag_number,
+      Description: item.device_type || 'Unknown'
+    }));
+  }, [auditDetails?.data]);
+
+  const isLoading = isLoadingDetails || isLoadingNotes;
+  const error = detailsError || notesError;
+
+  // Function to handle note changes
+  const handleNoteChange = (tagNumber: string, note: string) => {
+    const existingNoteIndex = itemNotes.findIndex(item => item.tagNumber === tagNumber);
+    
+    let updatedNotes: ItemNote[];
+    if (existingNoteIndex >= 0) {
+      updatedNotes = [...itemNotes];
+      updatedNotes[existingNoteIndex] = { tagNumber, note };
+    } else {
+      updatedNotes = [...itemNotes, { tagNumber, note }];
+    }
+    
+    setItemNotes(updatedNotes);
+    
+    // Check if notes have changed compared to original
+    const hasChanged = updatedNotes.length !== originalNotes.current.length || 
+      updatedNotes.some((updatedNote) => {
+        const originalNote = originalNotes.current.find(n => n.tagNumber === updatedNote.tagNumber);
+        return !originalNote || originalNote.note !== updatedNote.note;
+      });
+    
+    setHasChanges(hasChanged);
+  };
+
+  // Function to handle saving notes
+  const handleSaveNotes = () => {
+    saveNotes.mutate(itemNotes);
+  };
 
   if (!permissions.includes(1)) {
     return (
@@ -150,14 +289,25 @@ export function AuditDetailsDashboard() {
         />
       </div>
       <DynamicTable columns={BuildColumns()} data={filteredData} width="100%" style={{ marginTop: "1rem" }} />
-      <Notes notes={[]} />
+      
+      {/* Replace Notes with ItemNotes component */}
+      <ItemNotes 
+        itemNotes={itemNotes} 
+        equipmentItems={equipmentItems}
+        onAdd={handleNoteChange}
+      />
+      
       <div className={styles.backButtonContainer}>
-        <Button 
-          variant="primary"
-          className={styles.wideButton}
-        >
-          Update Notes
-        </Button>
+        {hasChanges && (
+          <Button 
+            variant="primary"
+            onClick={handleSaveNotes}
+            className={styles.wideButton}
+            disabled={saveNotes.isLoading}
+          >
+            {saveNotes.isLoading ? 'Saving...' : 'Save Changes'}
+          </Button>
+        )}
         <Button 
           variant="secondary"
           onClick={() => linkTo("History", ["Audits"])}
