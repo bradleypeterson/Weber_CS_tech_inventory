@@ -25,15 +25,14 @@ export async function getUserIDByWNumber(wNumber: string) {
   try {
     const query = `
     select UserID 
-    from user u
-    left join person p on p.PersonID = u.PersonID
+    from User u
+    left join Person p on p.PersonID = u.PersonID
     where WNumber = ?
     `;
     const [rows] = await pool.query<IdNumberRow[]>(query, [wNumber]);
     if (rows.length === 0) return null;
     console.log(rows[0].UserID);
     return rows[0].UserID.toString();
-    
   } catch (error) {
     console.error(`Database error in getUserIDByWNumber: `, error);
     throw new Error("Database query failed");
@@ -113,7 +112,6 @@ export async function changePassword(userID: string, hashedNewPassword: string, 
     `;
 
     const [result] = await pool.query(query, [hashedNewPassword, newSalt, userID]);
-
   } catch (error) {
     console.error(`Database error in changePassword: `, error);
     throw new Error("Database query failed");
