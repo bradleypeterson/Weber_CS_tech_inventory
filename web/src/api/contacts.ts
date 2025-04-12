@@ -18,22 +18,20 @@ export async function fetchContactDetails(personID: number): Promise<Contact | u
 
 export async function updateContactDetails(
   personID: string, WNumber: string, FirstName: string, LastName:string,
-  DepartmentID: number[], BuildingID: number, RoomNumber: string
+  DepartmentID: number[], BuildingID: number, LocationID: number
   ) {
 
   const response = await post(`/contacts/${personID}/update`, {
-    personID, WNumber, FirstName, LastName, DepartmentID, BuildingID, RoomNumber}, validateContactResponse);
+    personID, WNumber, FirstName, LastName, DepartmentID, BuildingID, LocationID}, validateContactResponse);
   return response;
 }
 
 export async function addContactDetails(
   WNumber: string, FirstName: string, LastName:string,
-  DepartmentID: number[], BuildingID: number, RoomNumber: string
+  DepartmentID: number[], BuildingID: number, LocationID: number
   ) {
-
-  console.log(WNumber);
   const response = await post(`/contacts/add`, {
-    WNumber, FirstName, LastName, DepartmentID, BuildingID, RoomNumber}, validateAddContactResponse);
+    WNumber, FirstName, LastName, DepartmentID, BuildingID, LocationID}, validateAddContactResponse);
   return response;
 }
 

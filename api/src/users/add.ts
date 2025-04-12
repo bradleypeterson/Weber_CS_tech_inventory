@@ -33,7 +33,7 @@ const addSchema: JSONSchemaType<
     LastName: { type: "string" },
     DepartmentID: { type: "array", items: { type: "number" } },
     BuildingID: { type: "number"},
-    RoomNumber: { type: "string"},
+    LocationID: { type: "number"},
     Permissions: { type: "array", items: { type: "number" } },
   },
   required: [],

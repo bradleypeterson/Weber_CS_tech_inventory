@@ -123,10 +123,10 @@ function ContactDetailsView({...props }: DetailsViewProps) {
   const LastName = sanitizedFields.LastName as string;
   const DepartmentID = sanitizedFields.DepartmentID as number[];
   const BuildingID = sanitizedFields.BuildingID as number;
-  const RoomNumber = sanitizedFields.RoomNumber as string;
+  const LocationID = sanitizedFields.LocationID as number;
     
   setIsSaving(true);
-  const response = await updateContactDetails(props.personID ?? "", WNumber, FirstName, LastName, DepartmentID, BuildingID, RoomNumber)
+  const response = await updateContactDetails(props.personID ?? "", WNumber, FirstName, LastName, DepartmentID, BuildingID, LocationID)
   
   if (response.status === "error")
     setError("An error occurred while updating this contact");
@@ -140,7 +140,7 @@ function ContactDetailsView({...props }: DetailsViewProps) {
   setIsSaving(false);
   }
 
-  const formStructure = useMemo(() => buildFormStructure({ ...props }), [props]);
+  const formStructure = useMemo(() => buildFormStructure({ ...props, selectedBuildingID: Number(formData["BuildingID"]) }), [props, formData]);
   
   if (isLoading) return <>Loading</>;
   if (isError) return <>Unknown Contact</>;
@@ -231,10 +231,10 @@ function EmptyContactDetailsView({...props }: DetailsViewProps) {
     const LastName = sanitizedFields.LastName as string;
     const DepartmentID = sanitizedFields.DepartmentID as number[];
     const BuildingID = sanitizedFields.BuildingID as number;
-    const RoomNumber = sanitizedFields.RoomNumber as string;
+    const LocationID = sanitizedFields.LocationID as number;
       
     setIsSaving(true);
-    const response = await addContactDetails(WNumber, FirstName, LastName, DepartmentID, BuildingID, RoomNumber)
+    const response = await addContactDetails(WNumber, FirstName, LastName, DepartmentID, BuildingID, LocationID)
     if (response.status === "error")
       setError("An error occurred while adding this contact");
     else {
@@ -249,7 +249,7 @@ function EmptyContactDetailsView({...props }: DetailsViewProps) {
     setIsSaving(false);
   }
   
-  const formStructure = useMemo(() => buildFormStructure({ ...props }), [props]);
+  const formStructure = useMemo(() => buildFormStructure({ ...props, selectedBuildingID: Number(formData["BuildingID"]) }), [props, formData]);
 
   return (
     <main className={styles.layout}>
@@ -388,7 +388,7 @@ type Column = {
   inputs: ContactInputField[];
 };
 
-function buildFormStructure(details: DetailsViewProps): Column[] {
+function buildFormStructure(details: DetailsViewProps & { selectedBuildingID?: number }): Column[] {
   const formStructure: Column[] = [
     {
       title: "Contact Person Info",
@@ -409,11 +409,15 @@ function buildFormStructure(details: DetailsViewProps): Column[] {
           fetchOptions: () => details.buildings.map((building) => ({ label: building.Name, value: building.BuildingID }))
         },
         {
-          name: "RoomNumber",
+          name: "LocationID",
           label: "Room Number*",
           inputType: "single select",
-          fetchOptions: () => details.rooms.map((room) => ({ label: room.Barcode, value: room.RoomNumber }))
+          fetchOptions: () =>
+            details.rooms
+              .filter((room) => room.BuildingID === details.selectedBuildingID)
+              .map((room) => ({ label: room.RoomNumber, value: room.LocationID }))
         },
+
       ]
     },
   ];

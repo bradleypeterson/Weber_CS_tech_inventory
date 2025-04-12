@@ -34,21 +34,19 @@ export async function getContactDetails(personID: number): Promise<ContactDetail
         CONCAT(FirstName, " ", LastName) as FullName, 
         FirstName,
         LastName,
-        l.Barcode as Location,
+        l.LocationID,
         l.BuildingID,
-        l.RoomNumber, 
         GROUP_CONCAT(d.Abbreviation SEPARATOR ', ') as Departments,
         JSON_ARRAYAGG(d.DepartmentID) as DepartmentID
-      FROM person p 
-      JOIN persondepartment pd on pd.PersonID = p.PersonID 
-      JOIN department d on d.DepartmentID = pd.DepartmentID
-      JOIN location l on l.LocationID = p.LocationID 
+      FROM Person p 
+      JOIN PersonDepartment pd on pd.PersonID = p.PersonID 
+      JOIN Department d on d.DepartmentID = pd.DepartmentID
+      JOIN Location l on l.LocationID = p.LocationID 
       WHERE p.PersonID = ?
-      GROUP BY p.PersonID, WNumber, FullName, FirstName, LastName, Location, BuildingID, RoomNumber
+      GROUP BY p.PersonID, WNumber, FullName, FirstName, LastName, LocationID, BuildingID
                   `;
     const [rows] = await pool.query<ContactDetailsRow[]>(query, [personID.toString()]);
     const contact: ContactDetailsRow | undefined = rows[0];
-    console.log(rows);
     return contact;
   } catch (error) {
     console.error(`Error in getContactDetails`, error);
@@ -58,25 +56,25 @@ export async function getContactDetails(personID: number): Promise<ContactDetail
 
 export async function dbUpdateContact(
   personID: string, WNumber: string, FirstName: string, LastName:string,
-  DepartmentID: number[], BuildingID: number, RoomNumber: string
+  DepartmentID: number[], BuildingID: number, LocationID: number
   ) {
 
   try {
     const query = `
-      UPDATE person
+      UPDATE Person
         SET FirstName = ?, 
           LastName = ?,
           WNumber = ?,
-          LocationID = (SELECT LocationID FROM location WHERE BuildingID = ? AND RoomNumber = ?)
+          LocationID = ?
         WHERE PersonID = ?;
     `;
 
     const deptQuery = `
-      INSERT IGNORE INTO persondepartment(PersonID, DepartmentID)
+      INSERT IGNORE INTO PersonDepartment(PersonID, DepartmentID)
         VALUES(?, ?);
     `;
 
-    await pool.query(query, [FirstName, LastName, WNumber, BuildingID, RoomNumber, personID]);
+    await pool.query(query, [FirstName, LastName, WNumber, LocationID, personID]);
 
     for (const element of DepartmentID) {
       await pool.query(deptQuery, [personID, element]);
@@ -95,23 +93,23 @@ interface PersonRow extends RowDataPacket {
 
 export async function dbAddContact(
   WNumber: string, FirstName: string, LastName:string,
-  DepartmentID: number[], BuildingID: number, RoomNumber: string
+  DepartmentID: number[], BuildingID: number, LocationID: number
   ) {
 
   try {
     const query = `
-      INSERT INTO person(FirstName, LastName, WNumber, LocationID)
-        VALUES (?,?,?,(SELECT LocationID FROM location WHERE BuildingID = ? AND RoomNumber = ?));
+      INSERT INTO Person(FirstName, LastName, WNumber, LocationID)
+        VALUES (?,?,?,?);
     `;
 
-    const idQuery = `SELECT PersonID from person WHERE WNumber = ?;`;
+    const idQuery = `SELECT PersonID from Person WHERE WNumber = ?;`;
 
     const deptQuery = `
-      INSERT IGNORE INTO persondepartment(PersonID, DepartmentID)
+      INSERT IGNORE INTO PersonDepartment(PersonID, DepartmentID)
         VALUES(?, ?);
     `;
 
-    await pool.query(query, [FirstName, LastName, WNumber, BuildingID, RoomNumber]);
+    await pool.query(query, [FirstName, LastName, WNumber, LocationID]);
 
     //get personID
     const [rows] = await pool.query<PersonRow[]>(idQuery, [WNumber]);

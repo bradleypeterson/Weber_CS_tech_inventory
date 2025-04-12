@@ -144,7 +144,7 @@ function UserDetailsView({ personID, ...props }: DetailsViewProps) {
      setIsSaving(false);
    }
 
-   const formStructure = useMemo(() => buildFormStructure({ personID, ...props }, permissions), [props, personID, permissions]);
+   const formStructure = useMemo(() => buildFormStructure({ personID, ...props, selectedBuildingID: Number(formData["BuildingID"]) }, permissions), [props, personID, formData, permissions]);
   
 
    if (isLoading) return <>Loading</>;
@@ -300,7 +300,7 @@ function EmptyUserDetailsView({...props }: DetailsViewProps) {
     setIsSaving(false);
   }
 
-  const formStructure = useMemo(() => buildFormStructure({ ...props }, permissions), [props, permissions]);
+  const formStructure = useMemo(() => buildFormStructure({ ...props, selectedBuildingID: Number(formData["BuildingID"]) }, permissions), [props, formData, permissions]);
 
   return (
     <main className={styles.layout}>
@@ -440,7 +440,7 @@ type Column = {
   inputs: UserInputField[];
 };
 
-function buildFormStructure(details: DetailsViewProps, permissions: number[]): Column[] {
+function buildFormStructure(details: DetailsViewProps & { selectedBuildingID?: number }, permissions: number[] ): Column[] {
   const formStructure: Column[] = [
     {
       title: "User Info",
@@ -462,10 +462,13 @@ function buildFormStructure(details: DetailsViewProps, permissions: number[]): C
             details.buildings.map((building) => ({ label: building.Name, value: building.BuildingID }))
         },
         {
-          name: "RoomNumber",
+          name: "LocationID",
           label: "Room Number*",
           inputType: "single select",
-          fetchOptions: () => details.rooms.map((room) => ({ label: room.Barcode, value: room.RoomNumber }))
+          fetchOptions: () =>
+            details.rooms
+              .filter((room) => room.BuildingID === details.selectedBuildingID)
+              .map((room) => ({ label: room.RoomNumber, value: room.LocationID }))
         },
       ]
     },

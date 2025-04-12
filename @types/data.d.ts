@@ -104,9 +104,8 @@ type Contact = {
   FullName?: string | null;
   FirstName: string;
   LastName: string;
-  Location?: string | null;
+  LocationID?: number | null;
   BuildingID?: number | null;
-  RoomNumber?: string | null;
   Departments?: string | null;
   DepartmentID: number[];
 };

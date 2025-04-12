@@ -33,7 +33,6 @@ export async function addUserDetails(
   const hashedNewPassword = hashDigest.toString();
   details.hashedNewPassword = hashedNewPassword as string;
   details.Salt = newSalt as string;
-  console.log(details);
   const response = await post(`/users/add`, details, validateEmptyResponse);
   return response;
 }

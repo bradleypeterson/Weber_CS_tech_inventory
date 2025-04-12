@@ -16,12 +16,12 @@ export async function getAllUsers() {
                     l.Barcode as Location,
                     JSON_ARRAYAGG(d.DepartmentID) as DepartmentID,
                     (IF(JSON_CONTAINS(JSON_ARRAYAGG(up.PermissionID), "null"), JSON_ARRAY(0), JSON_ARRAYAGG(up.PermissionID)))  as Permissions
-                  FROM person p 
-                  LEFT JOIN user u on u.PersonID = p.PersonID
-                  LEFT JOIN userpermission up on up.UserID = u.UserID
-                  LEFT JOIN persondepartment pd on pd.PersonID = p.PersonID 
-                  LEFT JOIN department d on d.DepartmentID = pd.DepartmentID
-                  LEFT JOIN location l on l.LocationID = p.LocationID 
+                  FROM Person p 
+                  LEFT JOIN User u on u.PersonID = p.PersonID
+                  LEFT JOIN UserPermission up on up.UserID = u.UserID
+                  LEFT JOIN PersonDepartment pd on pd.PersonID = p.PersonID 
+                  LEFT JOIN Department d on d.DepartmentID = pd.DepartmentID
+                  LEFT JOIN Location l on l.LocationID = p.LocationID 
                   WHERE u.UserID IS NOT NULL
                   GROUP BY p.PersonID
                   `;
@@ -59,13 +59,13 @@ export async function getUserDetails(personID: number): Promise<User | undefined
         (SELECT Count(PermissionID) from userpermission where PermissionID = 5 and UserID = u.UserID) as Permission5,
         (SELECT Count(PermissionID) from userpermission where PermissionID = 6 and UserID = u.UserID) as Permission6,
         (SELECT Count(PermissionID) from userpermission where PermissionID = 7 and UserID = u.UserID) as Permission7
-      FROM person p 
-      LEFT JOIN user u on u.PersonID = p.PersonID
-      LEFT JOIN userpermission up on up.UserID = u.UserID
-      LEFT JOIN persondepartment pd on pd.PersonID = p.PersonID 
-      LEFT JOIN department d on d.DepartmentID = pd.DepartmentID
-      LEFT JOIN location l on l.LocationID = p.LocationID 
-      LEFT JOIN building b on l.BuildingID = b.BuildingID
+      FROM Person p 
+      LEFT JOIN User u on u.PersonID = p.PersonID
+      LEFT JOIN UserPermission up on up.UserID = u.UserID
+      LEFT JOIN PersonDepartment pd on pd.PersonID = p.PersonID 
+      LEFT JOIN Department d on d.DepartmentID = pd.DepartmentID
+      LEFT JOIN Location l on l.LocationID = p.LocationID 
+      LEFT JOIN Building b on l.BuildingID = b.BuildingID
       WHERE p.PersonID = ?
       GROUP BY p.PersonID
                   `;
@@ -89,29 +89,28 @@ export async function dbUpdateUser(
 ) {
   try {
     const updateQuery = `
-      UPDATE person
+      UPDATE Person
         SET FirstName = ?, 
           LastName = ?,
           WNumber = ?,
-          LocationID = (SELECT LocationID FROM location WHERE BuildingID = ? AND RoomNumber = ?)
+          LocationID = ?
         WHERE PersonID = ?;
     `;
-    await pool.query(updateQuery, [updates.FirstName, updates.LastName, updates.WNumber, updates.BuildingID, updates.RoomNumber, personID]);
+    await pool.query(updateQuery, [updates.FirstName, updates.LastName, updates.WNumber, updates.LocationID, personID]);
 
     const deptQuery = `
-      INSERT IGNORE INTO persondepartment(PersonID, DepartmentID)
+      INSERT IGNORE INTO PersonDepartment(PersonID, DepartmentID)
         VALUES(?, ?);
     `;
     if (Array.isArray(updates.DepartmentID)) {
       for (const departmentID of updates.DepartmentID) {
         await pool.query(deptQuery, [personID, departmentID]);
-        console.log("Department: ", departmentID);
       }
     }
 
     const userIdQuery = `
       SELECT UserID
-        FROM user
+        FROM User
         WHERE PersonID = ?;
     `;
     const [rows] = await pool.query<UserIDRow[]>(userIdQuery, [personID]);
@@ -121,7 +120,7 @@ export async function dbUpdateUser(
         const userID = rows[0].UserID;
 
     const permissionsInsertQuery =`
-      INSERT IGNORE INTO userpermission(UserID, PermissionID)
+      INSERT IGNORE INTO UserPermission(UserID, PermissionID)
         VALUES (?, ?);
     `;
     if (Array.isArray(updates.Permissions)) {
@@ -134,7 +133,7 @@ export async function dbUpdateUser(
       const placeholders = updates.Permissions.map(() => '?').join(','); // Create placeholders for the array
       
       const permissionsRemoveQuery = `
-        DELETE FROM userpermission
+        DELETE FROM UserPermission
         WHERE UserID = ? AND PermissionID NOT IN (${placeholders});
       `;
       // Execute the query with userID and the permissions array
@@ -142,7 +141,7 @@ export async function dbUpdateUser(
     } else {
       // If no permissions are provided, delete all permissions for the user
       const permissionsRemoveQuery = `
-        DELETE FROM userpermission
+        DELETE FROM UserPermission
         WHERE UserID = ?;
       `;
       await pool.query(permissionsRemoveQuery, [userID]);
@@ -164,14 +163,14 @@ export async function dbAddUser(
 ) {
   try {
     const query = `
-      INSERT INTO person(FirstName, LastName, WNumber, LocationID)
-        VALUES (?,?,?,(SELECT LocationID FROM location WHERE BuildingID = ? AND RoomNumber = ?));
+      INSERT INTO Person(FirstName, LastName, WNumber, LocationID)
+        VALUES (?,?,?,?);
     `;
     await pool.query(query, [details.FirstName, details.LastName, details.WNumber, 
-      details.BuildingID, details.RoomNumber]);
+      details.BuildingID, details.LocationID]);
     
     //get personID
-    const idQuery = `SELECT PersonID from person WHERE WNumber = ?;`;
+    const idQuery = `SELECT PersonID from Person WHERE WNumber = ?;`;
     const [personRows] = await pool.query<PersonRow[]>(idQuery, [details.WNumber]);
     if (personRows.length === 0) {
       throw new Error("PersonID not found after insertion");
@@ -179,25 +178,24 @@ export async function dbAddUser(
     const personID = personRows[0].PersonID;
 
     const deptQuery = `
-      INSERT IGNORE INTO persondepartment(PersonID, DepartmentID)
+      INSERT IGNORE INTO PersonDepartment(PersonID, DepartmentID)
         VALUES(?, ?);
     `;
     if (Array.isArray(details.DepartmentID)) {
       for (const departmentID of details.DepartmentID) {
         await pool.query(deptQuery, [personID, departmentID]);
-        console.log("Department: ", departmentID);
       }
     }
 
     const queryUser = `
-    INSERT INTO user(PersonID, HashedPassword, Salt)
+    INSERT INTO User(PersonID, HashedPassword, Salt)
       VALUES (?,?,?);
     `;
     await pool.query(queryUser, [personID, details.hashedNewPassword, details.Salt]);
       
     const userIdQuery = `
       SELECT UserID
-        FROM user
+        FROM User
         WHERE PersonID = ?;
     `;
     const [rows] = await pool.query<UserIDRow[]>(userIdQuery, [personID]);
@@ -207,7 +205,7 @@ export async function dbAddUser(
     const userID = rows[0].UserID;
 
     const permissionsInsertQuery =`
-      INSERT IGNORE INTO userpermission(UserID, PermissionID)
+      INSERT IGNORE INTO UserPermission(UserID, PermissionID)
         VALUES (?, ?);
     `;
     if (Array.isArray(details.Permissions)) {

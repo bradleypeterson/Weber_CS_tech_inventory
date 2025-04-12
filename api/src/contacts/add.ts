@@ -12,7 +12,7 @@ export async function addContact(req: Request, res: Response) {
     }
 
     await dbAddContact(params.WNumber, params.FirstName, params.LastName,
-      params.DepartmentID, params.BuildingID, params.RoomNumber
+      params.DepartmentID, params.BuildingID, params.LocationID
     );
     res.status(200).json({ status: "success", data: { WNumber: params.WNumber } });
     return;
@@ -25,7 +25,7 @@ export async function addContact(req: Request, res: Response) {
 
 const addContactParamsSchema: JSONSchemaType<{
   WNumber: string; FirstName: string; LastName: string; 
-  DepartmentID: number[]; BuildingID: number; RoomNumber: string
+  DepartmentID: number[]; BuildingID: number; LocationID: number;
 }> = {
   type: "object",
   properties: {
@@ -34,8 +34,8 @@ const addContactParamsSchema: JSONSchemaType<{
     LastName: { type: "string" },
     DepartmentID: { type: "array", items: { type: "number" } },
     BuildingID: { type: "number"},
-    RoomNumber: { type: "string"},
+    LocationID: { type: "number"},
     },
-    required: ["WNumber", "FirstName", "LastName", "DepartmentID", "BuildingID", "RoomNumber"],
+    required: ["WNumber", "FirstName", "LastName", "DepartmentID", "BuildingID", "LocationID"],
 };
 const validateUpdates = ajv.compile(addContactParamsSchema);

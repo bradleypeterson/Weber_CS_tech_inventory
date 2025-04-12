@@ -31,7 +31,6 @@ export async function getUserIDByWNumber(wNumber: string) {
     `;
     const [rows] = await pool.query<IdNumberRow[]>(query, [wNumber]);
     if (rows.length === 0) return null;
-    console.log(rows[0].UserID);
     return rows[0].UserID.toString();
   } catch (error) {
     console.error(`Database error in getUserIDByWNumber: `, error);
@@ -63,13 +62,12 @@ export async function getUserDetailsByWNumber(userId: string) {
       left join UserPermission up on u.UserID = up.UserID
       left join Person p on u.PersonID = p.PersonID
       where p.WNumber = ? 
-      group by userID, u.PersonID, HashedPassword, Salt
+      group by UserID, u.PersonID, HashedPassword, Salt
       limit 1
     `;
 
     const [rows] = await pool.query<UserDetailsRow[]>(query, [userId]);
     if (rows.length === 0) return null;
-    console.log(rows[0]);
     return rows[0];
   } catch (error) {
     console.error(`Database error in getUserDetails: `, error);
@@ -92,7 +90,7 @@ export async function getUserDetails(userId: string) {
       from User u
       left join UserPermission up on u.UserID = up.UserID 
       where u.UserID = ?
-      group by userID, PersonID, HashedPassword, Salt
+      group by UserID, PersonID, HashedPassword, Salt
       limit 1
     `;
 
