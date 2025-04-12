@@ -13,6 +13,7 @@ import { EditListDashboard } from "../dashboards/EditListDashboard/EditListDashb
 import { Elements } from "../dashboards/Elements";
 import { LandingPage } from "../dashboards/LandingPage/LandingPage";
 import { Login } from "../dashboards/Login/Login";
+import { Logout } from "../dashboards/Logout/Logout";
 import { PasswordChangeDashboard } from "../dashboards/PasswordChangeDashboard/PasswordChangeDashboard";
 import { UserDetailsDashboard } from "../dashboards/UserDetailsDashboard/UserDetailsDashboard";
 import { UserSearchDashboard } from "../dashboards/UserSearchDashboard/UserSearchDashboard";
@@ -109,7 +110,8 @@ export const configuration: RouteConfiguration = [
     label: "My Account",
     icon: <User />,
     menu: [
-      { type: "dashboard", availability: () => true, label: "Change Password", element: <PasswordChangeDashboard /> }
+      { type: "dashboard", availability: () => true, label: "Change Password", element: <PasswordChangeDashboard /> },
+      { type: "dashboard", availability: () => true, label: "Logout", element: <Logout /> }
     ],
     availability: () => true
   },
