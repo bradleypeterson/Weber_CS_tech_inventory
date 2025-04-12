@@ -68,17 +68,22 @@ export async function dbUpdateContact(
           LocationID = ?
         WHERE PersonID = ?;
     `;
+    await pool.query(query, [FirstName, LastName, WNumber, LocationID, personID]);
 
     const deptQuery = `
       INSERT IGNORE INTO PersonDepartment(PersonID, DepartmentID)
         VALUES(?, ?);
-    `;
-
-    await pool.query(query, [FirstName, LastName, WNumber, LocationID, personID]);
-
+    `;    
     for (const element of DepartmentID) {
       await pool.query(deptQuery, [personID, element]);
     }
+
+    const departmentRemoveQuery = `
+        DELETE FROM PersonDepartment
+          WHERE PersonID = ? AND DepartmentID NOT IN (?);
+      `;
+      // Execute the query with userID and the permissions array
+    await pool.query(departmentRemoveQuery, [personID, DepartmentID]);
       
   } catch (error) {
     console.log("Error in procedure");

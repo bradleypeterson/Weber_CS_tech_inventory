@@ -108,6 +108,13 @@ export async function dbUpdateUser(
       }
     }
 
+    const departmentRemoveQuery = `
+        DELETE FROM PersonDepartment
+          WHERE PersonID = ? AND DepartmentID NOT IN (?);
+      `;
+      // Execute the query with userID and the permissions array
+    await pool.query(departmentRemoveQuery, [personID, updates.DepartmentID]);
+
     const userIdQuery = `
       SELECT UserID
         FROM User
