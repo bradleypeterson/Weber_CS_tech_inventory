@@ -28,7 +28,7 @@ export function PasswordChangeDashboard() {
   const loggedInPersonID = Number(useAuth().personID);
   let personID = ""; 
   let selfChange = false;
-  if (passedID === null) {
+  if (!passedID || passedID === "undefined") {
     selfChange = true;
     personID = loggedInPersonID.toString();
   }

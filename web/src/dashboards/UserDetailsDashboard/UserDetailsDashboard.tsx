@@ -108,41 +108,50 @@ function UserDetailsView({ personID, ...props }: DetailsViewProps) {
   }
 
  async function handleSubmit() {
-     let changedFields: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>;
-     if (userDetails === undefined) changedFields = formData;
-     else changedFields = getChangedFields(userDetails, formData);
-     if (Object.keys(changedFields).length === 0) {
-       setIsEditing(false);
-       return;
-     }
+    const selectedBuildingID = formData.BuildingID as number;
+    const associatedRooms = props.rooms.filter((room) => room.BuildingID === selectedBuildingID);
 
-      // Package Permissions into an array
-      const permissionsArray: number[] = [];
-      for (let i = 1; i <= 7; i++) {
-        if (formData[`Permission${i}`]) {
-          permissionsArray.push(i); // Add permission number to the array if it's selected
-        }
+    if (associatedRooms.length === 0) {
+      setError("The selected building has no rooms listed. Please select a valid building.");
+      return;
+    }
+  
+    let changedFields: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>;
+    if (userDetails === undefined) changedFields = formData;
+    else changedFields = getChangedFields(userDetails, formData);
+    if (Object.keys(changedFields).length === 0) {
+      setIsEditing(false);
+      return;
+    }
+
+    // Package Permissions into an array
+    const permissionsArray: number[] = [];
+    for (let i = 1; i <= 7; i++) {
+      if (formData[`Permission${i}`]) {
+        permissionsArray.push(i); // Add permission number to the array if it's selected
       }
+    }
 
-      // Update the userDetails object with the new Permissions array
-      const userUpdates = {
-        ...formData,
-        Permissions: permissionsArray, // Replace the Permissions array
-      };
- 
-     setIsSaving(true);
-     if (!(await updateUserDetails(Number(personID), userUpdates)))
-       setError("An error occurred while updating this user");
-     else {
-       setError("");
-       setIsEditing(false);
-      //  alert("User Updated Successfully");
-       setIsModalOpen(true);
-     }
-     setFormData({});
-     setIsEditing(true);
-     setIsSaving(false);
-   }
+    // Update the userDetails object with the new Permissions array
+    const userUpdates = {
+      ...formData,
+      Permissions: permissionsArray, // Replace the Permissions array
+    };
+
+
+    setIsSaving(true);
+    if (!(await updateUserDetails(Number(personID), userUpdates))) {
+      setError("An error occurred while updating this user");
+    }
+    else {
+      setError("");
+      setIsEditing(false);
+      setIsModalOpen(true);
+    }
+    setFormData({});
+    setIsEditing(true);
+    setIsSaving(false);
+  }
 
    const formStructure = useMemo(() => buildFormStructure({ personID, ...props, selectedBuildingID: Number(formData["BuildingID"]) }, permissions), [props, personID, formData, permissions]);
   
@@ -246,6 +255,14 @@ function EmptyUserDetailsView({...props }: DetailsViewProps) {
   }
 
   async function handleSubmit() {
+    const selectedBuildingID = formData.BuildingID as number;
+    const associatedRooms = props.rooms.filter((room) => room.BuildingID === selectedBuildingID);
+
+    if (associatedRooms.length === 0) {
+      setError("The selected building has no rooms listed. Please select a valid building.");
+      return;
+    }
+    
     const changedFields = formData;
 
     if (Object.keys(changedFields).length < 8) {
@@ -283,7 +300,7 @@ function EmptyUserDetailsView({...props }: DetailsViewProps) {
 
     setIsSaving(true);
     const response = await addUserDetails(newSalt, newUserDetails);
-    if (response.status === "error") {
+    if (response.status === "error" || !response.status) {
       setError("An error occurred while adding user");
       setIsEditing(true);
       setIsSaving(false);
@@ -293,7 +310,6 @@ function EmptyUserDetailsView({...props }: DetailsViewProps) {
       setError("");
       setIsEditing(false);
       setIsModalOpen(true);
-      // alert("User Added Successfully");
     }
     setFormData({});
     setIsEditing(true);

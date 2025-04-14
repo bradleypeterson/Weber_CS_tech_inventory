@@ -125,11 +125,7 @@ type User = {
   Name: string;
   FirstName: string;
   LastName: string;
-  Location: string;
   BuildingID?: number | null;
-  BuildingAbbreviation?: string | null;
-  BuildingName?: string | null;
-  RoomNumber?: string | null;
   LocationID: number;
   Departments: string;
   DepartmentID: number[];

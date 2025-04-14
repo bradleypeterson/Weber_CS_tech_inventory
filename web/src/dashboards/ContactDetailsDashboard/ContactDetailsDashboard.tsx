@@ -105,6 +105,14 @@ function ContactDetailsView({...props }: DetailsViewProps) {
 
   async function handleSubmit() {
     setError("");
+    const selectedBuildingID = formData.BuildingID as number;
+    const associatedRooms = props.rooms.filter((room) => room.BuildingID === selectedBuildingID);
+
+    if (associatedRooms.length === 0) {
+      setError("The selected building has no rooms listed. Please select a valid building.");
+      return;
+    }
+    
     let changedFields: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>;
     if (contactDetails === undefined) changedFields = formData;
     else changedFields = getChangedFields(contactDetails, formData);
@@ -214,6 +222,14 @@ function EmptyContactDetailsView({...props }: DetailsViewProps) {
   };
 
   async function handleSubmit() {
+    const selectedBuildingID = formData.BuildingID as number;
+    const associatedRooms = props.rooms.filter((room) => room.BuildingID === selectedBuildingID);
+
+    if (associatedRooms.length === 0) {
+      setError("The selected building has no rooms listed. Please select a valid building.");
+      return;
+    }
+    
     const changedFields = formData;
     
     if (Object.keys(changedFields).length < 6) {
