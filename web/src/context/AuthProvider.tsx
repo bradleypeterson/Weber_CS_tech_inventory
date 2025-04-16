@@ -15,7 +15,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setPersonID(personID ?? 0);
   }, []);
 
+  function logout() {
+    setPermissions([]);
+    setToken("");
+    setPersonID(0);
+    localStorage.removeItem("token");
+  }
+
   return (
-    <AuthContext.Provider value={{ permissions, setPermissions, token, setToken, personID, setPersonID }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ permissions, setPermissions, token, setToken, personID, setPersonID, logout }}>
+      {children}
+    </AuthContext.Provider>
   );
 }

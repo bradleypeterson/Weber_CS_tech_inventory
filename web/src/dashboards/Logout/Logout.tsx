@@ -1,12 +1,14 @@
 import { useEffect } from "react";
+import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 
 export function Logout() {
   const linkTo = useLinkTo();
+  const auth = useAuth();
   useEffect(() => {
-    localStorage.removeItem("token");
+    auth.logout();
     linkTo("login");
-  }, [linkTo]);
+  }, [linkTo, auth]);
 
   return <></>;
 }

@@ -1,4 +1,4 @@
-import { BookOpen, Briefcase, Package, User, UserGear } from "@phosphor-icons/react";
+import { Briefcase, Package, User, UserGear } from "@phosphor-icons/react";
 import { AssetsAddDashboard } from "../dashboards/AssetsAddDashboard/AssetsAddDashboard";
 import { AssetsDetailsDashboard } from "../dashboards/AssetsDetailsDashboard/AssetsDetailsDashboard";
 import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard/AssetsSearchDashboard";
@@ -10,7 +10,6 @@ import { NewAudit } from "../dashboards/AuditInitiateDashboard/NewAudit";
 import { ContactDetailsDashboard } from "../dashboards/ContactDetailsDashboard/ContactDetailsDashboard";
 import { ContactSearchDashboard } from "../dashboards/ContactSearchDashboard/ContactSearchDashboard";
 import { EditListDashboard } from "../dashboards/EditListDashboard/EditListDashboard";
-import { Elements } from "../dashboards/Elements";
 import { LandingPage } from "../dashboards/LandingPage/LandingPage";
 import { Login } from "../dashboards/Login/Login";
 import { Logout } from "../dashboards/Logout/Logout";
@@ -115,14 +114,6 @@ export const configuration: RouteConfiguration = [
     ],
     availability: () => true
   },
-  {
-    type: "menu",
-    label: "Elements",
-    icon: <BookOpen />,
-    menu: [{ type: "dashboard", availability: () => true, label: "Elements", element: <Elements /> }],
-    availability: () => true
-  },
-
   {
     type: "page",
     label: "Login",

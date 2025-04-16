@@ -7,6 +7,7 @@ export type AuthContextType = {
   setPermissions: (permissions: number[]) => void;
   setToken: (token: string) => void;
   setPersonID: (personID: number) => void;
+  logout: () => void;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);

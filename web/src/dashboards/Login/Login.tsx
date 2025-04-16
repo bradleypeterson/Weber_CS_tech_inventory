@@ -19,6 +19,7 @@ export function Login() {
       await new Promise((res) => {
         auth.setToken(result.data.token);
         auth.setPermissions(result.data.permissions);
+        auth.setPersonID(result.data.personID);
         setTimeout(res, 100);
       });
       linkTo("Search", ["Assets"]);
