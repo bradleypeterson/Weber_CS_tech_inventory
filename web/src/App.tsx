@@ -49,10 +49,12 @@ function Layout() {
   );
 }
 
+const basePath = import.meta.env.VITE_BASE || "/";
+
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={basePath}>
         <Layout />
       </BrowserRouter>
     </AuthProvider>

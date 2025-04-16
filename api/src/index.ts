@@ -24,7 +24,15 @@ app.use(json());
 app.use(
   cors({
     credentials: true,
-    origin: ["http://127.0.0.1:3000", "http://localhost:3000", "http://localhost:5173", "http://localhost:5174"]
+    origin: [
+      "http://127.0.0.1:3000",
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://timetracker.users.weber.edu",
+      "http://timetracker.users.weber.edu/inventory",
+      "http://137.190.19.215"
+    ]
   })
 );
 app.use(express.json());
