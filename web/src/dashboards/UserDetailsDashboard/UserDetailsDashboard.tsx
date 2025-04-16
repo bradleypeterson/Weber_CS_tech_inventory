@@ -63,7 +63,7 @@ type DetailsViewProps = {
   rooms: Room[];
 };
 
-function UserDetailsView({ personID, ...props }: DetailsViewProps) {
+function UserDetailsView({ ...props }: DetailsViewProps) {
   const linkTo = useLinkTo();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -75,8 +75,8 @@ function UserDetailsView({ personID, ...props }: DetailsViewProps) {
     isLoading,
     isError
   } = useQuery({
-    queryKey: ["User Details", personID],
-    queryFn: () => fetchUserDetails(Number(personID))
+    queryKey: ["User Details", props.personID],
+    queryFn: () => fetchUserDetails(Number(props.personID))
   });
   const { permissions } = useAuth();
 
@@ -140,7 +140,7 @@ function UserDetailsView({ personID, ...props }: DetailsViewProps) {
 
 
     setIsSaving(true);
-    if (!(await updateUserDetails(Number(personID), userUpdates))) {
+    if (!(await updateUserDetails(Number(props.personID), userUpdates))) {
       setError("An error occurred while updating this user");
     }
     else {
@@ -153,7 +153,7 @@ function UserDetailsView({ personID, ...props }: DetailsViewProps) {
     setIsSaving(false);
   }
 
-   const formStructure = useMemo(() => buildFormStructure({ personID, ...props, selectedBuildingID: Number(formData["BuildingID"]) }, permissions), [props, personID, formData, permissions]);
+   const formStructure = useMemo(() => buildFormStructure({ ...props, selectedBuildingID: Number(formData["BuildingID"]) }, permissions), [props, formData, permissions]);
   
 
    if (isLoading) return <>Loading</>;
@@ -192,7 +192,7 @@ function UserDetailsView({ personID, ...props }: DetailsViewProps) {
             <Button 
               style={{ width: "200px", marginTop: "20px" }} 
               variant={"secondary"} 
-              onClick={() => linkTo("Change Password", ["Admin", "Users"], `personID=${personID}`)}>
+              onClick={() => linkTo("Change Password", ["Admin", "Users"], `personID=${props.personID}`)}>
                 Change User Password
             </Button>}
       </div>
