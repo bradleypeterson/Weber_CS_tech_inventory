@@ -70,7 +70,9 @@ export function EditListDashboard() {
     }
   };
 
+  // @ts-ignore
   const getColumns = () => listConfig[activeList]?.columns || [];
+  // @ts-ignore
   const getData = () => listConfig[activeList]?.data || [];
 
   return (
