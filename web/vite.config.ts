@@ -1,15 +1,16 @@
-import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: process.env.VITE_BASE || "/",
   plugins: [
     react(),
     VitePWA({
       registerType: "autoUpdate",
       workbox: {
-        globPatterns: ["**/*.{html,css,js,png,svg,jpg,webp}"],
+        globPatterns: ["**/*.{html,css,js,png,svg,jpg,webp}"]
       },
       strategies: "injectManifest",
       srcDir: "src",
@@ -25,23 +26,23 @@ export default defineConfig({
           {
             src: "/icons/bookcase.png",
             sizes: "512x512",
-            type: "image/png",
-          },
+            type: "image/png"
+          }
         ],
         screenshots: [
           {
             src: "/screenshots/screenshot1.png",
             sizes: "1606x874",
             type: "image/png",
-            form_factor: "wide",
+            form_factor: "wide"
           },
           {
             src: "/screenshots/screenshot2.png",
             sizes: "428x712",
-            type: "image/png",
-          },
-        ],
-      },
-    }),
-  ],
+            type: "image/png"
+          }
+        ]
+      }
+    })
+  ]
 });
