@@ -2,9 +2,10 @@
 
 An asset tracker for Weber State University.
 
-## Setup
+## Setup [Video Walkthrough](https://github.com/bradleypeterson/Weber_CS_tech_inventory/blob/dashboard-functionality/videos/Setup_Tutorial.mkv)
 
-Creat a local MySQL server instance then clone the repository and install node modules. 
+
+Create a local MySQL server instance then clone the repository and install node modules. 
 
     git clone https://github.com/bradleypeterson/Weber_CS_tech_inventory.git
     cd web && npm install
