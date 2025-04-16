@@ -2,7 +2,7 @@ import type { JSONSchemaType } from "ajv";
 import type { Request, Response } from "express";
 import { createToken } from ".";
 import { ajv } from "../ajv";
-import { getUserDetails } from "../db/procedures/auth";
+import { getUserDetailsByWNumber } from "../db/procedures/auth";
 
 export async function login(req: Request, res: Response) {
   const params: unknown = req.body;
@@ -11,26 +11,25 @@ export async function login(req: Request, res: Response) {
     return;
   }
 
-  const user = await getUserDetails(params.userId);
-  console.log(params.password);
+  const user = await getUserDetailsByWNumber(params.wNumber);
   if (user !== null && user.HashedPassword !== undefined && params.password === user.HashedPassword) {
     // Correct password
     delete user.HashedPassword;
     const token = createToken(user);
-    res.json({ status: "success", data: { token, permissions: user.Permissions } });
+    res.json({ status: "success", data: { token, permissions: user.Permissions, personID: user.PersonID } });
     return;
   }
 
   res.status(400).json({ status: "error", error: { message: "Invalid UserId or Password" } });
 }
 
-const paramsSchema: JSONSchemaType<{ userId: string; password: string }> = {
+const paramsSchema: JSONSchemaType<{ wNumber: string; password: string }> = {
   type: "object",
   properties: {
-    userId: { type: "string" },
+    wNumber: { type: "string" },
     password: { type: "string" }
   },
-  required: ["password", "userId"]
+  required: ["wNumber", "password"]
 };
 
 const validateParams = ajv.compile(paramsSchema);

@@ -11,15 +11,22 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 2rem;
+  background: var(--background);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  min-width: 400px;
 }
 
 .summary {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 1rem 0;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem;
+  background: var(--secondary-background);
+  border-radius: 0.25rem;
 }
 
 .summaryItem {
@@ -28,29 +35,44 @@
   color: var(--white);
 }
 
-.buttons {
+.details {
   display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.backButton, .confirmButton {
-  padding: 0.5rem 2rem;
+.detailItem {
+  font-family: monospace;
+  font-size: 1.1rem;
+  color: var(--white);
+}
+
+.error {
+  color: var(--error);
+  font-size: 0.875rem;
+  text-align: center;
+  min-height: 1.25rem;
+}
+
+.confirmButton, .finishButton {
+  padding: 0.75rem 2rem;
   border: none;
   border-radius: 0.25rem;
   color: var(--white);
   cursor: pointer;
-  width: 150px;
-}
-
-.backButton {
+  width: 200px;
+  font-size: 1rem;
   background: var(--secondary-background);
+  transition: background-color 0.2s;
 }
 
-.confirmButton {
-  background: var(--secondary-background);
-}
-
-.confirmButton:hover {
+.confirmButton:hover:not(:disabled), 
+.finishButton:hover:not(:disabled) {
   background: var(--primary);
+}
+
+.confirmButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }

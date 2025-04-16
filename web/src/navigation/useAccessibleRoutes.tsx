@@ -1,32 +1,46 @@
 import { useMemo } from "react";
+import { AuthContextType } from "../context/authContext";
+import { useAuth } from "../hooks/useAuth";
 import { configuration } from "./Configuration";
 import { BuiltDashboard, BuiltFeatures, BuiltPage, BuiltTab, Menu, Page, RouteConfiguration } from "./types";
 
 export function useAccessibleRoutes() {
-  const routes = useMemo(() => buildAccessibleRoutes(configuration), []);
+  const auth = useAuth();
+  const routes = useMemo(() => buildAccessibleRoutes(configuration, auth), [auth]);
+  if (auth.token === "")
+    return {
+      routes: buildPageFeature(
+        configuration.find((config): config is Page => config.type === "page" && config.label === "Login"),
+        auth
+      )
+    };
 
   return { routes };
 }
 
-function buildAccessibleRoutes(configuration: RouteConfiguration): BuiltFeatures {
+export function getRoutes(auth: AuthContextType) {
+  return buildAccessibleRoutes(configuration, auth);
+}
+
+function buildAccessibleRoutes(configuration: RouteConfiguration, auth: AuthContextType): BuiltFeatures {
   const builtFeatures: BuiltFeatures = [];
   for (const featureItem of configuration) {
-    if (featureItem.type === "menu") builtFeatures.push(...buildMenuFeature(featureItem));
-    if (featureItem.type === "page") builtFeatures.push(...buildPageFeature(featureItem));
+    if (featureItem.type === "menu") builtFeatures.push(...buildMenuFeature(featureItem, auth));
+    if (featureItem.type === "page") builtFeatures.push(...buildPageFeature(featureItem, auth));
   }
 
   return builtFeatures;
 }
 
-function buildMenuFeature(menu: Menu) {
-  if (!menu.availability() || !menu.menu.some((dashboard) => dashboard.availability())) return [];
+function buildMenuFeature(menu: Menu, auth: AuthContextType) {
+  if (!menu.availability(auth) || !menu.menu.some((dashboard) => dashboard.availability(auth))) return [];
 
   const items: BuiltFeatures = [];
   const dashboards: BuiltDashboard[] = [];
   const tabs: BuiltTab[] = [];
 
   for (const dashboard of menu.menu) {
-    if (!dashboard.availability()) continue;
+    if (!dashboard.availability(auth)) continue;
     const builtDashboard: BuiltDashboard = {
       type: "dashboard",
       label: dashboard.label,
@@ -64,8 +78,9 @@ function buildMenuFeature(menu: Menu) {
   return items;
 }
 
-function buildPageFeature(page: Page): BuiltPage[] {
-  if (!page.availability()) return [];
+function buildPageFeature(page: Page | undefined, auth: AuthContextType): BuiltPage[] {
+  if (!page || !page.availability(auth)) return [];
+
   return [
     {
       type: "page",

@@ -1,6 +1,6 @@
 import type { RowDataPacket } from "mysql2";
 import { pool } from "..";
-import type { Permission } from "../../../../@types/data"; //create this
+import type { Permission } from "../../../../@types/data";
 
 interface PermissionRow extends RowDataPacket, Permission {}
 

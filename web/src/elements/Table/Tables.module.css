@@ -42,8 +42,32 @@
   cursor: pointer;
   padding: 2px;
   transition: 0.1s ease-in;
+  border-radius: 4px;
 }
 
 .dropdownSelect:hover {
+  background-color: rgba(13, 16, 18, 0.05);
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #dbdbdb;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dropdownOption {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dropdownOption:hover {
   background-color: rgba(13, 16, 18, 0.05);
 }

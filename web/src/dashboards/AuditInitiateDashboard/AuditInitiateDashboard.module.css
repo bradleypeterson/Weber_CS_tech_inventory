@@ -6,19 +6,30 @@
   padding-top: 30vh;
 }
 
-/* .departmentSelect {
-  width: 250px;
-  margin-top: 4rem;
-} */
-
 .scanSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.errorMessage {
+  color: red;
+  font-size: 1rem;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.inputRow {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.25rem;
-  margin-top: 2rem;
   width: 100%;
-  max-width: 1000px;
 }
 
 .scanSection > :global(.iconInput),

@@ -1,19 +1,18 @@
-import { BookOpen, Briefcase, Package, User, UserGear } from "@phosphor-icons/react";
+import { Briefcase, Package, User, UserGear } from "@phosphor-icons/react";
 import { AssetsAddDashboard } from "../dashboards/AssetsAddDashboard/AssetsAddDashboard";
 import { AssetsDetailsDashboard } from "../dashboards/AssetsDetailsDashboard/AssetsDetailsDashboard";
 import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard/AssetsSearchDashboard";
 import { AuditDetailsDashboard } from "../dashboards/AuditDetailsDashboard/AuditDetailsDashboard";
 import { AuditHistoryDashboard } from "../dashboards/AuditHistoryDashboard/AuditHistoryDashboard";
 import { AuditInitiateDashboard } from "../dashboards/AuditInitiateDashboard/AuditInitiateDashboard";
-import { AuditSubmitted } from "../dashboards/AuditInitiateDashboard/AuditSubmitted";
 import { AuditSummary } from "../dashboards/AuditInitiateDashboard/AuditSummary";
 import { NewAudit } from "../dashboards/AuditInitiateDashboard/NewAudit";
 import { ContactDetailsDashboard } from "../dashboards/ContactDetailsDashboard/ContactDetailsDashboard";
 import { ContactSearchDashboard } from "../dashboards/ContactSearchDashboard/ContactSearchDashboard";
 import { EditListDashboard } from "../dashboards/EditListDashboard/EditListDashboard";
-import { Elements } from "../dashboards/Elements";
 import { LandingPage } from "../dashboards/LandingPage/LandingPage";
 import { Login } from "../dashboards/Login/Login";
+import { Logout } from "../dashboards/Logout/Logout";
 import { PasswordChangeDashboard } from "../dashboards/PasswordChangeDashboard/PasswordChangeDashboard";
 import { UserDetailsDashboard } from "../dashboards/UserDetailsDashboard/UserDetailsDashboard";
 import { UserSearchDashboard } from "../dashboards/UserSearchDashboard/UserSearchDashboard";
@@ -37,7 +36,12 @@ export const configuration: RouteConfiguration = [
         filters: ["Department", "Asset Class"]
       },
       { type: "dashboard", availability: () => true, label: "Asset Details", element: <AssetsDetailsDashboard /> },
-      { type: "dashboard", availability: () => true, label: "Add", element: <AssetsAddDashboard /> }
+      {
+        type: "dashboard",
+        availability: ({ permissions }) => permissions.includes(1),
+        label: "Add",
+        element: <AssetsAddDashboard />
+      }
     ],
     availability: () => true
   },
@@ -48,20 +52,25 @@ export const configuration: RouteConfiguration = [
     menu: [
       {
         type: "dashboard",
-        availability: () => true,
+        availability: ({ permissions }) => permissions.includes(1),
         label: "Initiate Audit",
         element: <AuditInitiateDashboard />,
         tabs: [
-          { type: "tab", label: "New Audit", element: <NewAudit /> },
-          { type: "tab", label: "Audit Summary", element: <AuditSummary /> },
-          { type: "tab", label: "Audit Submitted", element: <AuditSubmitted /> }
+          {
+            type: "tab",
+            label: "New Audit",
+            element: <NewAudit />,
+            filters: ["Department", "Building", "Room"]
+          },
+          { type: "tab", label: "Audit Summary", element: <AuditSummary /> }
         ]
       },
       {
         type: "dashboard",
-        availability: () => true,
+        availability: ({ permissions }) => permissions.includes(1),
         label: "History",
         element: <AuditHistoryDashboard />,
+        filters: ["Date", "Building", "Room", "Auditor", "Status"],
         tabs: [{ type: "tab", label: "Details", element: <AuditDetailsDashboard /> }]
       }
     ],
@@ -74,21 +83,22 @@ export const configuration: RouteConfiguration = [
     menu: [
       {
         type: "dashboard",
-        availability: () => true,
+        availability: ({ permissions }) => permissions.includes(6),
         label: "Users",
         element: <UserSearchDashboard />,
-        filters: ["Permission"],
+        filters: ["Permission", "Department"],
         tabs: [
-          { type: "tab", label: "Details", element: <UserDetailsDashboard />, filters: ["Permission"] },
-          { type: "tab", label: "Change Password", element: <PasswordChangeDashboard />, filters: ["Permission"] }
+          { type: "tab", label: "Details", element: <UserDetailsDashboard /> },
+          { type: "tab", label: "Change Password", element: <PasswordChangeDashboard /> }
         ]
       },
       {
         type: "dashboard",
-        availability: () => true,
+        availability: ({ permissions }) => permissions.includes(4),
         label: "Contacts",
         element: <ContactSearchDashboard />,
-        tabs: [{ type: "tab", label: "Details", element: <ContactDetailsDashboard /> }]
+        filters: ["Department"],
+        tabs: [{ type: "tab", label: "Details", filters: ["Department"], element: <ContactDetailsDashboard /> }]
       },
       { type: "dashboard", availability: () => true, label: "List Options", element: <EditListDashboard /> }
     ],
@@ -98,17 +108,12 @@ export const configuration: RouteConfiguration = [
     type: "menu",
     label: "My Account",
     icon: <User />,
-    menu: [{ type: "dashboard", availability: () => true, label: "Change Password", element: <PasswordChangeDashboard /> }],
+    menu: [
+      { type: "dashboard", availability: () => true, label: "Change Password", element: <PasswordChangeDashboard /> },
+      { type: "dashboard", availability: () => true, label: "Logout", element: <Logout /> }
+    ],
     availability: () => true
   },
-  {
-    type: "menu",
-    label: "Elements",
-    icon: <BookOpen />,
-    menu: [{ type: "dashboard", availability: () => true, label: "Elements", element: <Elements /> }],
-    availability: () => true
-  },
-  
   {
     type: "page",
     label: "Login",

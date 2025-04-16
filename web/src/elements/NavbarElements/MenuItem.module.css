@@ -18,6 +18,8 @@
   height: 40px;
   width: 100%;
   outline: 0px solid var(--primary);
+
+  white-space: nowrap;
 }
 
 .menuButton.active {

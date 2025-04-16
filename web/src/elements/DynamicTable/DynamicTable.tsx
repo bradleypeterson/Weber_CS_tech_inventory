@@ -1,21 +1,20 @@
 import { CSSProperties, isValidElement, ReactNode } from "react";
 import styles from "./DynamicTable.module.css";
 
-export type Column<T> = DataColumn<T> | RenderColumn<T>;
-
 interface BaseColumn {
   label: string;
   align?: "left" | "center" | "right";
 }
 
-interface DataColumn<T> extends BaseColumn {
-  dataIndex: keyof T;
-  render?: (value: T[keyof T], record: T) => ReactNode;
+export interface DataColumn<T, K extends keyof T = keyof T> extends BaseColumn {
+  dataIndex: K;
 }
 
 interface RenderColumn<T> extends BaseColumn {
   render: (record: T) => ReactNode;
 }
+
+export type Column<T> = DataColumn<T, keyof T> | RenderColumn<T>;
 
 type Props<T> = {
   columns: Column<T>[];
@@ -56,7 +55,7 @@ export function DynamicTable<T>(props: Props<T>) {
               if ("dataIndex" in col)
                 return (
                   <td key={j} className={align}>
-                    {col.render ? col.render(row[col.dataIndex], row) : renderValue(row[col.dataIndex])}
+                    {renderValue(row[col.dataIndex])}
                   </td>
                 );
 

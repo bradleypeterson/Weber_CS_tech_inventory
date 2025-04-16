@@ -1,13 +1,16 @@
 import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { buildPath, useAccessibleRoutes } from "./useAccessibleRoutes";
+import { useAuth } from "../hooks/useAuth";
+import { buildPath, getRoutes } from "./useAccessibleRoutes";
 
 export function useLinkTo() {
-  const { routes } = useAccessibleRoutes();
   const navigate = useNavigate();
   const location = useLocation();
+  const auth = useAuth();
+
   return useCallback(
     (label: string, parentLabels?: string[], queryParams?: string) => {
+      const routes = getRoutes(auth);
       const path = buildPath(label, parentLabels);
       if (routes.some((route) => route.type !== "menu" && route.path === path)) {
         const pathWithParams = `${path}${queryParams ? `?${queryParams}` : ""}`;
@@ -16,6 +19,6 @@ export function useLinkTo() {
         console.error(`No path found for label: ${label}`);
       }
     },
-    [routes, location, navigate]
+    [auth, location, navigate]
   );
 }
