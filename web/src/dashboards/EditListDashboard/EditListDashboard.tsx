@@ -3,9 +3,7 @@ import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
 import { Table } from "../../elements/Table/Tables";
 
 export function EditListDashboard() {
-  const [activeList, setActiveList] = useState<
-    "department" | "building" | "room" | "condition" | "assetClass" | "deviceType" | "auditStatus" | "permission"
-  >("department");
+  const [activeList, setActiveList] = useState<string>("department");
 
   const listOptions = [
     { value: "department", label: "Department" },
