@@ -12,19 +12,19 @@ import { get, post, validateEmptyResponse } from "./helpers";
 
 export async function fetchAssetsList(): Promise<Asset[] | undefined> {
   const response = await get("/assets/list", ajv.compile(assetArraySchema));
-  if (response.status === "success") return response.data;
+  if (response.status === "success") return response.data as Asset[];
   return undefined;
 }
 
 export async function fetchAssetOverviewList(): Promise<AssetOverview[] | undefined> {
   const response = await get("/assets/list/overview", ajv.compile(assetOverviewArraySchema));
-  if (response.status === "success") return response.data;
+  if (response.status === "success") return response.data as AssetOverview[];
   return undefined;
 }
 
 export async function fetchAssetDetails(assetId: number): Promise<Asset | undefined> {
   const response = await get(`/assets/${assetId}`, ajv.compile(assetDetailsSchema));
-  if (response.status === "success") return response.data;
+  if (response.status === "success") return response.data as Asset;
   return undefined;
 }
 

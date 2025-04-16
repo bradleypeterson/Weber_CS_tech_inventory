@@ -7,13 +7,13 @@ import { get, post, validateEmptyResponse } from "./helpers";
 
 export async function fetchUserList(): Promise<UserOverview[] | undefined> {
   const response = await get("/users/list", ajv.compile(userOverviewArraySchema));
-  if (response.status === "success") return response.data;
+  if (response.status === "success") return response.data as UserOverview[];
   return undefined;
 }
 
 export async function fetchUserDetails(personID: number): Promise<User | undefined> {
   const response = await get(`/users/${personID}`, ajv.compile(userSchema));
-  if (response.status === "success") return response.data;
+  if (response.status === "success") return response.data as User;
   return undefined;
 }
 
