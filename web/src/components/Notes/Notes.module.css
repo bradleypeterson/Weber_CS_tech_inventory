@@ -40,3 +40,8 @@
   justify-content: space-between;
   margin-bottom: 1rem;
 }
+
+.note {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--gray-blue);
+}

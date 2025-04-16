@@ -64,6 +64,7 @@ async function dropTables() {
       DROP TABLE IF EXISTS Archive;
       DROP TABLE IF EXISTS Note;
       DROP TABLE IF EXISTS Audit;
+      DROP TABLE IF EXISTS AuditDetails;
       DROP TABLE IF EXISTS Equipment;
       DROP TABLE IF EXISTS Person;
       DROP TABLE IF EXISTS Location;
@@ -98,6 +99,7 @@ async function createTables() {
     DROP TABLE IF EXISTS Archive;
     DROP TABLE IF EXISTS Note;
     DROP TABLE IF EXISTS Audit;
+    DROP TABLE IF EXISTS AuditDetails;
     DROP TABLE IF EXISTS Equipment;
     DROP TABLE IF EXISTS Person;
     DROP TABLE IF EXISTS Location;
@@ -232,11 +234,19 @@ async function createTables() {
     create table if not exists Audit(
       AuditID INT PRIMARY KEY AUTO_INCREMENT,
       CreatedBy INT,
-      EquipmentID INT,
+      LocationID INT,
       AuditTime DateTime,
-      AuditNote TEXT,
-      AuditStatusID INT,
       FOREIGN KEY(CreatedBy) REFERENCES User(UserID),
+      FOREIGN KEY(LocationID) REFERENCES Location(LocationID)
+    );
+
+     create table if not exists AuditDetails(
+      AuditEquipmentID INT PRIMARY KEY AUTO_INCREMENT,
+      AuditID INT,
+      EquipmentID INT,
+      AuditNote TEXT,      
+      AuditStatusID INT,
+      FOREIGN KEY(AuditID) REFERENCES Audit(AuditID),
       FOREIGN KEY(EquipmentID) REFERENCES Equipment(EquipmentID),
       FOREIGN KEY(AuditStatusID) REFERENCES AuditStatus(AuditStatusID)
     );
@@ -265,7 +275,7 @@ async function createTables() {
     const addConstraints = `
     alter table Building
     add constraint building_name_list
-    check (Name in ('Science and Technology', 'Elizabeth Hall', 'Engineering Technology', 'Davis Building 2', 'Davis Building 3', 'Davis Automotive', 'Marriot Building', 'Hurst Building', 'Hurst Center', 'Other'));
+    check (Name in ('Noorda Engineering, Applied Science & Technology', 'Elizabeth Hall', 'Engineering Technology', 'Davis Building 2', 'Davis Building 3', 'Davis Automotive', 'Marriot Building', 'Hurst Building', 'Hurst Center', 'Other'));
 
     alter table Building
     add constraint building_abbreviation_list
@@ -306,11 +316,6 @@ async function createTables() {
     alter table \`Condition\`
     add constraint condition_abbreviation_list
     check (ConditionAbbreviation in ('NW', 'EX', 'GD', 'FR', 'PR', 'DD', 'OB'));
-
-    alter table Permission
-    add constraint permission_name_list
-    check (Name in ('Add/Edit Assets', 'Archive Assets', 'Import/Export CSV Data', 'Add/Edit Contact Persons', 'Add/Edit List Options', 'Add/Edit/View Users', 'Set User Permissions'));
-
     `;
 
     await pool.query(addConstraints);
@@ -342,4 +347,4 @@ async function initDatabase() {
 //   void initDatabase().finally(() => pool.end());
 // }
 
-void initDatabase()
+void initDatabase();

@@ -13,6 +13,7 @@ type Props<T> = {
   value?: T;
   onChange?: (value: T) => void;
   width?: string;
+  disabled?: boolean;
 };
 
 export function SingleSelect<T>(props: Props<T>) {
@@ -21,7 +22,14 @@ export function SingleSelect<T>(props: Props<T>) {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
-  const toggleOpen = () => setOpen((prev) => !prev);
+
+  function toggleOpen() {
+    setOpen((prev) => {
+      if (prev) return false;
+      if (!props.disabled) return true;
+      return false;
+    });
+  }
 
   function selectOption(value: T) {
     if (props.onChange) props.onChange(value);
@@ -76,7 +84,7 @@ export function SingleSelect<T>(props: Props<T>) {
   return (
     <div className={styles.container} ref={containerRef} style={{ width: props.width }} onKeyDown={handleKeyDown}>
       <div
-        className={styles.select}
+        className={`${styles.select} ${props.disabled ? styles.disabled : ""}`}
         onClick={toggleOpen}
         role="button"
         aria-haspopup="listbox"

@@ -1,5 +1,5 @@
-import { CaretDown, CheckSquare, FloppyDisk, Pencil, Plus, Square, Trash } from "@phosphor-icons/react";
-import React, { useState } from "react";
+import { Briefcase, CaretDown, CheckSquare, FloppyDisk, Pencil, Plus, Square, Trash } from "@phosphor-icons/react";
+import React, { useEffect, useState } from "react";
 import styles from "./Tables.module.css";
 //will need to import the icons used in the table once those are done
 
@@ -41,19 +41,62 @@ const getIcon = (iconName: string, rowIndex: number, editableRows: Set<number>) 
   }
 };
 
-const Table: React.FC<TableProps> = ({ columns, data, selectable }) => {
+const Table: React.FC<TableProps> = ({ columns, data, selectable, onDataChange }) => {
   const [checkedRows, setCheckedRows] = useState<Set<number>>(new Set());
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [editableRows, setEditableRows] = useState<Set<number>>(new Set());
   const [localData, setLocalData] = useState(data);
 
-  const toggleCheck = (rowIndex: number) => {
-    setCheckedRows((prev) => {
-      const newChecked = new Set(prev);
-      if (newChecked.has(rowIndex)) newChecked.delete(rowIndex);
-      else newChecked.add(rowIndex);
-      return newChecked;
+  // Update local data when prop data changes
+  useEffect(() => {
+    setLocalData(data);
+  }, [data]);
+
+  // Update checked rows when localData changes
+  useEffect(() => {
+    const newCheckedRows = new Set<number>();
+    localData.forEach((row, index) => {
+      if (row.status !== undefined && row.status !== null) {
+        newCheckedRows.add(index);
+      }
     });
+    setCheckedRows(newCheckedRows);
+  }, [localData]);
+
+  const toggleCheck = (rowIndex: number) => {
+    const row = localData[rowIndex];
+    
+    const updatedData = [...localData];
+    if (checkedRows.has(rowIndex)) {
+      // When unchecking, reset the status to null
+      updatedData[rowIndex] = { 
+        ...updatedData[rowIndex], 
+        status: null  
+      };
+      
+      // Update checked rows
+      setCheckedRows(prev => {
+        const newChecked = new Set(prev);
+        newChecked.delete(rowIndex);
+        return newChecked;
+      });
+    } else {
+      if (row.status === undefined || row.status === null) {
+        return; // Don't allow checking if no status
+      }
+      setCheckedRows(prev => {
+        const newChecked = new Set(prev);
+        newChecked.add(rowIndex);
+        return newChecked;
+      });
+    }
+    
+    setLocalData(updatedData);
+    
+    // Notify parent component
+    if (onDataChange) {
+      onDataChange(updatedData);
+    }
   };
 
   const toggleDropdown = (dropdownId: string) => {
@@ -61,9 +104,22 @@ const Table: React.FC<TableProps> = ({ columns, data, selectable }) => {
   };
 
   const handleDropdownChange = (value: string | number, rowIndex: number, columnKey: string) => {
+    const updatedData = [...localData];
+    updatedData[rowIndex] = { ...updatedData[rowIndex], [columnKey]: value };
+    setLocalData(updatedData);
+    
+    // Automatically check the row when status is set
+    setCheckedRows(prev => {
+      const newChecked = new Set(prev);
+      if (value === undefined || value === null) {
+        newChecked.delete(rowIndex);
+      } else {
+        newChecked.add(rowIndex);
+      }
+      return newChecked;
+    });
+    
     if (onDataChange) {
-      const updatedData = [...data];
-      updatedData[rowIndex] = { ...updatedData[rowIndex], [columnKey]: value };
       onDataChange(updatedData);
     }
     setOpenDropdown(null);
@@ -94,10 +150,18 @@ const Table: React.FC<TableProps> = ({ columns, data, selectable }) => {
         </tr>
       </thead>
       <tbody>
-        {data.map((row, rowIndex) => (
+        {localData.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {selectable && (
-              <td onClick={() => toggleCheck(rowIndex)}>
+              <td 
+                onClick={() => {
+                  toggleCheck(rowIndex);
+                }}
+                style={{ 
+                  cursor: 'pointer',
+                  opacity: 1
+                }}
+              >
                 {checkedRows.has(rowIndex) ? <CheckSquare size={32} /> : <Square size={32} />}
               </td>
             )}

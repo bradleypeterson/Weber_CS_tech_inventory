@@ -13,3 +13,8 @@
   height: fit-content;
 }
 
+.row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}

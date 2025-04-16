@@ -1,27 +1,67 @@
-import { JSONSchemaType } from "ajv";
+import { Asset, AssetOverview } from "../../../@types/data";
+import {
+  assetArraySchema,
+  assetDetailsSchema,
+  assetOverviewArraySchema,
+  conditionArraySchema,
+  deviceTypeArraySchema,
+  notesSchema
+} from "../../../@types/schemas";
 import { ajv } from "../ajv";
-import { get } from "./helpers";
+import { get, post, validateEmptyResponse } from "./helpers";
 
-export async function fetchAssetsList() {
-  const response = await get("/assets/list", validateResponse);
+export async function fetchAssetsList(): Promise<Asset[] | undefined> {
+  const response = await get("/assets/list", ajv.compile(assetArraySchema));
   if (response.status === "success") return response.data;
   return undefined;
 }
 
-const validateResponseSchema: JSONSchemaType<
-  { EquipmentID: number; TagNumber: string; DepartmentID: number; AssetClassID: number }[]
-> = {
-  type: "array",
-  items: {
-    type: "object",
-    properties: {
-      EquipmentID: { type: "number" },
-      DepartmentID: { type: "number" },
-      AssetClassID: { type: "number" },
-      TagNumber: { type: "string" }
-    },
-    required: ["EquipmentID", "TagNumber", "AssetClassID", "DepartmentID"]
-  }
-};
+export async function fetchAssetOverviewList(): Promise<AssetOverview[] | undefined> {
+  const response = await get("/assets/list/overview", ajv.compile(assetOverviewArraySchema));
+  if (response.status === "success") return response.data;
+  return undefined;
+}
 
-const validateResponse = ajv.compile(validateResponseSchema);
+export async function fetchAssetDetails(assetId: number): Promise<Asset | undefined> {
+  const response = await get(`/assets/${assetId}`, ajv.compile(assetDetailsSchema));
+  if (response.status === "success") return response.data;
+  return undefined;
+}
+
+export async function updateAssetDetails(
+  assetId: number,
+  updates: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
+) {
+  const response = await post(`/assets/${assetId}/update`, updates, validateEmptyResponse);
+  return response.status === "success";
+}
+
+export async function fetchConditions() {
+  const response = await get(`/assets/conditions`, ajv.compile(conditionArraySchema));
+  if (response.status === "success") return response.data;
+  return undefined;
+}
+
+export async function fetchDeviceTypes() {
+  const response = await get(`/assets/types`, ajv.compile(deviceTypeArraySchema));
+  if (response.status === "success") return response.data;
+  return undefined;
+}
+
+export async function addAsset(
+  params: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
+) {
+  const response = await post(`/assets/add`, params, validateEmptyResponse);
+  return response;
+}
+
+export async function fetchAssetNotes(assetId: number) {
+  const response = await get(`/assets/${assetId}/notes`, ajv.compile(notesSchema));
+  if (response.status === "success") return response.data;
+  return [];
+}
+
+export async function addNewNote(assetId: number, note: string) {
+  const response = await post(`/assets/${assetId}/notes`, { note }, validateEmptyResponse);
+  return response;
+}

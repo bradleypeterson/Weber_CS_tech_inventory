@@ -14,6 +14,7 @@ type Props<T> = {
   onChange?: (value: T[]) => void;
   width?: string;
   numOfTags?: number;
+  disabled?: boolean;
 };
 
 export function MultiSelect<T>(props: Props<T>) {
@@ -24,7 +25,13 @@ export function MultiSelect<T>(props: Props<T>) {
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
   const valueListRef = useRef<HTMLDivElement | null>(null);
   const remainingTagsRef = useRef<HTMLSpanElement | null>(null);
-  const toggleOpen = () => setOpen((prev) => !prev);
+  function toggleOpen() {
+    setOpen((prev) => {
+      if (prev) return false;
+      if (!props.disabled) return true;
+      return false;
+    });
+  }
 
   function onOptionClick(value: T) {
     if (value === undefined) return;
@@ -97,7 +104,7 @@ export function MultiSelect<T>(props: Props<T>) {
   return (
     <div className={styles.container} ref={containerRef} style={{ width: props.width }} onKeyDown={handleKeyDown}>
       <div
-        className={styles.select}
+        className={`${styles.select} ${props.disabled ? styles.disabled : ""}`}
         onClick={toggleOpen}
         role="button"
         aria-haspopup="listbox"
