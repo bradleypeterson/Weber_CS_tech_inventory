@@ -158,7 +158,7 @@ function ContactDetailsView({...props }: DetailsViewProps) {
       <div className={styles.row}>
         <div>
           <h2>Contact Details</h2>
-          <p> {contactDetails?.FullName} | {contactDetails?.WNumber}</p>
+          <p> {formData.FirstName} {formData.LastName} | {formData.WNumber}</p>
         </div>
         {isSaving && <>Saving...</>}
         {error && <span style={{ color: "red" }}>{error}</span>}

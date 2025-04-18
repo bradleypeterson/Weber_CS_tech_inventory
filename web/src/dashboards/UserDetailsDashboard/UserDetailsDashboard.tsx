@@ -165,7 +165,7 @@ function UserDetailsView({ ...props }: DetailsViewProps) {
       <div className={styles.row}>
         <div>
           <h2>User Details</h2>
-          <p> {userDetails?.Name} | {userDetails?.WNumber}</p>
+          <p> {formData.FirstName} {formData.LastName} | {formData.WNumber}</p>
         </div>
         {isSaving && <>Saving...</>}
         {error && <span style={{ color: "red" }}>{error}</span>}
