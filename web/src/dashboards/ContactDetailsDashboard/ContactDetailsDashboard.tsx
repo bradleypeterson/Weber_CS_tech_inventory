@@ -135,7 +135,7 @@ function ContactDetailsView({...props }: DetailsViewProps) {
     
   setIsSaving(true);
   const response = await updateContactDetails(props.personID ?? "", WNumber, FirstName, LastName, DepartmentID, BuildingID, LocationID)
-  
+
   if (response.status === "error")
     setError("An error occurred while updating this contact");
   else {

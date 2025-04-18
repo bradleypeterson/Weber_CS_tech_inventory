@@ -18,6 +18,7 @@ export async function addUser(req: Request, res: Response) {
   } catch (error) {
     console.error("Error in addContact endpoint", error);
     res.status(500).json({ status: "error", error: { message: "An error occurred while adding contact" } });
+    return;
   }
 }
 

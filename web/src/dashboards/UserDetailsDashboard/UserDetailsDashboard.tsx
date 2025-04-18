@@ -108,6 +108,7 @@ function UserDetailsView({ ...props }: DetailsViewProps) {
   }
 
  async function handleSubmit() {
+    setError("");  
     const selectedBuildingID = formData.BuildingID as number;
     const associatedRooms = props.rooms.filter((room) => room.BuildingID === selectedBuildingID);
 
@@ -140,17 +141,17 @@ function UserDetailsView({ ...props }: DetailsViewProps) {
 
 
     setIsSaving(true);
-    if (!(await updateUserDetails(Number(props.personID), userUpdates))) {
+    const response = await updateUserDetails(Number(props.personID), userUpdates)
+    if (response.status === "error")
       setError("An error occurred while updating this user");
-    }
     else {
+      setIsModalOpen(true);
       setError("");
       setIsEditing(false);
-      setIsModalOpen(true);
     }
-    setFormData({});
-    setIsEditing(true);
+  
     setIsSaving(false);
+    
   }
 
    const formStructure = useMemo(() => buildFormStructure({ ...props, selectedBuildingID: Number(formData["BuildingID"]) }, permissions), [props, formData, permissions]);
@@ -417,7 +418,7 @@ function FormField({
       {input.inputType === "multi select" && (
         <MultiSelect
           options={options}
-          values={Array.isArray(value) ? value : []}
+          values={Array.isArray(value) ? Array.from(new Set(value)) : []}
           onChange={(selectedValues) => onChange(selectedValues)}
           disabled={disabled}
         />
