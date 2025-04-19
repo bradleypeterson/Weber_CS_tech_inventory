@@ -34,7 +34,7 @@ export async function getAllUsers() {
 }
 
 interface UserDetailsRow extends RowDataPacket, User {}
-export async function getUserDetails(personID: number): Promise<User | undefined> {
+export async function getUserDetails(personID: number): Promise<UserDetailsRow | undefined> {
   try {
     const query = `
       SELECT 
@@ -65,7 +65,7 @@ export async function getUserDetails(personID: number): Promise<User | undefined
       WHERE p.PersonID = ?
       GROUP BY p.PersonID
                   `;
-    const [rows] = await pool.query<UserDetailsRow[]>(query, [personID]);
+    const [rows] = await pool.query<UserDetailsRow[]>(query, [personID.toString()]);
     const user: UserDetailsRow | undefined = rows[0];
     
     return user;
