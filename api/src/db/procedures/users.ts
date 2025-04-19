@@ -38,8 +38,8 @@ export async function getUserDetails(personID: number): Promise<User | undefined
   try {
     const query = `
       SELECT 
-      u.UserID,   
-      WNumber,
+        u.UserID,   
+        WNumber,
         CONCAT(FirstName, " ", LastName) as Name, 
         FirstName,
         LastName,
@@ -109,7 +109,9 @@ export async function dbUpdateUser(
           WHERE PersonID = ? AND DepartmentID NOT IN (?);
       `;
       // Execute the query with userID and the permissions array
-    await pool.query(departmentRemoveQuery, [personID, updates.DepartmentID]);
+      if (Array.isArray(updates.DepartmentID)){
+        await pool.query(departmentRemoveQuery, [personID, updates.DepartmentID]);
+      }
 
     const userIdQuery = `
       SELECT UserID

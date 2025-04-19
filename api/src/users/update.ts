@@ -13,10 +13,13 @@ export async function updateUser(req: Request, res: Response) {
     }
 
     await dbUpdateUser(Number(id), updates);
-    res.json({ status: "success", data: {} });
+    res.status(200).json({ status: "success", data: {}});
+    return;
+
   } catch (error) {
     console.error("Error in updateUser endpoint", error);
     res.status(500).json({ status: "error", error: { message: "An error occurred while updating user" } });
+    return;
   }
 }
 

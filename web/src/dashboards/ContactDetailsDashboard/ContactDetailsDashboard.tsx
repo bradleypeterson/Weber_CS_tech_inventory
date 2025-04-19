@@ -135,7 +135,7 @@ function ContactDetailsView({...props }: DetailsViewProps) {
     
   setIsSaving(true);
   const response = await updateContactDetails(props.personID ?? "", WNumber, FirstName, LastName, DepartmentID, BuildingID, LocationID)
-  
+
   if (response.status === "error")
     setError("An error occurred while updating this contact");
   else {
@@ -158,7 +158,7 @@ function ContactDetailsView({...props }: DetailsViewProps) {
       <div className={styles.row}>
         <div>
           <h2>Contact Details</h2>
-          <p> {contactDetails?.FullName} | {contactDetails?.WNumber}</p>
+          <p> {formData.FirstName} {formData.LastName} | {formData.WNumber}</p>
         </div>
         {isSaving && <>Saving...</>}
         {error && <span style={{ color: "red" }}>{error}</span>}

@@ -22,7 +22,7 @@ export async function updateUserDetails(
   updates: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
 ) {
   const response = await post(`/users/${personID}/update`, updates, validateEmptyResponse);
-  return response.status === "success";
+  return response;
 }
 
 export async function addUserDetails(
