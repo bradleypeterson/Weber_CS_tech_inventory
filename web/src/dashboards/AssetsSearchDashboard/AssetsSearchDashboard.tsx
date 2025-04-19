@@ -2,7 +2,7 @@ import { MagnifyingGlass, Trash } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { AssetOverview } from "../../../../@types/data";
-import { fetchAssetOverviewList } from "../../api/assets";
+import { archiveAssets, fetchAssetOverviewList } from "../../api/assets";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
 import { Column, DynamicTable } from "../../elements/DynamicTable/DynamicTable";
 import { IconButton } from "../../elements/IconButton/IconButton";
@@ -14,7 +14,9 @@ import styles from "./AssetsSearchDashboard.module.css";
 export function AssetsSearchDashboard() {
   const [searchText, setSearchText] = useState("");
   const [selectedAssets, setSelectedAssets] = useState<number[]>([]);
-  const { data } = useQuery("AssetsList", () => fetchAssetOverviewList());
+  const { data, refetch } = useQuery("AssetsList", () => fetchAssetOverviewList());
+  const [error, setError] = useState("");
+  const [alert, setAlert] = useState("");
   const { filters } = useFilters();
   const linkTo = useLinkTo();
 
@@ -52,6 +54,25 @@ export function AssetsSearchDashboard() {
     linkTo("Asset Details", ["Assets"], `assetId=${selectedAssets[0]}`);
   }
 
+  async function archiveItems() {
+    try {
+      const res = await archiveAssets(selectedAssets);
+      if (res.status === "success") {
+        setAlert("Assets successfully archived");
+        setSelectedAssets([]);
+        refetch();
+        setTimeout(() => setAlert(""), 5000);
+      } else {
+        setError("Unable to archive items");
+        setTimeout(() => setError(""), 5000);
+      }
+    } catch (e) {
+      console.error(e);
+      setError("Unable to archive items");
+      setTimeout(() => setError(""), 5000);
+    }
+  }
+
   const columns: Column<AssetOverview>[] = [
     {
       label: "",
@@ -87,7 +108,7 @@ export function AssetsSearchDashboard() {
     <main className={styles.layout}>
       <div className={styles.tableHeader}>
         <div className={styles.row}>
-          <IconButton icon={<Trash />} variant="secondary" disabled={deleteDisabled} />
+          <IconButton icon={<Trash />} variant="secondary" disabled={deleteDisabled} onClick={archiveItems} />
           <IconButton
             icon={<MagnifyingGlass />}
             variant="secondary"
@@ -95,6 +116,8 @@ export function AssetsSearchDashboard() {
             onClick={handleOnInspect}
           />
         </div>
+        {alert && <span>{alert}</span>}
+        {error && <span style={{ color: "red" }}>{error}</span>}
         <IconInput
           icon={<MagnifyingGlass />}
           width="200px"

@@ -65,3 +65,8 @@ export async function addNewNote(assetId: number, note: string) {
   const response = await post(`/assets/${assetId}/notes`, { note }, validateEmptyResponse);
   return response;
 }
+
+export async function archiveAssets(assetIds: number[]) {
+  const response = await post(`/assets/archive`, { assetIds }, validateEmptyResponse);
+  return response;
+}

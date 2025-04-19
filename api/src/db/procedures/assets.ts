@@ -118,6 +118,7 @@ export async function getAllAssetsOverview() {
       join AssetClass ac on ac.AssetClassID = e.AssetClassID 
       join DeviceType dt on dt.DeviceTypeID = e.DeviceTypeID 
       join \`Condition\` c on c.ConditionID = e.ConditionID 
+      where ArchiveStatus = 0
     `;
     const [rows] = await pool.query<AssetRow[]>(query);
     return rows;
@@ -298,5 +299,25 @@ export async function addAssetNote(userId: number, assetId: number, note: string
   } catch (error) {
     console.error(`Error in addAssetNote`, error);
     throw new Error("An error occurred while adding note.");
+  }
+}
+
+export async function archiveAssetsProcedure(userId: number, assetIds: number[]) {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const archiveInsertQuery = `insert into Archive (ArchivedBy, EquipmentID) values ?`;
+    const archiveValues = assetIds.map((id) => [userId, id]);
+    await connection.query(archiveInsertQuery, [archiveValues]);
+
+    const updateEquipmentQuery = `update Equipment set ArchiveStatus = 1 where EquipmentId in (?)`;
+    await connection.query(updateEquipmentQuery, [assetIds]);
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    console.error(`Error in archiveAssetsProcedure`, error);
+    throw new Error("An error occurred while archiving assets");
+  } finally {
+    connection.release();
   }
 }
