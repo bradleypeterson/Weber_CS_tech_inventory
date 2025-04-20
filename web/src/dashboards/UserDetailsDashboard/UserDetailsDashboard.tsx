@@ -28,6 +28,7 @@ export function UserDetailsDashboard() {
   const { data: buildings, isLoading: buildingsLoading } = useBuildings();
   const { data: departments, isLoading: departmentsLoading } = useDepartments();
   const { data: rooms, isLoading: roomsLoading } = useRooms();
+  const { permissions } = useAuth();;
 
   if (
     buildingsLoading ||
@@ -47,7 +48,8 @@ export function UserDetailsDashboard() {
     personID,
     buildings,
     departments,
-    rooms
+    rooms,
+    permissions
   };
 
   if (personID !== null)
@@ -61,6 +63,7 @@ type DetailsViewProps = {
   buildings: Building[];
   departments: Department[];
   rooms: Room[];
+  permissions: number[];
 };
 
 function UserDetailsView({ ...props }: DetailsViewProps) {
@@ -78,7 +81,6 @@ function UserDetailsView({ ...props }: DetailsViewProps) {
     queryKey: ["User Details", props.personID],
     queryFn: () => fetchUserDetails(Number(props.personID))
   });
-  const { permissions } = useAuth();
 
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
@@ -154,7 +156,7 @@ function UserDetailsView({ ...props }: DetailsViewProps) {
     
   }
 
-   const formStructure = useMemo(() => buildFormStructure({ ...props, selectedBuildingID: Number(formData["BuildingID"]) }, permissions), [props, formData, permissions]);
+   const formStructure = useMemo(() => buildFormStructure({ ...props, selectedBuildingID: Number(formData["BuildingID"]) }), [props, formData]);
   
 
    if (isLoading) return <>Loading</>;
@@ -169,8 +171,8 @@ function UserDetailsView({ ...props }: DetailsViewProps) {
         </div>
         {isSaving && <>Saving...</>}
         {error && <span style={{ color: "red" }}>{error}</span>}
-        {permissions.includes(6) && !isEditing && <IconButton icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />}
-        {permissions.includes(6) && isEditing && <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} />} 
+        {props.permissions.includes(6) && !isEditing && <IconButton icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />}
+        {props.permissions.includes(6) && isEditing && <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} />} 
       </div>
       <form className={styles.inputFieldContainer}>
         {formStructure.map((column) => (
@@ -189,7 +191,7 @@ function UserDetailsView({ ...props }: DetailsViewProps) {
         ))}
       </form>
       <div className={styles.Button}>
-          {permissions.includes(6) && isEditing && 
+          {props.permissions.includes(6) && isEditing && 
             <Button 
               style={{ width: "200px", marginTop: "20px" }} 
               variant={"secondary"} 
@@ -218,7 +220,6 @@ function EmptyUserDetailsView({...props }: DetailsViewProps) {
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number>
   >({});
-  const { permissions } = useAuth();
   const [isEditing, setIsEditing] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
@@ -317,7 +318,7 @@ function EmptyUserDetailsView({...props }: DetailsViewProps) {
     setIsSaving(false);
   }
 
-  const formStructure = useMemo(() => buildFormStructure({ ...props, selectedBuildingID: Number(formData["BuildingID"]) }, permissions), [props, formData, permissions]);
+  const formStructure = useMemo(() => buildFormStructure({ ...props, selectedBuildingID: Number(formData["BuildingID"]) }), [props, formData]);
 
   return (
     <main className={styles.layout}>
@@ -457,7 +458,7 @@ type Column = {
   inputs: UserInputField[];
 };
 
-function buildFormStructure(details: DetailsViewProps & { selectedBuildingID?: number }, permissions: number[] ): Column[] {
+function buildFormStructure(details: DetailsViewProps & { selectedBuildingID?: number } ): Column[] {
   const formStructure: Column[] = [
     {
       title: "User Info",
@@ -491,7 +492,7 @@ function buildFormStructure(details: DetailsViewProps & { selectedBuildingID?: n
     },
   ];
 
-  if (permissions.includes(7)) {
+  if (details.permissions.includes(7)) {
     formStructure.push({
       title: "Permissions",
       inputs: [

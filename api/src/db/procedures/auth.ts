@@ -106,7 +106,7 @@ export async function getUserDetails(userId: string) {
 export async function changePassword(userID: string, hashedNewPassword: string, newSalt: string) {
   try {
     const query = `
-      UPDATE user SET HashedPassword = ?, Salt = ? WHERE UserID = ?;
+      UPDATE User SET HashedPassword = ?, Salt = ? WHERE UserID = ?;
     `;
 
     const [result] = await pool.query(query, [hashedNewPassword, newSalt, userID]);
