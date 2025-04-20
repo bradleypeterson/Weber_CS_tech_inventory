@@ -47,7 +47,7 @@ export async function getUserDetails(personID: number): Promise<UserDetailsRow |
         l.LocationID,
         GROUP_CONCAT(d.Abbreviation SEPARATOR ', ') as Departments,
         JSON_ARRAYAGG(d.DepartmentID) as DepartmentID,
-        (IF(JSON_CONTAINS(JSON_ARRAYAGG(up.PermissionID), "null"), JSON_ARRAY(0), JSON_ARRAYAGG(up.PermissionID)))  as Permissions,
+        (IF(JSON_CONTAINS(JSON_ARRAYAGG(up.PermissionID), "null"), JSON_ARRAY(0), JSON_ARRAYAGG(up.PermissionID))) as Permissions,
         (SELECT Count(PermissionID) from UserPermission where PermissionID = 1 and UserID = u.UserID) as Permission1,
         (SELECT Count(PermissionID) from UserPermission where PermissionID = 2 and UserID = u.UserID) as Permission2,
         (SELECT Count(PermissionID) from UserPermission where PermissionID = 3 and UserID = u.UserID) as Permission3,
