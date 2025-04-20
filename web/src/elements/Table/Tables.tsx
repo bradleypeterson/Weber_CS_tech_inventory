@@ -1,15 +1,12 @@
 import { Briefcase, CaretDown, CheckSquare, FloppyDisk, Pencil, Plus, Square, Trash } from "@phosphor-icons/react";
 import React, { useEffect, useState } from "react";
 import styles from "./Tables.module.css";
-//will need to import the icons used in the table once those are done
-
-//takes in different column sizes and definitions(db data or icons) as props. Then builds out the table for each column then for each row.
 
 export type Column = {
   key: string;
   label: string;
   type: "text" | "icon" | "dropdown";
-  icon?: "edit" | "plus" | "trash" | "briefcase" | string;
+  icon?: "edit" | "plus" | "trash" | "briefcase" | string | ((rowIndex: number) => string);
   action?: (rowIndex: number) => void;
   options?: { label: string; value: string | number }[];
   align?: "left" | "center" | "right";
@@ -21,38 +18,47 @@ type TableProps = {
   data: any[];
   selectable?: boolean;
   onDataChange?: (data: any[]) => void;
+  setEditData?: (data: { name: string; abbreviation: string }) => void;
+  iconColor?: string;
 };
 
-const getIcon = (iconName: string, rowIndex: number, editableRows: Set<number>) => {
-  if (iconName === "edit" && editableRows.has(rowIndex)) {
-    return <FloppyDisk size={32} />;
+const getIcon = (iconName: string, rowIndex: number, editableRows: Set<number>, color: string) => {
+  const commonProps = { size: 32, color };
+  if (iconName === "save" && editableRows.has(rowIndex)) {
+    return <FloppyDisk {...commonProps} />;
   }
   switch (iconName) {
     case "edit":
-      return <Pencil size={32} />;
+    case "save":
+      return <Pencil {...commonProps} />;
     case "plus":
-      return <Plus size={32} />;
+      return <Plus {...commonProps} />;
     case "trash":
-      return <Trash size={32} />;
+      return <Trash {...commonProps} />;
     case "briefcase":
-      return <Briefcase size={32} />;
+      return <Briefcase {...commonProps} />;
     default:
       return null;
   }
 };
 
-const Table: React.FC<TableProps> = ({ columns, data, selectable, onDataChange }) => {
+const Table: React.FC<TableProps> = ({
+  columns,
+  data,
+  selectable,
+  onDataChange,
+  setEditData,
+  iconColor = "inherit"
+}) => {
   const [checkedRows, setCheckedRows] = useState<Set<number>>(new Set());
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [editableRows, setEditableRows] = useState<Set<number>>(new Set());
   const [localData, setLocalData] = useState(data);
 
-  // Update local data when prop data changes
   useEffect(() => {
     setLocalData(data);
   }, [data]);
 
-  // Update checked rows when localData changes
   useEffect(() => {
     const newCheckedRows = new Set<number>();
     localData.forEach((row, index) => {
@@ -65,38 +71,23 @@ const Table: React.FC<TableProps> = ({ columns, data, selectable, onDataChange }
 
   const toggleCheck = (rowIndex: number) => {
     const row = localData[rowIndex];
-    
     const updatedData = [...localData];
+
     if (checkedRows.has(rowIndex)) {
-      // When unchecking, reset the status to null
-      updatedData[rowIndex] = { 
-        ...updatedData[rowIndex], 
-        status: null  
-      };
-      
-      // Update checked rows
-      setCheckedRows(prev => {
-        const newChecked = new Set(prev);
-        newChecked.delete(rowIndex);
-        return newChecked;
+      updatedData[rowIndex] = { ...updatedData[rowIndex], status: null };
+      setCheckedRows((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(rowIndex);
+        return newSet;
       });
     } else {
-      if (row.status === undefined || row.status === null) {
-        return; // Don't allow checking if no status
+      if (row.status !== undefined && row.status !== null) {
+        setCheckedRows((prev) => new Set(prev).add(rowIndex));
       }
-      setCheckedRows(prev => {
-        const newChecked = new Set(prev);
-        newChecked.add(rowIndex);
-        return newChecked;
-      });
     }
-    
+
     setLocalData(updatedData);
-    
-    // Notify parent component
-    if (onDataChange) {
-      onDataChange(updatedData);
-    }
+    onDataChange?.(updatedData);
   };
 
   const toggleDropdown = (dropdownId: string) => {
@@ -107,33 +98,30 @@ const Table: React.FC<TableProps> = ({ columns, data, selectable, onDataChange }
     const updatedData = [...localData];
     updatedData[rowIndex] = { ...updatedData[rowIndex], [columnKey]: value };
     setLocalData(updatedData);
-    
-    // Automatically check the row when status is set
-    setCheckedRows(prev => {
-      const newChecked = new Set(prev);
+
+    setCheckedRows((prev) => {
+      const newSet = new Set(prev);
       if (value === undefined || value === null) {
-        newChecked.delete(rowIndex);
+        newSet.delete(rowIndex);
       } else {
-        newChecked.add(rowIndex);
+        newSet.add(rowIndex);
       }
-      return newChecked;
+      return newSet;
     });
-    
-    if (onDataChange) {
-      onDataChange(updatedData);
-    }
+
+    onDataChange?.(updatedData);
     setOpenDropdown(null);
   };
 
   const toggleEditableRow = (rowIndex: number) => {
     setEditableRows((prev) => {
-      const newEditableRows = new Set(prev);
-      if (newEditableRows.has(rowIndex)) {
-        newEditableRows.delete(rowIndex);
+      const newSet = new Set(prev);
+      if (newSet.has(rowIndex)) {
+        newSet.delete(rowIndex);
       } else {
-        newEditableRows.add(rowIndex);
+        newSet.add(rowIndex);
       }
-      return newEditableRows;
+      return newSet;
     });
   };
 
@@ -153,20 +141,14 @@ const Table: React.FC<TableProps> = ({ columns, data, selectable, onDataChange }
         {localData.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {selectable && (
-              <td 
-                onClick={() => {
-                  toggleCheck(rowIndex);
-                }}
-                style={{ 
-                  cursor: 'pointer',
-                  opacity: 1
-                }}
-              >
+              <td onClick={() => toggleCheck(rowIndex)} style={{ cursor: "pointer", opacity: 1 }}>
                 {checkedRows.has(rowIndex) ? <CheckSquare size={32} /> : <Square size={32} />}
               </td>
             )}
             {columns.map((column) => {
               const dropdownId = `${rowIndex}-${column.key}`;
+              const currentIcon = typeof column.icon === "function" ? column.icon(rowIndex) : column.icon;
+
               return (
                 <td key={column.key} style={{ width: column.width || "auto", textAlign: column.align || "left" }}>
                   {column.type === "text" &&
@@ -178,23 +160,33 @@ const Table: React.FC<TableProps> = ({ columns, data, selectable, onDataChange }
                           const updatedData = [...localData];
                           updatedData[rowIndex] = { ...updatedData[rowIndex], [column.key]: e.target.value };
                           setLocalData(updatedData);
+                          setEditData?.({ ...updatedData[rowIndex] });
                         }}
                       />
                     ) : (
                       row[column.key]
                     ))}
-                  {column.type === "icon" && column.icon && (
+
+                  {column.type === "icon" && currentIcon && (
                     <button
+                      className={styles.iconButton}
                       onClick={() => {
-                        if (column.icon === "edit") {
+                        if (currentIcon === "edit") {
                           toggleEditableRow(rowIndex);
+                        } else if (currentIcon === "save") {
+                          setEditableRows((prev) => {
+                            const newSet = new Set(prev);
+                            newSet.delete(rowIndex);
+                            return newSet;
+                          });
                         }
                         column.action?.(rowIndex);
                       }}
                     >
-                      {getIcon(column.icon, rowIndex, editableRows)}
+                      {getIcon(currentIcon, rowIndex, editableRows, iconColor)}
                     </button>
                   )}
+
                   {column.type === "dropdown" && column.options && (
                     <div className={styles.dropdownContainer} style={{ position: "relative" }}>
                       <div

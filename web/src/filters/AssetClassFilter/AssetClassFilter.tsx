@@ -1,11 +1,11 @@
 import { useMemo } from "react";
 import { useQuery } from "react-query";
-import { fetchAssetClasses } from "../../api/assetClasses";
+import { getAllAssetClasses } from "../../api/assetClasses";
 import { MultiSelect } from "../../elements/MultiSelect/MultiSelect";
 import { useFilters } from "../useFilters";
 
 export function AssetClassFilter() {
-  const { data, isLoading } = useQuery("Asset Classes", () => fetchAssetClasses());
+  const { data, isLoading } = useQuery("Asset Classes", () => getAllAssetClasses());
   const { filters, selectedFilters, selectFilter } = useFilters();
 
   const options = useMemo(() => data?.map((row) => ({ label: row.Name, value: row.AssetClassID })), [data]);
