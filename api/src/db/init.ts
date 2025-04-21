@@ -272,53 +272,53 @@ async function createTables() {
     `;
     await pool.query(createTables);
 
-    const addConstraints = `
-    alter table Building
-    add constraint building_name_list
-    check (Name in ('Noorda Engineering, Applied Science & Technology', 'Elizabeth Hall', 'Engineering Technology', 'Davis Building 2', 'Davis Building 3', 'Davis Automotive', 'Marriot Building', 'Hurst Building', 'Hurst Center', 'Other'));
+    // const addConstraints = `
+    // alter table Building
+    // add constraint building_name_list
+    // check (Name in ('Noorda Engineering, Applied Science & Technology', 'Elizabeth Hall', 'Engineering Technology', 'Davis Building 2', 'Davis Building 3', 'Davis Automotive', 'Marriot Building', 'Hurst Building', 'Hurst Center', 'Other'));
 
-    alter table Building
-    add constraint building_abbreviation_list
-    check (Abbreviation in ('NB', 'EH', 'ET', 'D2', 'D3', 'DA', 'MB', 'HB', 'HC', 'OTH'));
+    // alter table Building
+    // add constraint building_abbreviation_list
+    // check (Abbreviation in ('NB', 'EH', 'ET', 'D2', 'D3', 'DA', 'MB', 'HB', 'HC', 'OTH'));
 
-    alter table Department
-    add constraint department_name_list
-    check (Name in ('School of Computing', 'Computer Science', 'Cybersecurity and Network Management', 'Web and User Experience'));
+    // alter table Department
+    // add constraint department_name_list
+    // check (Name in ('School of Computing', 'Computer Science', 'Cybersecurity and Network Management', 'Web and User Experience'));
 
-    alter table Department
-    add constraint department_abbreviation_list
-    check (Abbreviation in ('SOC', 'CS', 'NET', 'WEB'));
+    // alter table Department
+    // add constraint department_abbreviation_list
+    // check (Abbreviation in ('SOC', 'CS', 'NET', 'WEB'));
 
-    alter table AuditStatus
-    add constraint auditstatus_name_list
-    check (StatusName in ('found', 'damaged', 'missing', 'turned-in'));
+    // alter table AuditStatus
+    // add constraint auditstatus_name_list
+    // check (StatusName in ('found', 'damaged', 'missing', 'turned-in'));
 
-    alter table AssetClass
-    add constraint assetclass_name_list
-    check (Name in ('Art Objects', 'AudioVisual and Projection Equipment', 'Computer Equipment and Peripherals', 'General Equipment', 'Infrastructure', 'Shop and Maintenance Equipment', 'Vehicles', 'Vehicles Not Owned'));
+    // alter table AssetClass
+    // add constraint assetclass_name_list
+    // check (Name in ('Art Objects', 'AudioVisual and Projection Equipment', 'Computer Equipment and Peripherals', 'General Equipment', 'Infrastructure', 'Shop and Maintenance Equipment', 'Vehicles', 'Vehicles Not Owned'));
 
-    alter table AssetClass
-    add constraint assetclass_abbreviation_list
-    check (Abbreviation in ('AV', 'CE', 'CP', 'EQ', 'IT', 'SH', 'VH', 'VN'));
+    // alter table AssetClass
+    // add constraint assetclass_abbreviation_list
+    // check (Abbreviation in ('AV', 'CE', 'CP', 'EQ', 'IT', 'SH', 'VH', 'VN'));
 
-    alter table DeviceType
-    add constraint devicetype_name_list
-    check (Name in ('Digital Camera', 'Laptop/Notebook', 'Other', 'Personal Computer', 'Projector', 'Printer', 'Tablet', 'TV(any type)', 'Virtual Computer Device'));
+    // alter table DeviceType
+    // add constraint devicetype_name_list
+    // check (Name in ('Digital Camera', 'Laptop/Notebook', 'Other', 'Personal Computer', 'Projector', 'Printer', 'Tablet', 'TV(any type)', 'Virtual Computer Device'));
 
-    alter table DeviceType
-    add constraint devicetype_abbreviation_list
-    check (Abbreviation in ('DC', 'LT', 'OT', 'PC', 'PJ', 'PR', 'TA', 'TV', 'VC'));
+    // alter table DeviceType
+    // add constraint devicetype_abbreviation_list
+    // check (Abbreviation in ('DC', 'LT', 'OT', 'PC', 'PJ', 'PR', 'TA', 'TV', 'VC'));
 
-    alter table \`Condition\`
-    add constraint condition_name_list
-    check (ConditionName in ('New', 'Excellent', 'Good', 'Fair', 'Poor', 'Dead/Parts', 'Obsolete'));
+    // alter table \`Condition\`
+    // add constraint condition_name_list
+    // check (ConditionName in ('New', 'Excellent', 'Good', 'Fair', 'Poor', 'Dead/Parts', 'Obsolete'));
 
-    alter table \`Condition\`
-    add constraint condition_abbreviation_list
-    check (ConditionAbbreviation in ('NW', 'EX', 'GD', 'FR', 'PR', 'DD', 'OB'));
-    `;
+    // alter table \`Condition\`
+    // add constraint condition_abbreviation_list
+    // check (ConditionAbbreviation in ('NW', 'EX', 'GD', 'FR', 'PR', 'DD', 'OB'));
+    // `;
 
-    await pool.query(addConstraints);
+    // await pool.query(addConstraints);
 
     c.success("Tables created successfully");
   } catch (error) {
