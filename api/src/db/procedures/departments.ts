@@ -1,4 +1,4 @@
-import type { RowDataPacket } from "mysql2";
+import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { pool } from "..";
 import type { Department } from "../../../../@types/data";
 
@@ -18,8 +18,11 @@ export async function getAllDepartments() {
 export async function addDepartment(department: Omit<Department, "DepartmentID">) {
   try {
     const query = `INSERT INTO Department (Name, Abbreviation) VALUES (?, ?)`;
-    const [result] = await pool.query(query, [department.Name, department.Abbreviation]);
-    return (result as any).insertId;
+    const [result] = await pool.query<ResultSetHeader>(query, [
+      department.Name,
+      department.Abbreviation,
+    ]);
+    return result.insertId;
   } catch (error) {
     console.error(`Error in addDepartment`, error);
     throw new Error("Failed to add department");

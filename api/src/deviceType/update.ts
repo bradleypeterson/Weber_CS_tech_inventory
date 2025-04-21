@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { ajv } from "../ajv";
 import type { DeviceType } from "../../../@types/data";
+import { ajv } from "../ajv";
 import { updateDeviceType } from "../db/procedures/deviceTypes";
 
 export async function updateDeviceTypeHandler(req: Request, res: Response) {
