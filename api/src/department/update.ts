@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { ajv } from "../ajv";
 import type { Department } from "../../../@types/data";
+import { ajv } from "../ajv";
 import { updateDepartment } from "../db/procedures/departments";
 
 export async function updateDepartmentHandler(req: Request, res: Response) {

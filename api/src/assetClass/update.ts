@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import { ajv } from "../ajv";
 import type { AssetClass } from "../../../@types/data";
-import { updateAssetClass } from "../db/procedures/assetClasses";
+import { ajv } from "../ajv";
+import { updateAssetClass } from "../db/procedures/assetClass";
 
 export async function updateAssetClassHandler(req: Request, res: Response) {
   try {
