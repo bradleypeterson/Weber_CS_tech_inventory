@@ -7,7 +7,8 @@ import { updateConditionHandler } from "./update";
 export const conditionRouter = Router();
 
 conditionRouter.get("/list", listConditions);
-// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 conditionRouter.post("/add", addConditionHandler);
 conditionRouter.post("/:id/update", updateConditionHandler);
 conditionRouter.post("/:id/delete", deleteConditionHandler);

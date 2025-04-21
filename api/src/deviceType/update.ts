@@ -1,11 +1,12 @@
 import type { Request, Response } from "express";
-import { ajv } from "../ajv";
 import type { DeviceType } from "../../../@types/data";
+import { ajv } from "../ajv";
 import { updateDeviceType } from "../db/procedures/deviceTypes";
 
 export async function updateDeviceTypeHandler(req: Request, res: Response) {
   try {
     const { id } = req.params;
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const deviceType = req.body as Partial<DeviceType>;
 
     if (!id || isNaN(Number(id)) || !validateDeviceType(deviceType)) {
@@ -17,6 +18,7 @@ export async function updateDeviceTypeHandler(req: Request, res: Response) {
 
     deviceType.DeviceTypeID = Number(id);
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     await updateDeviceType(deviceType as DeviceType);
     return res.json({ status: "success", data: {} });
   } catch (error) {

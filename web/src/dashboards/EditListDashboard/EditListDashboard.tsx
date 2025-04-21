@@ -54,7 +54,7 @@ export function EditListDashboard() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [modalContent, setModalContent] = useState({ title: "", message: "", action: () => {} });
 
-  const { data, isLoading, add, update, remove, isAdding, refetch } = tableConfigs[activeList].hook();
+  const { data, add, update, remove, isAdding, refetch } = tableConfigs[activeList].hook();
 
   const handleAdd = async () => {
     if (!newItem.name || !newItem.abbreviation) return;

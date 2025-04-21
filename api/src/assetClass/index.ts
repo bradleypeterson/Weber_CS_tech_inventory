@@ -8,7 +8,8 @@ export const assetClassRouter = Router();
 
 assetClassRouter.get("/list", listAssetClasses);
 
-// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 assetClassRouter.post("/add", addAssetClassHandler);
 assetClassRouter.post("/:id/update", updateAssetClassHandler);
 assetClassRouter.post("/:id/delete", deleteAssetClassHandler);

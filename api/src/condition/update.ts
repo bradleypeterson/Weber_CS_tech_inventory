@@ -1,11 +1,12 @@
 import type { Request, Response } from "express";
-import { ajv } from "../ajv";
 import type { Condition } from "../../../@types/data";
+import { ajv } from "../ajv";
 import { updateCondition } from "../db/procedures/conditions";
 
 export async function updateConditionHandler(req: Request, res: Response) {
   try {
     const { id } = req.params;
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const condition = req.body as Partial<Condition>;
 
     if (!id || isNaN(Number(id)) || !validateCondition(condition)) {
@@ -16,6 +17,7 @@ export async function updateConditionHandler(req: Request, res: Response) {
     // Ensure the ID in the URL matches the object
     condition.ConditionID = Number(id);
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     await updateCondition(condition as Condition);
     res.json({ status: "success", data: {} });
   } catch (error) {

@@ -6,6 +6,7 @@ import { updateDepartment } from "../db/procedures/departments";
 export async function updateDepartmentHandler(req: Request, res: Response) {
   try {
     const { id } = req.params;
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const department = req.body as Partial<Department>;
 
     if (!id || isNaN(Number(id)) || !validateDepartment(department)) {
@@ -16,6 +17,7 @@ export async function updateDepartmentHandler(req: Request, res: Response) {
     // Ensure the ID in the URL matches the object
     department.DepartmentID = Number(id);
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     await updateDepartment(department as Department);
     res.json({ status: "success", data: {} });
   } catch (error) {

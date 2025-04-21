@@ -7,7 +7,8 @@ import { updateDepartmentHandler } from "./update";
 export const departmentRouter = Router();
 
 departmentRouter.get("/list", listDepartments);
-// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 departmentRouter.post("/add", addDepartmentHandler);
 departmentRouter.post("/:id/update", updateDepartmentHandler);
 departmentRouter.post("/:id/delete", deleteDepartmentHandler);
