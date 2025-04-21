@@ -2,7 +2,7 @@ import { FloppyDisk, Plus, X } from "@phosphor-icons/react";
 import { useState } from "react";
 import { Modal } from "../../elements/Modal/Modal";
 import { SingleSelect } from "../../elements/SingleSelect/SingleSelect";
-import { Table } from "../../elements/Table/Tables";
+import { Column, Table } from "../../elements/Table/Tables";
 import { useAssetClasses, useConditions, useDepartments, useDeviceTypes } from "../../hooks/optionHooks";
 import styles from "./EditListDashboard.module.css";
 
@@ -62,7 +62,7 @@ export function EditListDashboard() {
       await add({
         [tableConfigs[activeList].nameKey]: newItem.name,
         [tableConfigs[activeList].abbreviationKey]: newItem.abbreviation
-      });
+      } as any);
       setNewItem({ name: "", abbreviation: "" });
       setShowAddForm(false);
       await refetch();
@@ -72,7 +72,7 @@ export function EditListDashboard() {
   };
 
   const handleEdit = (id: number) => {
-    const item = data.find((d: any) => d[tableConfigs[activeList].idKey] === id);
+    const item: any = data.find((d: any) => d[tableConfigs[activeList].idKey] === id);
     if (item) {
       setEditingId(id);
       setEditData({
@@ -89,7 +89,7 @@ export function EditListDashboard() {
         [tableConfigs[activeList].idKey]: id,
         [tableConfigs[activeList].nameKey]: editData.name,
         [tableConfigs[activeList].abbreviationKey]: editData.abbreviation
-      });
+      } as any);
       setEditingId(null);
       await refetch();
     } catch (error) {
@@ -108,7 +108,7 @@ export function EditListDashboard() {
   };
 
   const rows = (data || [])
-    .filter((item) => item && item[tableConfigs[activeList].idKey])
+    .filter((item: any) => item && item[tableConfigs[activeList].idKey])
     .map((item: any) => {
       const id = item[tableConfigs[activeList].idKey];
       const isEditing = editingId === id;
@@ -119,7 +119,7 @@ export function EditListDashboard() {
       };
     });
 
-  const columns = [
+  const columns: Column[] = [
     { key: "name", label: tableConfigs[activeList].label, type: "text" },
     { key: "abbreviation", label: "Abbreviation", type: "text" },
     {
@@ -192,9 +192,12 @@ export function EditListDashboard() {
       <div className={styles.sidebar}>
         <h2 style={{ marginBottom: "20px" }}>Select Editable List</h2>
         <SingleSelect
-          options={Object.keys(tableConfigs).map((key) => ({ value: key, label: tableConfigs[key].label }))}
+          options={Object.keys(tableConfigs).map((key) => ({
+            value: key,
+            label: tableConfigs[key as keyof typeof tableConfigs].label
+          }))}
           value={activeList}
-          onChange={(value) => {
+          onChange={(value: any) => {
             setActiveList(value);
             setShowAddForm(false);
             setEditingId(null);
