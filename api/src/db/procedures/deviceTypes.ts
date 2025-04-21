@@ -1,4 +1,4 @@
-import type { RowDataPacket } from "mysql2";
+import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { pool } from "..";
 import type { DeviceType } from "../../../../@types/data";
 
@@ -18,8 +18,11 @@ export async function getAllDeviceTypes() {
 export async function addDeviceType(deviceType: Omit<DeviceType, "DeviceTypeID">) {
   try {
     const query = `INSERT INTO DeviceType (Name, Abbreviation) VALUES (?, ?)`;
-    const [result] = await pool.query(query, [deviceType.Name, deviceType.Abbreviation]);
-    return (result as any).insertId;
+    const [result] = await pool.query<ResultSetHeader>(query, [
+      deviceType.Name,
+      deviceType.Abbreviation,
+    ]);
+    return result.insertId;
   } catch (error) {
     console.error(`Error in addDeviceType`, error);
     throw new Error("Failed to add device type");
