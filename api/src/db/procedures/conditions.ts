@@ -1,4 +1,4 @@
-import type { RowDataPacket } from "mysql2";
+import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { pool } from "..";
 import type { Condition } from "../../../../@types/data";
 
@@ -22,8 +22,11 @@ export async function getAllConditions() {
 export async function addCondition(condition: Omit<Condition, "ConditionID">) {
   try {
     const query = `INSERT INTO \`Condition\` (ConditionName, ConditionAbbreviation) VALUES (?, ?)`;
-    const [result] = await pool.query(query, [condition.ConditionName, condition.ConditionAbbreviation]);
-    return (result as any).insertId;
+    const [result] = await pool.query<ResultSetHeader>(query, [
+      condition.ConditionName,
+      condition.ConditionAbbreviation,
+    ]);
+    return result.insertId; // TypeScript now knows `insertId` exists on `OkPacket`
   } catch (error) {
     console.error(`Error in addCondition`, error);
     throw new Error("Failed to add condition");

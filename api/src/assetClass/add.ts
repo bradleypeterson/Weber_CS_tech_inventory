@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import type { AssetClass } from "../../../@types/data";
 import { ajv } from "../ajv";
-import { addAssetClass } from "../db/procedures/assetClasses";
+import { addAssetClass } from "../db/procedures/assetClass";
 
 const assetClassSchema = {
   type: "object",

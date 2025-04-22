@@ -1,11 +1,12 @@
 import type { Request, Response } from "express";
-import { ajv } from "../ajv";
 import type { AssetClass } from "../../../@types/data";
-import { updateAssetClass } from "../db/procedures/assetClasses";
+import { ajv } from "../ajv";
+import { updateAssetClass } from "../db/procedures/assetClass";
 
 export async function updateAssetClassHandler(req: Request, res: Response) {
   try {
     const { id } = req.params;
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const assetClass = req.body as Partial<AssetClass>;
 
     if (!id || isNaN(Number(id)) || !validateAssetClass(assetClass)) {
@@ -15,6 +16,7 @@ export async function updateAssetClassHandler(req: Request, res: Response) {
 
     assetClass.AssetClassID = Number(id);
 
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     await updateAssetClass(assetClass as AssetClass);
     res.json({ status: "success", data: {} });
   } catch (error) {

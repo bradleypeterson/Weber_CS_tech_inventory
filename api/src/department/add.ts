@@ -17,6 +17,7 @@ const validateDepartment = ajv.compile<Omit<Department, "DepartmentID">>(departm
 
 export async function addDepartmentHandler(req: Request, res: Response) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const department = req.body;
 
     if (!validateDepartment(department)) {

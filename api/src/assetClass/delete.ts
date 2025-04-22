@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { deleteAssetClass } from "../db/procedures/assetClasses";
+import { deleteAssetClass } from "../db/procedures/assetClass";
 
 export async function deleteAssetClassHandler(req: Request, res: Response) {
   try {

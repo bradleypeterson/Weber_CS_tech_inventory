@@ -7,8 +7,10 @@ import { updateDeviceTypeHandler } from "./update";
 export const deviceTypeRouter = Router();
 
 deviceTypeRouter.get("/list", listDeviceTypes);
-// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 deviceTypeRouter.post("/add", addDeviceTypeHandler);
-// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 deviceTypeRouter.post("/:id/update", updateDeviceTypeHandler);
 deviceTypeRouter.post("/:id/delete", deleteDeviceTypeHandler);

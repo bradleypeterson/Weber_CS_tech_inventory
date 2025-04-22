@@ -1,4 +1,4 @@
-import type { RowDataPacket } from "mysql2";
+import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { pool } from "..";
 import type { AssetClass } from "../../../../@types/data";
 
@@ -18,8 +18,11 @@ export async function getAllAssetClasses() {
 export async function addAssetClass(assetClass: Omit<AssetClass, "AssetClassID">) {
   try {
     const query = `INSERT INTO AssetClass (Name, Abbreviation) VALUES (?, ?)`;
-    const [result] = await pool.query(query, [assetClass.Name, assetClass.Abbreviation]);
-    return (result as any).insertId;
+    const [result] = await pool.query<ResultSetHeader>(query, [
+      assetClass.Name,
+      assetClass.Abbreviation,
+    ]);
+    return result.insertId;
   } catch (error) {
     console.error(`Error in addAssetClass`, error);
     throw new Error("Failed to add asset class");
