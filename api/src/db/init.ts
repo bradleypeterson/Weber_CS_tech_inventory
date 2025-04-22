@@ -265,7 +265,7 @@ async function createTables() {
       ArchiveID INT PRIMARY KEY AUTO_INCREMENT,
       ArchivedBy INT,
       EquipmentID INT,
-      ArchivedDate DATETIME,
+      ArchivedDate DATETIME DEFAULT NOW(),
       FOREIGN KEY(ArchivedBy) REFERENCES User(UserID),
       FOREIGN KEY(EquipmentID) REFERENCES Equipment(EquipmentID)
     );
